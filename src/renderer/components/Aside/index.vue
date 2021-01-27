@@ -1,16 +1,14 @@
 <template>
     <div class="wrap">
-        <user-info/>
-        <menus/>
+        <AsideMenu/>
     </div>
 </template>
 <script>
-import UserInfo from './UserInfo'
-import menus from './menu'
+
+import AsideMenu from './asidemenu'
 export default {
     components: {
-        UserInfo,
-        menus,
+        AsideMenu,
     }
 }
 </script>

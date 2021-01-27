@@ -1,13 +1,13 @@
 <template>
-    <div>
+    <div class="main-page">
         <el-container class="container" id="main">
             <el-container style="position: relative;">
-                <el-aside width="230px" class="aside">
+                <el-aside width="13%" class="aside" max-width="280px">
                     <aside-view />
                 </el-aside>
                 <el-container >
-                    <el-header class="header" height="50px" style="-webkit-app-region: drag">
-                        <header-view height="50px" />
+                    <el-header class="header" height="8%" style="-webkit-app-region: drag">
+                        <header-view height="100%" />
                     </el-header>
                     <el-main class="main">
                         <keep-alive>
@@ -16,37 +16,31 @@
 
                     </el-main>
                 </el-container>
-                <!--<playlist/>-->
             </el-container>
             <!--<el-footer class="footer" height="70px">-->
                 <!--<footer-view height="70px" />-->
             <!--</el-footer>-->
         </el-container>
-        <login-view />
     </div>
 </template>
 <script>
     import AsideView from '../components/Aside/'
     import HeaderView from '../components/Header/'
     import FooterView from '../components/Footer/'
-    import LoginView from '../components/Login/'
-    import Playlist from '../components/Playlist/'
-
     export default {
         components: {
             AsideView,
             HeaderView,
             FooterView,
-            LoginView,
-            Playlist
         }
     }
 </script>
 <style lang="scss" scoped>
+    .main-page{
+        background: #000;
+    }
     .aside {
-        display: flex;
-        flex-direction: column;
-        background: linear-gradient(to bottom, #efefef, #efefef);
+        background: rgba(255,255,255,0.1);
     }
 
     .container {
@@ -54,7 +48,8 @@
     }
 
     .header {
-        background: #fafafa;
+        background: rgba(255,255,255,0.1);
+
     }
 
     .main {
@@ -69,5 +64,8 @@
     .footer {
         background: #f7f7f7;
         padding: 0;
+    }
+    /deep/ .el-aside{
+        max-width: 280px;
     }
 </style>

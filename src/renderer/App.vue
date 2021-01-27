@@ -16,8 +16,20 @@ body {
   padding: 0;
   margin: 0;
   -webkit-user-select: none;
-  height: 800px;
+  /*height: 800px;*/
   overflow: hidden;
   font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
 }
+  .el-popover{
+    background: #1C1C1C !important;
+    border: 1px solid #464646;
+    color: rgba(255,255,255,0.8);
+  }
+  .el-popover .el-popover__title{
+    color: rgba(255,255,255,0.8);
+  }
+  .el-popper .popper__arrow::after{
+    border-bottom-color: #1C1C1C !important;
+    
+  }
 </style>

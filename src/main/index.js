@@ -70,14 +70,14 @@ function createWindow() {
      * Initial window options
      */
     mainWindow = new BrowserWindow({
-        height: 800,
+        height: 665,
         useContentSize: true,
-        width: 1200,
+        width: 1182,
         frame: false,
         resizable: false,
         skipTaskbar: false,
         transparent: false,
-        title:"小土狗音乐",
+        title:"QCS",
         autoHideMenuBar:true,
         x:0,
         y:0
@@ -109,6 +109,12 @@ ipcMain.on('close',e=>{
 })
 ipcMain.on('minimize',e=>{
     mainWindow.minimize()
+})
+ipcMain.on('maximize',e=>{
+    mainWindow.maximize()
+})
+ipcMain.on('unmaximize',e=>{
+    mainWindow.unmaximize()
 })
 
 /**

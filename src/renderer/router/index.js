@@ -8,7 +8,7 @@ export default new Router({
         {
             path: '/',
             name: 'main',
-            redirect: { name: 'music' },
+            redirect: { name: 'project' },
             component: require('@/views/main').default,
             children: [
                 {
@@ -19,7 +19,27 @@ export default new Router({
                     path: 'playlist-detail',
                     name: 'playlist-detail',
                     component: () => import('../views/playlist/detail')
-                }
+                },
+                {
+                    path: 'project',
+                    name: 'project',
+                    component: () => import('../views/project/index.vue')
+                },
+                {
+                    path: 'report',
+                    name: 'report',
+                    component: () => import('../views/report/index.vue')
+                },
+                {
+                    path: 'test',
+                    name: 'test',
+                    component: () => import('../views/test/index.vue')
+                },
+                {
+                    path: 'setting',
+                    name: 'setting',
+                    component: () => import('../views/setting/index.vue')
+                },
             ]
         },
         {
