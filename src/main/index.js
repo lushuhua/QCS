@@ -1,3 +1,4 @@
+'use strict'
 import {
     app,
     BrowserWindow,
@@ -47,7 +48,7 @@ function createWindow() {
     });
     const onlyStatus200 = (req, res) => res.statusCode === 200;
 
-    app.use(cache("2 minutes", onlyStatus200));
+    // app.use(cache("2 minutes", onlyStatus200));  //cliffnoted：非常重要，此处是缓存，2分钟内重复请求，不执行 直接返回
 
     app.use(express.static(path.resolve(__dirname, "public")));
 
@@ -59,7 +60,7 @@ function createWindow() {
         next();
     });
 
-
+    console.log('app.js log')
     app.use('/', routes);
     const port = 3000;
     app.listen(port, () => {
@@ -70,15 +71,16 @@ function createWindow() {
      * Initial window options
      */
     mainWindow = new BrowserWindow({
-        height: 665,
+        height: 765,
         useContentSize: true,
-        width: 1182,
+        width: 1382,//1182
         frame: false,
         resizable: false,
         skipTaskbar: false,
         transparent: false,
         title:"QCS",
         autoHideMenuBar:true,
+        webPreferences: {webSecurity: false},
         x:0,
         y:0
     });

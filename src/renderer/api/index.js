@@ -1,6 +1,43 @@
 import http from '../utils/http'
 
 //手机登录
+export function addDicom(dicom) {
+    console.log('addDicom')
+    return http.post('/medical/addDicom',dicom)
+}
+
+export function delDicom(dicom) {
+    console.log('delDicom')
+    return http.post('/medical/delDicom',dicom)
+}
+export function getDicoms(data) {
+    console.log(data)
+    return http.post('/medical/getDicoms',data)
+}
+
+export function addDevice(device) {
+    console.log('addDevice')
+    return http.post('/medical/addDevice',device)
+}
+
+export function delDevice(device) {
+    console.log('delDevice')
+    return http.post('/medical/delDevice',device)
+}
+export function getDevices(data) {
+    console.log(data)
+    return http.post('/medical/getDevices',data)
+}
+export function getProjects(data) {
+    console.log(data)
+    return http.post('/medical/getProjects',data)
+}
+
+export function updateProject(data) {
+    console.log(data)
+    return http.post('/medical/updateProject',data)
+}
+
 export function login(phone, password) {
     return http.get('/login/cellphone?phone=' + phone + '&password=' + password)
 }
@@ -18,6 +55,7 @@ export function getPlaylistDetail(id) {
 }
 
 export function getPlaylistHot() {
+    console.log('getPlaylistHot')
     return http.get('/playlist/hot')
 }
 

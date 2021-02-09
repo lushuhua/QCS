@@ -4,13 +4,19 @@ export default {
         is_login: locs.get('profile') ? true : false,
         account: locs.get('account'),
         bindings: locs.get('bindings'),
-        profile: locs.get('profile')
+        profile: locs.get('profile'),
+        currentDeviceID:locs.get('deviceID'),
+        isTemp:0,
     },
     mutations: {
         SET_USER_DATA: (state, data) => {
             Object.keys(data).forEach(function (key) {
                 state[key] = data[key]
             })
+        },
+        SET_DEVICE: (state, data) => {
+            console.log(data)
+            state.currentDeviceID = data;
         },
     },
     actions: {
@@ -30,6 +36,14 @@ export default {
             locs.set('profile', res.profile)
             commit("SET_USER_DATA", data)
 
-        }
+        },
+        SET_CUR_DEVICE ({
+                            commit,
+                            state
+                        }, deviceID) {
+            locs.set('deviceID', deviceID)
+            console.log(deviceID);
+            commit("SET_DEVICE", deviceID)
+        },
     }
 }

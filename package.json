@@ -14,7 +14,8 @@
     "pack": "npm run pack:main && npm run pack:renderer",
     "pack:main": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.main.config.js",
     "pack:renderer": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.renderer.config.js",
-    "postinstall": ""
+    "postinstall": "install-app-deps",
+    "rebuild": "electron-rebuild -f -w sqlite3"
   },
   "build": {
     "productName": "MedicalApp",
@@ -51,13 +52,15 @@
     }
   },
   "dependencies": {
-    "apicache": "^1.2.3",
+    "apicache": "^1.5.3",
+    "async": "^3.2.0",
     "axios": "^0.16.1",
     "big-integer": "^1.6.34",
     "child_process": "^1.0.2",
     "element-ui": "^2.4.4",
     "express": "^4.16.3",
     "request": "^2.88.0",
+    "sqlite3": "^4.2.0",
     "url-parse": "^1.4.3",
     "vue": "^2.3.3",
     "vue-electron": "^1.0.6",
@@ -80,10 +83,11 @@
     "css-loader": "^0.28.4",
     "del": "^3.0.0",
     "devtron": "^1.4.0",
-    "electron": "^1.7.5",
+    "electron": "^1.8.8",
     "electron-builder": "^19.19.1",
     "electron-debug": "^1.4.0",
     "electron-devtools-installer": "^2.2.0",
+    "electron-rebuild": "^2.3.4",
     "extract-text-webpack-plugin": "^3.0.0",
     "file-loader": "^0.11.2",
     "html-webpack-plugin": "^2.30.1",

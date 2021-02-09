@@ -12,12 +12,12 @@
             <!--</el-button>-->
 
             <div class="search no-drag">
-                <el-select v-model="value" placeholder="请选择设备">
+                <el-select v-model="defaultDevice.id" placeholder="请选择设备" @change="((val)=>{deviceChange(val)})">
                     <el-option
-                            v-for="item in options"
-                            :key="item.value"
-                            :label="item.label"
-                            :value="item.value">
+                            v-for="item in devices"
+                            :key="item.id"
+                            :label="item.value"
+                            :value="item.id">
                     </el-option>
                 </el-select>
             </div>
@@ -38,6 +38,8 @@
 </template>
 
 <script>
+    import { getDevices } from "../../api";
+    import { deepCopy } from "../../../main/util/util";
     const {BrowserWindow} = require('electron')
     export default {
         props: {
@@ -60,7 +62,9 @@
                         value: '2',
                         label: '设备2'
                     }
-                ]
+                ],
+                devices:[],
+                defaultDevice:{},
             }
         },
         computed:{
@@ -73,7 +77,31 @@
               return years + '-' + months + '-'  + days + '  ' + weeks;
           }
         },
+        mounted() {
+            console.log('0')
+
+            getDevices({pageNum:0,offset:100}).then(res =>{
+                console.log(res);
+                this.devices = res.devices;
+                for(var i in this.devices){
+                    this.devices[i].value = this.devices[i].model+'-'+ this.devices[i].sequence;
+                }
+                this.defaultDevice = this.devices[0];
+                this.$store.dispatch('SET_CUR_DEVICE',this.devices[0].id)
+
+            })
+        },
         methods: {
+            deviceChange(id){
+                console.log(id);
+                for(var i in this.devices){
+                    if(this.devices[i].id==id){
+                        this.defaultDevice = this.devices[i];
+                        this.$store.dispatch('SET_CUR_DEVICE',this.devices[0].id)
+                        break;
+                    }
+                }
+            },
             close() {
                 this.$confirm('此操作将退出QCS, 是否继续?', '提示', {
                     confirmButtonText: '确定',
@@ -153,6 +181,7 @@
                             line-height: 28px;
                         }
                     }
+
                 }
 
             }

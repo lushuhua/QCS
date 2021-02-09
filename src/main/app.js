@@ -7,7 +7,8 @@ let cache = apicache.middleware;
 
 // 跨域设置
 app.all("*", function(req, res, next) {
-  if (req.path !== "/" && !req.path.includes(".")) {
+  // if (req.path !== "/" && !req.path.includes("."))
+  {
     res.header("Access-Control-Allow-Credentials", true);
     // 这里获取 origin 请求头 而不是用 *
     res.header("Access-Control-Allow-Origin", req.headers["origin"] || "*");
@@ -31,6 +32,7 @@ app.use(function(req, res, next) {
   }
   next();
 });
+
 
 // 因为这几个文件对外所注册的路由 和 其他文件对外注册的路由规则不一样, 所以专门写个MAP对这些文件做特殊处理
 const UnusualRouteFileMap = {

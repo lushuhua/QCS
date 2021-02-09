@@ -55,45 +55,7 @@
                         <td>2021-02-19</td>
                         <td>保存</td>
                     </tr>
-                    <tr>
-                        <td>
-                            <input type="checkbox"/>
-                        </td>
-                        <td>6.6.3</td>
-                        <td>旋转运动标尺的零刻度位置</td>
-                        <td>-</td>
-                        <td>1.2</td>
-                        <td>≤0.5°</td>
-                        <td>2021-02-19</td>
-                        <td>保存</td>
 
-                    </tr>
-                    <tr>
-                        <td>
-                            <input type="checkbox"/>
-                        </td>
-                        <td>6.6.3</td>
-                        <td>旋转运动标尺的零刻度位置</td>
-                        <td>-</td>
-                        <td>1.2</td>
-                        <td>≤0.5°</td>
-                        <td>2021-02-19</td>
-                        <td>保存</td>
-
-                    </tr>
-                    <tr>
-                        <td>
-                            <input type="checkbox"/>
-                        </td>
-                        <td>6.6.3</td>
-                        <td>旋转运动标尺的零刻度位置</td>
-                        <td>-</td>
-                        <td>1.2</td>
-                        <td>≤0.5°</td>
-                        <td>2021-02-19</td>
-                        <td>保存</td>
-
-                    </tr>
                     </tbody>
                 </table>
                 <table class="table test-tab-content" border="0" cellspacing="0" v-if="typeName=='number'" style="margin-top: 2%;">
@@ -106,377 +68,78 @@
                         <th>能量档</th>
                         <th>检测值</th>
                         <th>阈值</th>
+                        <th>上次时间</th>
                         <th>过期提醒</th>
                         <th>操作</th>
                     </tr>
                     </thead>
                     <tbody class="tab-lists">
-                    <tr>
-                        <td>6.6.3</td>
-                        <td>日稳定性（剂量</td>
-                        <td>-</td>
-                        <td>x射线</td>
+                    <tr v-for="(project,index) in projects" :key="index">
+                        <td>{{project.projectNo}}</td>
+                        <td>{{project.name}}</td>
+                        <td>{{project.subName}}</td>
+                        <td>{{project.radioType}}</td>
                         <td>
                             <el-popover
                                     placement="bottom"
-                                    width="200"
+                                    :width="getWidth(project.numOfInput)"
                                     trigger="click"
+                                    v-for="(item,index) in project.energy" :key="index"
                             >
                                 <div class=test-item>
-                                     <div class="test-result">
-                                         <div class="test-result-title">检测值</div>
-                                         <div class="test-result-item clearfix">
-                                              <div class="item-number left">3.9</div>
-                                              <div class="item-unit left">mm</div>
-                                         </div>
-                                     </div>
+                                    <div class="test-result">
+                                        <div class="test-result-title">检测值</div>
+                                        <div class="test-result-item clearfix">
+                                            <div class="item-number left">{{item}}</div>
+                                            <div class="item-unit left">mm</div>
+                                        </div>
+                                    </div>
                                     <div class="test-number">
-                                         <div class="test-number-title">输入值</div>
+                                        <div class="test-number-title">输入值</div>
                                         <div class="test-number-lists clearfix">
-                                             <div class="test-number-lists-item left">
-                                                 <input type="text">
-                                             </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
+                                            <div v-for="n in project.testPoint" >
+                                                <div class="left" style="margin: 2%;"> {{(n)*2}}MU</div>
+                                                <div class="test-number-lists-item left" v-for="k in project.numOfInput" :style="{  width: (66/project.numOfInput)+'%'}" >
+                                                    <input type="text" >
+                                                </div>
                                             </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
+                                            <div v-if="project.testPoint==0" >
+                                                <div class="test-number-lists-item left" v-for="k in project.numOfInput" :style="{  width: (66/project.numOfInput)+'%'}" >
+                                                    <input type="text" >
+                                                </div>
                                             </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
+
+
+
                                         </div>
                                     </div>
                                 </div>
-                                <div slot="reference">3MV</div>
+                                <div slot="reference">{{item}}</div>
                             </el-popover>
                         </td>
-                        <td>3.9%</td>
-                        <td>≤0.5°</td>
-                        <td>已过期</td>
-                        <td>保存</td>
-                    </tr>
-                    <tr>
-                        <td>6.6.3</td>
-                        <td>x线深度吸收剂量特征</td>
-                        <td>-</td>
-                        <td>x线和电子线</td>
-                        <td>
-                            <el-popover
-                                    placement="bottom"
-                                    width="200"
-                                    trigger="click"
-                            >
-                                <div class=test-item>
-                                    <div class="test-result">
-                                        <div class="test-result-title">检测值</div>
-                                        <div class="test-result-item clearfix">
-                                            <div class="item-number left">3.9</div>
-                                            <div class="item-unit left">mm</div>
-                                        </div>
-                                    </div>
-                                    <div class="test-number">
-                                        <div class="test-number-title">输入值</div>
-                                        <div class="test-number-lists clearfix">
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div slot="reference">3MV</div>
-                            </el-popover>
-                            <el-popover
-                                    placement="bottom"
-                                    width="200"
-                                    trigger="click"
-                            >
-                                <div class=test-item>
-                                    <div class="test-result">
-                                        <div class="test-result-title">检测值</div>
-                                        <div class="test-result-item clearfix">
-                                            <div class="item-number left">3.9</div>
-                                            <div class="item-unit left">mm</div>
-                                        </div>
-                                    </div>
-                                    <div class="test-number">
-                                        <div class="test-number-title">输入值</div>
-                                        <div class="test-number-lists clearfix">
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div slot="reference">4MeV</div>
-                            </el-popover>
-                            <el-popover
-                                    placement="bottom"
-                                    width="200"
-                                    trigger="click"
-                            >
-                                <div class=test-item>
-                                    <div class="test-result">
-                                        <div class="test-result-title">检测值</div>
-                                        <div class="test-result-item clearfix">
-                                            <div class="item-number left">3.9</div>
-                                            <div class="item-unit left">mm</div>
-                                        </div>
-                                    </div>
-                                    <div class="test-number">
-                                        <div class="test-number-title">输入值</div>
-                                        <div class="test-number-lists clearfix">
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div slot="reference">5MeV</div>
-                            </el-popover>
+                        <td></td>
+                        <td>{{project.threshold}}</td>
+                        <td>{{project.period}}</td>
+                        <td>{{project.detectType}}</td>
+                        <td class="" style="width: 50px;">
+                            <div class="handle">
+                                <div class="handle-item" @click="showProjectChange(project)">保存</div>
+                            </div>
                         </td>
-                        <td>3.9%</td>
-                        <td>≤0.5°</td>
-                        <td>已过期</td>
-                        <td>保存</td>
-                    </tr>
-                    <tr>
-                        <td>6.6.3</td>
-                        <td>线性</td>
-                        <td>-</td>
-                        <td>电子线</td>
-                        <td>
-                            <el-popover
-                                    placement="bottom"
-                                    width="200"
-                                    trigger="click"
-                            >
-                                <div class=test-item>
-                                    <div class="test-result">
-                                        <div class="test-result-title">检测值</div>
-                                        <div class="test-result-item clearfix">
-                                            <div class="item-number left">3.9</div>
-                                            <div class="item-unit left">mm</div>
-                                        </div>
-                                    </div>
-                                    <div class="test-number">
-                                        <div class="test-number-title">输入值</div>
-                                        <div class="test-number-lists clearfix">
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div slot="reference">3MV</div>
-                            </el-popover>
-                        </td>
-                        <td>3.9%</td>
-                        <td>≤0.5°</td>
-                        <td>1天后过期</td>
-                        <td>保存</td>
-                    </tr>
-                    <tr>
-                        <td>6.6.3</td>
-                        <td>等中心的指示（激光灯）</td>
-                        <td>剂量</td>
-                        <td>非x线和非电子线</td>
-                        <td>
-                            <el-popover
-                                    placement="bottom"
-                                    width="200"
-                                    trigger="click"
-                            >
-                                <div class=test-item>
-                                    <div class="test-result">
-                                        <div class="test-result-title">检测值</div>
-                                        <div class="test-result-item clearfix">
-                                            <div class="item-number left">3.9</div>
-                                            <div class="item-unit left">mm</div>
-                                        </div>
-                                    </div>
-                                    <div class="test-number">
-                                        <div class="test-number-title">输入值</div>
-                                        <div class="test-number-lists clearfix">
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                            <div class="test-number-lists-item left">
-                                                <input type="text">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div slot="reference">3MV</div>
-                            </el-popover>
-                        </td>
-                        <td>3.9%</td>
-                        <td>≤0.5°</td>
-                        <td>已过期</td>
-                        <td>保存</td>
                     </tr>
                     </tbody>
                 </table>
                 <div class="pagination clearfix">
                     <el-pagination
-                            background="#1C1C1C"
+                            :background="true"
                             layout="prev, pager, next,jumper"
-                            :page-size="4"
-                            :total="40"
-                            :pager-count="3"
-                            :prev-text="'上一页'"
-                            :next-text="'下一页'"
+                            :page-size="10"
+                            :total="projCount"
+                            prev-text="上一页"
+                            next-text="下一页"
                             class="right"
+                            @current-change="handleCurrentChange"
+                            :current-page="currentPage"
                     >
                     </el-pagination>
 
@@ -673,6 +336,8 @@
     </div>
 </template>
 <script>
+    import { mapState } from 'vuex';
+    import { addDicom,getDicoms,delDicom,addDevice,getDevices,delDevice,getProjects,updateProject } from "../../api";
     export default {
         components: {
         },
@@ -683,13 +348,89 @@
                 showImage:false,
                 showAnalyse:false,
                 typeName:'image',
+                projects:[],
+                project:{},
+                projCount:0,
+                currentPage:0,
             }
         },
+        computed: mapState({
+            currentDeviceID: state => state.user.currentDeviceID,
+        }),
         mounted() {
+            getProjects({deviceID:this.currentDeviceID,pageNum:0,offset:100}).then(res =>{
+                console.log(res);
+                this.projects = res.projects;
+                //根据检测点数 和输入值的数量以及是否有x线和电子线来自动分配数据
+                for(var i in this.projects){
+                    var project = this.projects[i];
+                    var energy = this.projects[i].energy;
+                    var energyJson = {};
+                    if(energy.length==0){
+                        //只需要处理输入值
+                        energyJson.levelNum = 1;
+                        energyJson.inputData = new Array(project.numOfInput).fill(0);
+                    }
+                    else{
+                        for(var j in energy){
+                            if(project.testPoint==0){
+                                //只需要处理输入值
+                                energyJson.levelNum = 2;
+                                energyJson[energy[j]]= {};
+                                energyJson[energy[j]]['inputData'] = new Array(project.numOfInput).fill(0);
+                                energyJson[energy[j]]['result'] = 0;//默认值
+                            }
+                            else{
+                                energyJson.levelNum = 3;
+                                for(var i=0;i<project.testPoint;i++){
+                                    energyJson[energy[j]]= {};
+                                    energyJson[energy[j]]['points'] = {};
+                                    energyJson[energy[j]]['points'][(project.testPoint)*2+'MU']=new Array(project.numOfInput).fill(0);
+                                }
+                            }
+                        }
+                    }
+                    console.log(energyJson);
+                    this.projects[i].energyJson = energyJson;
+                }
+
+                this.projCount = res.count;
+            })
+        },
+        watch: {
+            currentDeviceID: function (val) {
+                console.log(val);
+                getProjects({deviceID:val,pageNum:0,offset:100}).then(res =>{
+                    console.log(res);
+                    this.projects = res.projects;
+                    this.projCount = res.count;
+                })
+            }
         },
         methods: {
             handleClick() {
 
+            },
+            handleClose(){
+                console.log('handleClose')
+            },
+            handleCurrentChange() {
+                this.currentPage = val;
+                console.log(`当前页: ${val}`);
+                getProjects({deviceID:this.currentDeviceID,pageNum:val,offset:100}).then(res =>{
+                    console.log(res);
+                    this.projects = res.projects;
+                    this.projCount = res.count;
+                })
+            },
+            getWidth(num){
+                var width='100px';
+                if(num==1)  width='60px';
+                else if(num==2)  width='120px';
+                else if(num==3)  width='180px';
+                else if(num==4)  width='240px';
+                else if(num==5)  width='300px';
+                return width;
             },
             addImage(){
                 this.showImage=true;
@@ -1137,7 +878,7 @@
                 padding: 4%;
                 .test-number-lists-item{
                     width: 42%;
-                    margin: 4%;
+                    margin: 2%;
                     background-color: #3C3C3C;
                     border-radius:2px;
                     input{

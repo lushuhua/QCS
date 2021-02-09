@@ -3,6 +3,11 @@ import Router from 'vue-router'
 
 Vue.use(Router)
 
+function preProcess(to, from, next){
+    console.log('preProcess')
+    next();
+}
+
 export default new Router({
     routes: [
         {
@@ -38,6 +43,7 @@ export default new Router({
                 {
                     path: 'setting',
                     name: 'setting',
+                    beforeEnter:preProcess,
                     component: () => import('../views/setting/index.vue')
                 },
             ]

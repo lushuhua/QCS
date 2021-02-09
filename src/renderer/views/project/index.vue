@@ -167,6 +167,9 @@
                             <div class="watch-history" @click="openDialog()">
                                 查看历史
                             </div>
+                            <div class="watch-history" @click="openDialog2()">
+                                测试
+                            </div>
                         </td>
                     </tr>
                 </tbody>
@@ -268,22 +271,53 @@
     </div>
 </template>
 <script>
+    import { getPlaylistHot,toplist,addDicom } from "../../api";
     export default {
         components: {
         },
         data() {
             return {
+                topIndex:0,
                 dialogVisible:false,
             }
         },
         mounted() {
+            console.log('mounted')
+            this.getTags();
         },
         methods: {
+            getTags() {
+                getPlaylistHot().then(res => {
+                    console.log(res)
+                    this.tags = res.tags
+                })
+            },
             handleClick() {
+                console.log('handleClick=',this.topIndex)
+                this.topIndex++;
+                toplist(this.topIndex).then(res => {
+                    console.log(res)
+                })
+
+            },
+            handleClose(){
 
             },
             openDialog(){
+                console.log('openDialog')
+                this.getTags();
                 this.dialogVisible=true
+            },
+            openDialog2(){
+                    var dicom={
+                    customer: "SRS",
+                    aeTitle:"AE TITLE1",
+                    ip:"192.168.0.2",
+                    port:"8081"
+                };
+                addDicom(dicom).then(res =>{
+                    console.log(res);
+                })
             }
 
         }

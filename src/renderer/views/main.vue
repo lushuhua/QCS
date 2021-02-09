@@ -32,7 +32,7 @@
             AsideView,
             HeaderView,
             FooterView,
-        }
+        },
     }
 </script>
 <style lang="scss" scoped>

@@ -113,8 +113,70 @@ function createRequest(path, method, data) {
     });
   });
 }
+function getCurDate(type){
+    Date.prototype.Format = function(fmt)
+    { //author: meizz
+        var o = {
+            "M+" : this.getMonth()+1,                 //月份
+            "d+" : this.getDate(),                    //日
+            "h+" : this.getHours(),                   //小时
+            "m+" : this.getMinutes(),                 //分
+            "s+" : this.getSeconds(),                 //秒
+            "q+" : Math.floor((this.getMonth()+3)/3), //季度
+            "S"  : this.getMilliseconds()             //毫秒
+        };
+        if(/(y+)/.test(fmt))
+            fmt=fmt.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length));
+        for(var k in o)
+            if(new RegExp("("+ k +")").test(fmt))
+                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));
+        return fmt;
+    }
+    var time ;
+    if(type==0)time = new Date().format("yyyy-MM-dd HH:mm:ss");
+    else if(type==1)time = new Date().format("yyyy-MM-dd HH:mm");
+    else time = new Date().format("yyyy-MM-dd");
+    return time;
+}
+/**
+ * Deep copy the given object considering circular structure.
+ * This function caches all nested objects and its copies.
+ * If it detects circular structure, use cached copy to avoid infinite loop.
+ *
+ * @param {*} obj
+ * @param {Array<Object>} cache
+ * @return {*}
+ */
+ function deepCopy (obj, cache = []) {
+    // just return if obj is immutable value
+    if (obj === null || typeof obj !== 'object') {
+        return obj
+    }
+
+    // if obj is hit, it is in circular structure
+    const hit = find(cache, c => c.original === obj)
+    if (hit) {
+        return hit.copy
+    }
+
+    const copy = Array.isArray(obj) ? [] : {}
+    // put the copy into cache at first
+    // because we want to refer it in recursive deepCopy
+    cache.push({
+        original: obj,
+        copy
+    });
+
+    Object.keys(obj).forEach(key => {
+        copy[key] = deepCopy(obj[key], cache)
+    });
+
+    return copy
+}
 export {
   request,
   createWebAPIRequest,
-  createRequest
+  createRequest,
+  getCurDate,
+  deepCopy,
 };

@@ -18,334 +18,30 @@
                     <tr>
                         <th>加速器型号</th>
                         <th>加速器序号</th>
-                        <th>常用x射线能量档</th>
-                        <th>常用电子射线能量档</th>
+                        <th>x射线能量档</th>
+                        <th>电子射线能量档</th>
                         <th>x射线百分深度计量</th>
                         <th>电子射线百分深度计量</th>
-                        <th>常用电子线线光筒</th>
+                        <th>电子线线光筒</th>
                         <th>多叶光栅对数</th>
                         <th>操作</th>
                     </tr>
                     </thead>
                     <tbody class="tab-lists">
-                    <tr>
-                        <td>GZ1908</td>
-                        <td>0001</td>
-                        <td>3MV（最小/FFF模式）</td>
-                        <td>-</td>
-                        <td>5%</td>
-                        <td>-</td>
-                        <td>10cm*10cm 6cm cone</td>
-                        <td>40</td>
+                    <tr v-for="(device,index) in devices" :key="index">
+                        <td>{{device.model}}</td>
+                        <td>{{device.sequence}}</td>
+                        <td>{{device.x_energy_level}} {{device.xFFF==1?'FFF模式':''}}</td>
+                        <td>{{device.e_energy_level}}</td>
+                        <td>{{device.x_volume_percent}}</td>
+                        <td>{{device.e_volume_percent}}</td>
+                        <td>{{device.e_light_size}}</td>
+                        <td>{{device.multileaf_collimator_size}}</td>
                         <td class="">
                             <div class="handle">
-                                <el-popover
-                                        placement="bottom"
-                                        width="200"
-                                        trigger="click"
-                                >
-                                    <div class="project-lists clearfix">
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-
-                                    </div>
-                                    <div slot="reference">查看项目</div>
-                                </el-popover>
-                                <!--<div class="handle-item">查看项目</div>-->
-                                <div class="handle-item" @click="showProjectChange()">修改</div>
-                                <div class="handle-item" @click="showDelete()">删除</div>
+                                <div class="handle-item" @click="addAccelerate(device)">修改</div>
+                                <div class="handle-item" @click="showDelete(device)">删除</div>
                             </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>GZ1908</td>
-                        <td>0001</td>
-                        <td>3MV（最小/FFF模式）</td>
-                        <td>-</td>
-                        <td>5%</td>
-                        <td>-</td>
-                        <td>10cm*10cm 6cm cone</td>
-                        <td>40</td>
-                        <td class="">
-                            <div class="handle">
-                                <el-popover
-                                        placement="bottom"
-                                        width="200"
-                                        trigger="click"
-                                >
-                                    <div class="project-lists clearfix">
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-
-                                    </div>
-                                    <div slot="reference">查看项目</div>
-                                </el-popover>
-                                <!--<div class="handle-item">查看项目</div>-->
-                                <div class="handle-item" @click="showProjectChange()">修改</div>
-                                <div class="handle-item" @click="showDelete()">删除</div>
-                            </div>
-
-                        </td>
-
-                    </tr>
-                    <tr>
-                        <td>GZ1908</td>
-                        <td>0001</td>
-                        <td>3MV（最小/FFF模式）</td>
-                        <td>-</td>
-                        <td>5%</td>
-                        <td>-</td>
-                        <td>10cm*10cm 6cm cone</td>
-                        <td>40</td>
-                        <td class="">
-                            <div class="handle">
-                                <el-popover
-                                        placement="bottom"
-                                        width="200"
-                                        trigger="click"
-                                >
-                                    <div class="project-lists clearfix">
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-                                        <div class="project-lists-item left clearfix">
-                                            <div class="project-icon el-icon-folder left"></div>
-                                            <div class="project-name left">6.2.1</div>
-                                        </div>
-
-                                    </div>
-                                    <div slot="reference">查看项目</div>
-                                </el-popover>
-                                <!--<div class="handle-item">查看项目</div>-->
-                                <div class="handle-item" @click="showProjectChange()">修改</div>
-                                <div class="handle-item" @click="showDelete()">删除</div>
-                            </div>
-
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>GZ1908</td>
-                        <td>0001</td>
-                        <td>3MV（最小/FFF模式）</td>
-                        <td>-</td>
-                        <td>5%</td>
-                        <td>-</td>
-                        <td>10cm*10cm 6cm cone</td>
-                        <td>40</td>
-                        <td class="">
-                            <div class="handle">
-                                <el-popover
-                                        placement="bottom"
-                                        width="200"
-                                        trigger="click"
-                                      >
-                                      <div class="project-lists clearfix">
-                                          <div class="project-lists-item left clearfix">
-                                              <div class="project-icon el-icon-folder left"></div>
-                                              <div class="project-name left">6.2.1</div>
-                                          </div>
-                                          <div class="project-lists-item left clearfix">
-                                              <div class="project-icon el-icon-folder left"></div>
-                                              <div class="project-name left">6.2.1</div>
-                                          </div>
-                                          <div class="project-lists-item left clearfix">
-                                              <div class="project-icon el-icon-folder left"></div>
-                                              <div class="project-name left">6.2.1</div>
-                                          </div>
-                                          <div class="project-lists-item left clearfix">
-                                              <div class="project-icon el-icon-folder left"></div>
-                                              <div class="project-name left">6.2.1</div>
-                                          </div>
-                                          <div class="project-lists-item left clearfix">
-                                              <div class="project-icon el-icon-folder left"></div>
-                                              <div class="project-name left">6.2.1</div>
-                                          </div>
-                                          <div class="project-lists-item left clearfix">
-                                              <div class="project-icon el-icon-folder left"></div>
-                                              <div class="project-name left">6.2.1</div>
-                                          </div>
-                                          <div class="project-lists-item left clearfix">
-                                              <div class="project-icon el-icon-folder left"></div>
-                                              <div class="project-name left">6.2.1</div>
-                                          </div>
-                                          <div class="project-lists-item left clearfix">
-                                              <div class="project-icon el-icon-folder left"></div>
-                                              <div class="project-name left">6.2.1</div>
-                                          </div>
-                                          <div class="project-lists-item left clearfix">
-                                              <div class="project-icon el-icon-folder left"></div>
-                                              <div class="project-name left">6.2.1</div>
-                                          </div>
-                                          <div class="project-lists-item left clearfix">
-                                              <div class="project-icon el-icon-folder left"></div>
-                                              <div class="project-name left">6.2.1</div>
-                                          </div>
-                                          <div class="project-lists-item left clearfix">
-                                              <div class="project-icon el-icon-folder left"></div>
-                                              <div class="project-name left">6.2.1</div>
-                                          </div>
-                                          <div class="project-lists-item left clearfix">
-                                              <div class="project-icon el-icon-folder left"></div>
-                                              <div class="project-name left">6.2.1</div>
-                                          </div>
-                                          <div class="project-lists-item left clearfix">
-                                              <div class="project-icon el-icon-folder left"></div>
-                                              <div class="project-name left">6.2.1</div>
-                                          </div>
-
-                                      </div>
-                                    <div slot="reference">查看项目</div>
-                                </el-popover>
-                                <!--<div class="handle-item">查看项目</div>-->
-                                <div class="handle-item" @click="showProjectChange()">修改</div>
-                                <div class="handle-item" @click="showDelete()">删除</div>
-                            </div>
-
                         </td>
                     </tr>
                     </tbody>
@@ -360,76 +56,23 @@
                         <th>检测周期</th>
                         <th>辐射类型</th>
                         <th>能量档</th>
-                        <th>检测点</th>
-                        <th>输入值</th>
+                        <th>检测类型</th>
                         <th>操作</th>
                     </tr>
                     </thead>
                     <tbody class="tab-lists">
-                    <tr>
-                        <td>6.1.6</td>
-                        <td>日稳定性（剂量</td>
-                        <td>-</td>
-                        <td>≤2%</td>
-                        <td>日检</td>
-                        <td>x射线和电子射线</td>
-                        <td>x线：4mv</td>
-                        <td>2个</td>
-                        <td>3个</td>
+                    <tr v-for="(project,index) in projects" :key="index">
+                        <td>{{project.projectNo}}</td>
+                        <td>{{project.name}}</td>
+                        <td>{{project.subName}}</td>
+                        <td>{{project.threshold}}</td>
+                        <td>{{project.period}}</td>
+                        <td>{{project.radioType}}</td>
+                        <td>{{project.energy}}</td>
+                        <td>{{project.detectType}}</td>
                         <td class="">
                             <div class="handle">
-                                <div class="handle-item" @click="showProjectChange()">修改</div>
-                                <div class="handle-item" @click="showDelete()">删除</div>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>6.1.6</td>
-                        <td>X射线深度吸收剂量特性</td>
-                        <td>-</td>
-                        <td>≤2%</td>
-                        <td>日检</td>
-                        <td>x射线和电子射线</td>
-                        <td>x线：4mv</td>
-                        <td>2个</td>
-                        <td>3个</td>
-                        <td class="">
-                            <div class="handle">
-                                <div class="handle-item" @click="showProjectChange()">修改</div>
-                                <div class="handle-item" @click="showDelete()">删除</div>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>6.1.6</td>
-                        <td>日稳定性（剂量</td>
-                        <td>-</td>
-                        <td>≤2%</td>
-                        <td>日检</td>
-                        <td>x射线和电子射线</td>
-                        <td>x线：4mv</td>
-                        <td>2个</td>
-                        <td>3个</td>
-                        <td class="">
-                            <div class="handle">
-                                <div class="handle-item" @click="showProjectChange()">修改</div>
-                                <div class="handle-item" @click="showDelete()">删除</div>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>6.1.6</td>
-                        <td>日稳定性（剂量</td>
-                        <td>-</td>
-                        <td>≤2%</td>
-                        <td>日检</td>
-                        <td>x射线和电子射线</td>
-                        <td>x线：4mv</td>
-                        <td>2个</td>
-                        <td>3个</td>
-                        <td class="">
-                            <div class="handle">
-                                <div class="handle-item" @click="showProjectChange()">修改</div>
+                                <div class="handle-item" @click="showProjectChange(project)">修改</div>
                                 <div class="handle-item" @click="showDelete()">删除</div>
                             </div>
                         </td>
@@ -439,6 +82,7 @@
                 <table class="table setting-tab-content" border="0" cellspacing="0" v-if="showTypeIndex==2">
                     <thead class="tab-header">
                     <tr>
+                        <th>序号</th>
                         <th>客户端</th>
                         <th>AE Title</th>
                         <th>IP</th>
@@ -447,92 +91,130 @@
                     </tr>
                     </thead>
                     <tbody class="tab-lists">
-                    <tr>
-                        <td>SRS</td>
-                        <td>BBCT</td>
-                        <td>192.168.113.81</td>
-                        <td>8088</td>
+                    <tr v-for="(dicom,index) in dicoms" :key="index">
+                        <td>{{dicom.id}}</td>
+                        <td>{{dicom.customer}}</td>
+                        <td>{{dicom.aeTitle}}</td>
+                        <td>{{dicom.ip}}</td>
+                        <td>{{dicom.port}}</td>
                         <td class="">
                             <div class="handle">
-                                <div class="handle-item" @click="showProjectChange()">修改</div>
-                                <div class="handle-item" @click="showDelete()">删除</div>
+                                <div class="handle-item" @click="addDICOM(dicom)">修改</div>
+                                <div class="handle-item" @click="showDelete(dicom)">删除</div>
                             </div>
                         </td>
                     </tr>
-                    <tr>
-                        <td>SRS</td>
-                        <td>BBCT</td>
-                        <td>192.168.113.81</td>
-                        <td>8088</td>
-                        <td class="">
-                            <div class="handle">
-                                <div class="handle-item" @click="showProjectChange()">修改</div>
-                                <div class="handle-item" @click="showDelete()">删除</div>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>SRS</td>
-                        <td>BBCT</td>
-                        <td>192.168.113.81</td>
-                        <td>8088</td>
-                        <td class="">
-                            <div class="handle">
-                                <div class="handle-item" @click="showProjectChange()">修改</div>
-                                <div class="handle-item" @click="showDelete()">删除</div>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>SRS</td>
-                        <td>BBCT</td>
-                        <td>192.168.113.81</td>
-                        <td>8088</td>
-                        <td class="">
-                            <div class="handle">
-                                <div class="handle-item" @click="showProjectChange()">修改</div>
-                                <div class="handle-item" @click="showDelete()">删除</div>
-                            </div>
-                        </td>
-                    </tr>
+
                     </tbody>
                 </table>
                 <div class="pagination clearfix">
                     <el-pagination
-                            background="#1C1C1C"
+                            :background="true"
                             layout="prev, pager, next,jumper"
-                            :page-size="4"
-                            :total="40"
-                            :pager-count="3"
-                            :prev-text="'上一页'"
-                            :next-text="'下一页'"
+                            :page-size="10"
+                            :total="dicomCount"
+                            prev-text="上一页"
+                            next-text="下一页"
                             class="right"
+                            @current-change="handleCurrentChange"
+                            :current-page="currentPage"
                     >
                     </el-pagination>
 
                 </div>
                 <el-dialog
-                        title="修改加速器"
+                        title="添加加速器"
                         :visible.sync="showAccelerate"
-                        width="40%"
+                        width="60%"
                         :before-close="handleClose"
                         center
                 >
-                    <div class="add-item clearfix">
-                        <div class="add-item-lists left">
-                            <el-input placeholder="请输入加速器型号"></el-input>
+                    <div class="project-change-lists">
+                        <div class="project-change-lists-item clearfix">
+                            <div class="item-content left">
+                                <input type="text" placeholder="请输入" v-model="device.model">
+                            </div>
+                            <div class="item-name left">型号</div>
                         </div>
-                        <div class="add-item-lists left">
-                            <el-input placeholder="请输入加速器序号"></el-input>
+                        <div class="project-change-lists-item clearfix">
+                            <div class="item-content left">
+                                <input type="text" placeholder="请输入" v-model="device.sequence">
+                            </div>
+                            <div class="item-name left">序号</div>
                         </div>
-                        <div class="add-item-lists left">
-                            <el-input placeholder="添加检测项目"></el-input>
+                    </div>
+                    <div class="project-change-lists">
+
+                        <div class="project-change-lists-item clearfix">
+                            <div class="item-content left" style="width: 30%">
+                                <input type="text" placeholder="请输入" v-model="curX">
+                            </div>
+                            <div class="item-name-short left">x线/MV</div>
+                            <div class="item-name-short left">
+                                <input type="checkbox" placeholder="请输入" v-model="device.xFFF">FFF模式
+                            </div>
+                        </div>
+
+                        <div class="project-change-lists-item clearfix">
+                            <div class="item-content left">
+                                能量档：<span v-for="(x,index) in xArr" :key="index">{{x}},</span>
+                            </div>
+                            <div class="item-name left" @click="addEnergyX()">
+                                添加
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="project-change-lists">
+                        <div class="project-change-lists-item clearfix">
+                            <div class="item-content left">
+                                <input type="text" placeholder="请输入" v-model="curE">
+                            </div>
+                            <div class="item-name left">电子线/MeV</div>
+                        </div>
+                        <div class="project-change-lists-item clearfix">
+                            <div class="item-content left">
+                                能量档：<span v-for="(x,index) in eArr" :key="index">{{x}},</span>
+                            </div>
+
+                            <div class="item-name left" @click="addEnergyE()">
+                                添加
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="project-change-lists">
+                        <div class="project-change-lists-item clearfix">
+                            <div class="item-content left">
+                                <input type="text" placeholder="请输入" v-model="device.x_volume_percent">
+                            </div>
+                            <div class="item-name left">x线深度百分计量/%</div>
+                        </div>
+                        <div class="project-change-lists-item clearfix">
+                            <div class="item-content left">
+                                <input type="text" placeholder="请输入" v-model="device.e_volume_percent">
+                            </div>
+                            <div class="item-name left">电子线深度百分计量/%</div>
+                        </div>
+                    </div>
+                    <div class="project-change-lists">
+                        <div class="project-change-lists-item clearfix">
+                            <div class="item-content left">
+                                <input type="text" placeholder="请输入" v-model="device.e_light_size">
+                            </div>
+                            <div class="item-name left">电子线光筒/cm cone</div>
+                        </div>
+                        <div class="project-change-lists-item clearfix">
+                            <div class="item-content left">
+                                <input type="text" placeholder="请输入" v-model="device.multileaf_collimator_size">
+                            </div>
+                            <div class="item-name left">多叶光栅</div>
                         </div>
                     </div>
                     <div slot="footer">
                         <div class="confirm-btn">
-                            <el-button type="primary" class="">取消</el-button>
-                            <el-button type="primary" class="active">保存</el-button>
+                            <el-button type="primary" class="" @click="cancel">取消</el-button>
+                            <el-button type="primary" class="active" @click="saveDevice">保存</el-button>
                         </div>
                     </div>
                 </el-dialog>
@@ -548,36 +230,36 @@
                     </div>
                     <div slot="footer">
                         <div class="delete-btn">
-                            <el-button type="primary" class="">取消</el-button>
-                            <el-button type="primary" class="active">确定删除</el-button>
+                            <el-button type="primary" class="" @click="isShowDelete=false">取消</el-button>
+                            <el-button type="primary" class="active" @click="delConfirm()">确定删除</el-button>
                         </div>
                     </div>
                 </el-dialog>
                 <el-dialog
                         title="修改项目配置"
                         :visible.sync="isShowProjectChange"
-                        width="40%"
+                        width="50%"
                         :before-close="handleClose"
                         center
                 >
                     <div class="project-change-lists">
                          <div class="project-change-lists-item clearfix">
                              <div class="item-content left">
-                                 <input type="text">
+                                 <input type="text" v-model="project.period">
                              </div>
                              <div class="item-name left">检测周期</div>
                          </div>
                         <div class="project-change-lists-item clearfix">
                             <div class="item-content left">
-                                <input type="text">
+                                <input type="text" v-model="project.threshold">
                             </div>
                             <div class="item-name left">阈值</div>
                         </div>
                     </div>
                     <div slot="footer">
                         <div class="confirm-btn">
-                            <el-button type="primary" class="">取消</el-button>
-                            <el-button type="primary" class="active">保存</el-button>
+                            <el-button type="primary" class="" @click="cancel">取消</el-button>
+                            <el-button type="primary" class="active" @click="updateProject">保存</el-button>
                         </div>
                     </div>
                 </el-dialog>
@@ -591,21 +273,35 @@
                     <div class="project-change-lists">
                         <div class="project-change-lists-item clearfix">
                             <div class="item-content left">
-                                <input type="text" placeholder="请输入">
+                                <input type="text" placeholder="请输入" v-model="diCom.customer">
                             </div>
                             <div class="item-name left">客户端</div>
                         </div>
                         <div class="project-change-lists-item clearfix">
                             <div class="item-content left">
-                                <input type="text" placeholder="请输入">
+                                <input type="text" placeholder="请输入" v-model="diCom.aeTitle">
                             </div>
                             <div class="item-name left">AE Title</div>
                         </div>
                     </div>
+                    <div class="project-change-lists" style="border-bottom: 1px solid #464646;padding: 0 0 4% 0;">
+                        <div class="project-change-lists-item clearfix">
+                            <div class="item-content left">
+                                <input type="text" placeholder="请输入" v-model="diCom.ip">
+                            </div>
+                            <div class="item-name left">IP地址</div>
+                        </div>
+                        <div class="project-change-lists-item clearfix">
+                            <div class="item-content left">
+                                <input type="text" placeholder="请输入" v-model="diCom.port">
+                            </div>
+                            <div class="item-name left">端口号</div>
+                        </div>
+                    </div>
                     <div slot="footer">
                         <div class="confirm-btn">
-                            <el-button type="primary" class="">取消</el-button>
-                            <el-button type="primary" class="active">保存</el-button>
+                            <el-button type="primary" class="" @click="cancel()">取消</el-button>
+                            <el-button type="primary" class="active" @click="saveDicom()">保存</el-button>
                         </div>
                     </div>
                 </el-dialog>
@@ -614,6 +310,8 @@
     </div>
 </template>
 <script>
+    import { mapState } from 'vuex';
+    import { addDicom,getDicoms,delDicom,addDevice,getDevices,delDevice,getProjects,updateProject } from "../../api";
     export default {
         components: {
         },
@@ -625,28 +323,229 @@
                 isShowDelete:false,
                 isShowProjectChange:false,
                 isShowDICOM:false,
+                diCom:{
+                    customer:'',
+                    aeTitle:'',
+                    ip:'',
+                    port:'',
+                    id:0,
+                },
+                device:{
+                    model:'',
+                    sequence:'',
+                    x_energy_level:'',
+                    e_energy_level:'',
+                    x_volume_percent:0,
+                    e_volume_percent:0,
+                    e_light_size:0,
+                    multileaf_collimator_size:0,
+                    default_dir:'',
+                },
+                xArr:[],//当前x的能量档
+                eArr:[],//当前y的能量档
+                curX:0,//能量档
+                curE:0,//能量档
+                dicoms:[],
+                dicomCount:0,
+                currentPage:0,
+                devices:[],
+                devicesCount:0,
+                projects:[],
+                project:{},
             }
         },
         mounted() {
+             console.log('0')
+            getDicoms({pageNum:0,offset:10}).then(res =>{
+                console.log(res);
+                this.dicoms = res.dicoms;
+                this.dicomCount = res.count;
+            })
+            getDevices({pageNum:0,offset:10}).then(res =>{
+                console.log(res);
+                this.devices = res.devices;
+                this.deviceount = res.count;
+            })
+            console.log(this.currentDeviceID)
+            getProjects({deviceID:this.currentDeviceID,pageNum:0,offset:100}).then(res =>{
+                console.log(res);
+                this.projects = res.projects;
+                this.deviceount = res.count;
+            })
+        },
+        computed: mapState({
+            currentDeviceID: state => state.user.currentDeviceID,
+        }),
+        beforeCreate(){
+            console.log('beforeCreate')
+        },
+        created(){
+            console.log('setting created')
+            console.log(this.currentDevice)
+        },
+        beforeMount(){
+            console.log('beforeMount')
+        },
+        watch: {
+            currentDeviceID: function (val) {
+                console.log(val);
+                getProjects({deviceID:val,pageNum:0,offset:100}).then(res =>{
+                    console.log(res);
+                    this.projects = res.projects;
+                    this.deviceount = res.count;
+                })
+            }
         },
         methods: {
             handleClick() {
 
             },
+            handleClose(){
+                console.log('handleClose')
+            },
+            handleSizeChange(val) {
+                this.pageSize = val;
+                console.log(`每页 ${val} 条`);
+            },
+            handleCurrentChange(val) {
+                this.currentPage = val;
+                console.log(`当前页: ${val}`);
+                getDicoms({pageNum:this.currentPage-1,offset:10}).then(res =>{
+                    console.log(res);
+                    this.dicoms = res.dicoms;
+                    this.dicomCount = res.count;
+                })
+            },
+            saveDicom(){
+              console.log(this.diCom);
+                addDicom(this.diCom).then(res =>{
+                    console.log(res);
+                    this.isShowDICOM = false;
+                    getDicoms({pageNum:0,offset:10}).then(res =>{
+                        console.log(res);
+                        this.dicoms = res.dicoms;
+                        this.dicomCount = res.count;
+                    })
+                })
+            },
+            saveDevice(){
+                console.log(this.device);
+                if(this.xArr.length) this.device.x_energy_level = JSON.stringify(this.xArr);
+                if(this.eArr.length) this.device.e_energy_level = JSON.stringify(this.eArr);
+                console.log(this.device);
+                addDevice(this.device).then(res =>{
+                    console.log(res);
+                    this.showAccelerate = false;
+                    getDevices({pageNum:0,offset:10}).then(res =>{
+                        console.log(res);
+                        this.devices = res.devices;
+                        this.devicecount = res.count;
+                    })
+                })
+            },
+            updateProject(){
+                console.log(this.project);
+                updateProject(this.project).then(res =>{
+                    this.isShowProjectChange = false;
+//                    getProjects({deviceID:this.currentDeviceID,pageNum:0,offset:100}).then(res =>{
+//                        console.log(res);
+//                        this.projects = res.projects;
+//                    })
+                })
+            },
+            cancel(){
+                this.xArr=[];
+                this.curX = 0;
+                this.curE = 0;
+                this.eArr=[];
+                this.showAccelerate = false;
+                this.isShowDICOM = false;
+                this.isShowProjectChange =false;
+            },
             changeType(typeName,index){
                this.typeName = typeName;
                this.showTypeIndex = index;
+
             },
-            addAccelerate(){
+            addAccelerate(device){
+                if(device) {
+                    this.device = device;
+                }
+                else this.device = {
+                    model:'',
+                    sequence:'',
+                    x_energy_level:'',
+                    e_energy_level:'',
+                    x_volume_percent:0,
+                    e_volume_percent:0,
+                    e_light_size:0,
+                    multileaf_collimator_size:0,
+                    default_dir:'',
+                    xFFF:0,
+                };
                 this.showAccelerate=true;
             },
-            addDICOM(){
+            addDICOM(diCom){
+               if(diCom) this.diCom = diCom;
+               else this.dicom = {
+                   customer:'',
+                   aeTitle:'',
+                   ip:'',
+                   port:'',
+                   id:0,
+               };
                this.isShowDICOM = true;
             },
-            showDelete(){
-                this.isShowDelete=true;
+            addEnergyX(){
+                if(this.curX>0){
+                    this.xArr.push(this.curX);
+                }
             },
-            showProjectChange(){
+            addEnergyE(){
+                if(this.curE>0){
+                    this.eArr.push(this.curE);
+                }
+            },
+            delConfirm(){
+                if(this.showTypeIndex==2)
+                {
+                    delDicom(this.diCom).then(res =>{
+                        console.log(res);
+                        this.isShowDelete = false;
+                        getDicoms({pageNum:0,offset:10}).then(res =>{
+                            console.log(res);
+                            this.dicoms = res.dicoms;
+                            this.dicomCount = res.count;
+                        })
+                    })
+                }
+                else if(this.showTypeIndex==0)
+                {
+                    delDevice(this.device).then(res =>{
+                        console.log(res);
+                        this.isShowDelete = false;
+                        getDevices({pageNum:0,offset:10}).then(res =>{
+                            console.log(res);
+                            this.devices = res.devices;
+                            this.devicecount = res.count;
+                        })
+                    })
+                }
+
+            },
+            showDelete(obj){
+                this.isShowDelete=true;
+                if(this.showTypeIndex==2)
+                    this.diCom=obj;
+                else if(this.showTypeIndex==0)
+                    this.device=obj;
+
+            },
+            showProjectChange(project){
+                if(project) this.project = project;
+                else {
+                    console.log('error')
+                };
                 this.isShowProjectChange=true;
             }
         }
@@ -835,7 +734,7 @@
         padding: 0;
         .table-child{
             border-bottom: 1px solid #464646;
-            padding: 2% 0;
+            padding: 1.5% 0;
         }
         :last-child{
             border-bottom: 0;
@@ -905,12 +804,12 @@
         display: flex;
         justify-content: space-around;
         align-items: center;
-        padding: 8% 0;
-        border-bottom: 1px solid #464646;
+        padding: 4% 0 4% 0;
         .project-change-lists-item{
             width: 40%;
             border: 1px solid #464646;
             background-color: #2C2C2C;
+            font-size: 12px;
            .item-content{
                width: 58%;
                input{
@@ -923,6 +822,13 @@
            }
             .item-name{
                 width: 35%;
+                border-left: 1px solid #464646;
+                margin-left: 2%;
+                padding: 3% 0;
+                text-align: center;
+            }
+            .item-name-short{
+                width: 30%;
                 border-left: 1px solid #464646;
                 margin-left: 2%;
                 padding: 3% 0;

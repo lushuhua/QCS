@@ -52,6 +52,7 @@
 
             toNext(pageName){
                 this.menu = pageName;
+                console.log(pageName)
                 this.$router.push({name: pageName});
             },
 
