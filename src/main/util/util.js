@@ -113,30 +113,31 @@ function createRequest(path, method, data) {
     });
   });
 }
-function getCurDate(type){
-    Date.prototype.Format = function(fmt)
-    { //author: meizz
-        var o = {
-            "M+" : this.getMonth()+1,                 //月份
-            "d+" : this.getDate(),                    //日
-            "h+" : this.getHours(),                   //小时
-            "m+" : this.getMinutes(),                 //分
-            "s+" : this.getSeconds(),                 //秒
-            "q+" : Math.floor((this.getMonth()+3)/3), //季度
-            "S"  : this.getMilliseconds()             //毫秒
-        };
-        if(/(y+)/.test(fmt))
-            fmt=fmt.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length));
-        for(var k in o)
-            if(new RegExp("("+ k +")").test(fmt))
-                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));
-        return fmt;
+function getCurDate()
+{
+    var date_time = new Date();
+    var year = date_time.getFullYear();
+    var month = date_time.getMonth()+1;
+    if(month<10) month = '0'+month;
+
+    var day = date_time.getDate();
+    if(day<10) day ='0'+day;
+
+    var hour =date_time.getHours();
+    if(hour<10){
+        hour = '0'+hour;
     }
-    var time ;
-    if(type==0)time = new Date().format("yyyy-MM-dd HH:mm:ss");
-    else if(type==1)time = new Date().format("yyyy-MM-dd HH:mm");
-    else time = new Date().format("yyyy-MM-dd");
-    return time;
+
+    var min = date_time.getMinutes();
+    if(min<10){
+        min = '0'+min;
+    }
+    var sec = date_time.getSeconds();
+    if(sec<10){
+        sec = '0'+sec;
+    }
+
+    return (year+'-'+month+'-'+day+' '+hour+':'+min+':'+sec);
 }
 /**
  * Deep copy the given object considering circular structure.

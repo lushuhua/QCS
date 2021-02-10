@@ -32,4 +32,10 @@ body {
     border-bottom-color: #1C1C1C !important;
     
   }
+ /*.el-select-dropdown__item.hover{*/
+   /*background-color: #464646;*/
+ /*}*/
+.el-select-dropdown__item.selected{
+  color: #1C1C1C;
+}
 </style>

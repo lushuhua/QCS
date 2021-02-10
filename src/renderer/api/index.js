@@ -38,6 +38,16 @@ export function updateProject(data) {
     return http.post('/medical/updateProject',data)
 }
 
+export function addTestResult(data) {
+    console.log(data)
+    return http.post('/medical/addTestResult',data)
+}
+
+export function getProjectTests(data) {
+    console.log(data)
+    return http.post('/medical/getProjectTests',data)
+}
+
 export function login(phone, password) {
     return http.get('/login/cellphone?phone=' + phone + '&password=' + password)
 }

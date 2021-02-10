@@ -12,7 +12,7 @@
             <!--</el-button>-->
 
             <div class="search no-drag">
-                <el-select v-model="defaultDevice.id" placeholder="请选择设备" @change="((val)=>{deviceChange(val)})">
+                <el-select v-model="defaultID" placeholder="请选择设备" @change="((val)=>{deviceChange(val)})">
                     <el-option
                             v-for="item in devices"
                             :key="item.id"
@@ -65,6 +65,7 @@
                 ],
                 devices:[],
                 defaultDevice:{},
+                defaultID:0,
             }
         },
         computed:{
@@ -87,6 +88,7 @@
                     this.devices[i].value = this.devices[i].model+'-'+ this.devices[i].sequence;
                 }
                 this.defaultDevice = this.devices[0];
+                this.defaultID = this.devices[0].id
                 this.$store.dispatch('SET_CUR_DEVICE',this.devices[0].id)
 
             })
@@ -97,7 +99,7 @@
                 for(var i in this.devices){
                     if(this.devices[i].id==id){
                         this.defaultDevice = this.devices[i];
-                        this.$store.dispatch('SET_CUR_DEVICE',this.devices[0].id)
+                        this.$store.dispatch('SET_CUR_DEVICE', this.devices[i].id);
                         break;
                     }
                 }

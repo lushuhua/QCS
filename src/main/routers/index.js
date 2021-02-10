@@ -335,6 +335,144 @@ router.post('/medical/getProjects', (req, res, next) => {
         var db = new sq3.Database('/Users/cliff/develop/sqlite3db/medical.db');
         if(!obj.offset)  obj.offset = 10;
         if(!obj.pageNum) obj.pageNum = 0;
+        var cond_sql ='';
+        if(obj.detectType) cond_sql =' AND proj.detectType="'+obj.detectType+'"';
+        async.waterfall([
+            function(callback) {
+
+                var select_sql = "SELECT proj.*,device.x_energy_level,device.e_energy_level " +
+                    ",IFNULL(dp.testPoint,proj.testPoint) AS testPoint" +
+                    ", IFNULL(dp.numOfInput,proj.numOfInput) AS numOfInput " +
+                    ", IFNULL(dp.period,proj.period) AS period " +
+                    ", IFNULL(dp.threshold,proj.threshold) AS threshold,dp.id,dp.projectID,dp.deviceID  " +
+                    " FROM "+DBTABLE.DEVICE_PROJ+" AS dp " +
+                    " LEFT JOIN " +DBTABLE.PROJECT+' AS proj ON dp.projectID=proj.id'+
+                    " LEFT JOIN " +DBTABLE.DEVICE+' AS device ON dp.deviceID=device.id'+
+                    "  WHERE dp.deviceID="+obj.deviceID+cond_sql+" ORDER BY dp.id DESC limit "+obj.offset*obj.pageNum+','+obj.offset;
+                console.log(select_sql)
+                db.all(select_sql, function(err, rows) {
+                    console.log(err)
+                    console.log(rows)
+
+                    async.forEachOf(rows, function (row, index, eachcallback) {
+                        var energy = [];
+                        if((row.radioType=='X'||row.radioType=='X和电子')&&row.x_energy_level&&row.x_energy_level.length>0){
+                            var x_energy_arr = JSON.parse(row.x_energy_level);
+                            console.log(x_energy_arr);
+                            for(var j in x_energy_arr) {
+                                energy.push(x_energy_arr[j]+'MV')
+                            }
+                        }
+                        if((row.radioType=='电子'||row.radioType=='X和电子')&&row.e_energy_level&&row.e_energy_level.length>0){
+                            var e_energy_arr = JSON.parse(row.e_energy_level);
+                            console.log(e_energy_arr);
+                            for(var j in e_energy_arr) {
+                                energy.push(e_energy_arr[j]+'MeV')
+                            }
+                        }
+                        if(energy.length==0) energy[0] = '-';
+                        row.energy = energy;
+
+                        var getsql = 'SELECT * FROM  '+DBTABLE.DEVICE_PROJECT_RESULT+' WHERE id=(SELECT max(id) FROM '+DBTABLE.DEVICE_PROJECT_RESULT+' WHERE qscDeviceProjID='+row.id+')'
+                        console.log(getsql);
+                        db.all(getsql, function(err, result) {
+                            console.log(row.id,result)
+                            if(result&&result.length>0){
+                                if(result[0].testResult) {
+                                    row.testResult = JSON.parse(result[0].testResult);
+                                    row.createDate = result[0].createDate;
+                                }
+                            }
+                            eachcallback(null);
+                        });
+
+                    }, function (err) {
+                        if (err) callback(err);
+                        else{
+                            resObj.projects = rows;
+                            callback(null);
+                        }
+                    });
+
+
+                    // for(var i in rows){
+                    //     var energy = [];
+                    //     if((rows[i].radioType=='X'||rows[i].radioType=='X和电子')&&rows[i].x_energy_level&&rows[i].x_energy_level.length>0){
+                    //         var x_energy_arr = JSON.parse(rows[i].x_energy_level);
+                    //         console.log(x_energy_arr);
+                    //         for(var j in x_energy_arr) {
+                    //             energy.push(x_energy_arr[j]+'MV')
+                    //         }
+                    //     }
+                    //     if((rows[i].radioType=='电子'||rows[i].radioType=='X和电子')&&rows[i].e_energy_level&&rows[i].e_energy_level.length>0){
+                    //         var e_energy_arr = JSON.parse(rows[i].e_energy_level);
+                    //         console.log(e_energy_arr);
+                    //         for(var j in e_energy_arr) {
+                    //             energy.push(e_energy_arr[j]+'MeV')
+                    //         }
+                    //     }
+                    //     if(energy.length==0) energy[0] = '-';
+                    //     rows[i].energy = energy;
+                    //     // if(rows[i].testPoint==0) rows[i].testPoint=1;//还是需要设置为1，这样可以添加
+                    // }
+
+                });
+            },
+            function(callback) {
+                var select_all_sql = "SELECT COUNT(*) AS count FROM  "+DBTABLE.DEVICE_PROJ+" AS dp " +
+                    " LEFT JOIN " +DBTABLE.PROJECT+' AS proj ON dp.projectID=proj.id'+
+                    "  WHERE dp.deviceID="+obj.deviceID+cond_sql;
+                db.all(select_all_sql, function(err, row) {
+                    console.log(row)
+                    resObj.count = row[0].count;
+                    callback(null);
+                });
+            }
+        ], function (err, result) {
+            if(err) {
+                console.error(err);
+                resObj.result = false;
+            }
+            db.close();
+            res.send(resObj);
+        });
+
+    })
+
+});
+/***
+ * 获取项目检测记录
+ */
+
+router.post('/medical/getProjectTests', (req, res, next) => {
+    var rows = [];
+    var data = '';
+    req.on('data',function (chunk) {
+        console.log('-------');
+        console.log(chunk);
+        data +=chunk;
+    });
+    req.on('end',function (chunk) {
+        console.log('end');
+        console.log(data);
+        var obj = JSON.parse(data);
+        console.log(obj);
+        console.log('/medical/getDevices');
+        var rows = [],index = 0;
+        var resObj ={"msg":"","result":true,"token":"","error_code":"0",code:200};
+        var db = new sq3.Database('/Users/cliff/develop/sqlite3db/medical.db');
+        if(!obj.offset)  obj.offset = 10;
+        if(!obj.pageNum) obj.pageNum = 0;
+        var cond_sql ='';
+        if(obj.period!='请选择检测周期'){
+            cond_sql += ' AND proj.period="'+obj.period+'"';
+        }
+        if(obj.fromDate){
+            cond_sql += ' AND dp_result.createDate >="'+obj.fromDate+'"';
+        }
+        if(obj.toDate){
+            cond_sql += ' AND dp_result.createDate <="'+obj.toDate+'"';
+        }
         async.waterfall([
             function(callback) {
                 // "testPoint INTEGER," +
@@ -346,41 +484,29 @@ router.post('/medical/getProjects', (req, res, next) => {
                     ",IFNULL(dp.testPoint,proj.testPoint) AS testPoint" +
                     ", IFNULL(dp.numOfInput,proj.numOfInput) AS numOfInput " +
                     ", IFNULL(dp.period,proj.period) AS period " +
-                    ", IFNULL(dp.threshold,proj.threshold) AS threshold,dp.id  " +
-                    " FROM "+DBTABLE.DEVICE_PROJ+" AS dp " +
+                    ", IFNULL(dp.threshold,proj.threshold) AS threshold,dp.id,dp.projectID,dp.deviceID,dp_result.testResult,dp_result.createDate  " +
+                    " FROM "+DBTABLE.DEVICE_PROJECT_RESULT+' AS dp_result ' +
+                    ' LEFT JOIN '+DBTABLE.DEVICE_PROJ+" AS dp ON dp_result.qscDeviceProjID=dp.id " +
                     " LEFT JOIN " +DBTABLE.PROJECT+' AS proj ON dp.projectID=proj.id'+
                     " LEFT JOIN " +DBTABLE.DEVICE+' AS device ON dp.deviceID=device.id'+
-                    "  WHERE dp.deviceID="+obj.deviceID+" ORDER BY dp.id DESC limit "+obj.offset*obj.pageNum+','+obj.offset;
+                    " WHERE dp_result.deviceID="+obj.deviceID+cond_sql+" ORDER BY dp_result.id DESC limit "+obj.offset*obj.pageNum+','+obj.offset;
                 console.log(select_sql)
                 db.all(select_sql, function(err, rows) {
                     console.log(err)
                     console.log(rows)
-                    for(var i in rows){
-                        var energy = [];
-                        if((rows[i].radioType=='X'||rows[i].radioType=='X和电子')&&rows[i].x_energy_level&&rows[i].x_energy_level.length>0){
-                            var x_energy_arr = JSON.parse(rows[i].x_energy_level);
-                            console.log(x_energy_arr);
-                            for(var j in x_energy_arr) {
-                                energy.push(x_energy_arr[j]+'MV')
-                            }
+                    if(rows&&rows.length>0){
+                        for(var i in rows){
+                            if(rows[i].testResult) rows[i].testResult = JSON.parse(rows[i].testResult);
                         }
-                        if((rows[i].radioType=='电子'||rows[i].radioType=='X和电子')&&rows[i].e_energy_level&&rows[i].e_energy_level.length>0){
-                            var e_energy_arr = JSON.parse(rows[i].e_energy_level);
-                            console.log(e_energy_arr);
-                            for(var j in e_energy_arr) {
-                                energy.push(e_energy_arr[j]+'MeV')
-                            }
-                        }
-                        if(energy.length==0) energy[0] = '-';
-                        rows[i].energy = energy;
-                        // if(rows[i].testPoint==0) rows[i].testPoint=1;//还是需要设置为1，这样可以添加
                     }
                     resObj.projects = rows;
                     callback(null);
                 });
             },
             function(callback) {
-                var select_all_sql = "SELECT COUNT(*) AS count FROM  "+DBTABLE.DEVICE_PROJ+" WHERE deviceID="+obj.deviceID;
+                var select_all_sql = "SELECT COUNT(*) AS count FROM  "+DBTABLE.DEVICE_PROJECT_RESULT+" AS dp_result " +
+                    " LEFT JOIN " +DBTABLE.PROJECT+' AS proj ON dp_result.projectID=proj.id '+
+                    " WHERE dp_result.deviceID="+obj.deviceID+cond_sql;
                 db.all(select_all_sql, function(err, row) {
                     console.log(row)
                     resObj.count = row[0].count;
@@ -429,24 +555,32 @@ router.post('/medical/updateProject', (req, res, next) => {
     })
 });
 
-router.get('/album', (req, res, next) => {
-    const cookie = req.get("Cookie") ? req.get("Cookie") : "";
-    const data = {
-        csrf_token: ""
-    };
-    const id = req.query.id;
-    createWebAPIRequest(
-        "music.163.com",
-        `/weapi/v1/album/${id}`,
-        "POST",
-        data,
-        cookie,
-        music_req => {
-            res.send(music_req);
-        },
-        err => res.status(502).send("fetch error")
-    );
+//添加检测结果
+//添加dicom
+router.post('/medical/addTestResult', (req, res, next) => {
+    var data = '';
+    req.on('data',function (chunk) {
+        console.log('-------');
+        console.log(chunk);
+        data +=chunk;
+    });
+    req.on('end',function (chunk) {
+        console.log('end');
+        var resObj ={"msg":"","result":true,"token":"","error_code":"0",code:200};
+        console.log(data);
+        var obj = JSON.parse(data);
+        console.log(obj);
+        var db = new sq3.Database('/Users/cliff/develop/sqlite3db/medical.db');
+        var sql = 'INSERT INTO '+DBTABLE.DEVICE_PROJECT_RESULT+' (qscDeviceProjID,projectID,deviceID,testResult,personName,createDate)VALUES(?,?,?,?,?,?)';
+        let stmt = db.prepare(sql);
+        stmt.run(obj.qscDeviceProjID, obj.projectID, obj.deviceID,obj.testResult,obj.personName,getCurDate());
+        stmt.finalize();
+        db.close();
+        res.send(resObj);
+    })
 });
+
+
 
 router.get('/artist/album', (req, res, next) => {
     const cookie = req.get("Cookie") ? req.get("Cookie") : "";

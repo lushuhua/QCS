@@ -67,7 +67,7 @@ exports.getData = function(req,res) {
             "createDate TEXT," +
             "UNIQUE(deviceID, projectID) ON CONFLICT REPLACE" +
             ")");
-
+        // db.run("DROP TABLE qsc_device_proj_result");
         db.run("CREATE TABLE if not exists qsc_device_proj_result (" +
             "id INTEGER PRIMARY KEY autoincrement," +
             "qscDeviceProjID INTEGER," +
@@ -88,7 +88,7 @@ exports.getData = function(req,res) {
 
         // db.run("CREATE UNIQUE INDEX dp_index ON qsc_device_proj(deviceID, projectID) ");
         //     db.run('select * from sqlite_master where type="table" and name="qsc_device_proj"')
-        db.each('select * from sqlite_master where type="table" and name="qsc_device_proj"', function(err, row) {
+        db.each('select * from sqlite_master where type="table" and name="qsc_device_proj_result"', function(err, row) {
             console.log( row);
         });
         // var insert_sql = 'INSERT INTO qsc_period_data (numOfDays,periodRemark) VALUES(1,"1天"),(7,"1周"),(30,"1月"),(90,"3月"),(180,"6月"),(365,"1年")';
@@ -144,7 +144,9 @@ exports.initializeData = function(req,res) {
             // '("6.2.2","电子线深度吸收剂量特性",       "",                      "电子",    "1","1","≤3%或≤2 mm",  "6月","数值分析","将感光胶片放置于..."),' +
             // '("6.4.1","照射野的数字指示（单元限束）",  "5 cm×5 cm ~20 cm×20 cm","电子",    "1","1","≤3 mm或≤1.5%","1月","影像分析","将感光胶片放置于..."),' +
             // '("6.7.3","治疗床的运动精度",             "前后",                  "无",      "1","1","≤2 mm",          "6月","影像分析","将感光胶片放置于..."),' +
-            '("6.1.6","日稳定性（剂量）"             ,  ""                       ,"无",     "2","3","2%",          "6月","数值分析","将感光胶片放置于...")' ;
+            // '("6.1.6","日稳定性（剂量）"             ,  ""                    ,"无",      "2","3","2%",          "6月","数值分析","将感光胶片放置于...")' ;
+               '("6.1.2","重复性（剂量）"             ,  "",                     "X和电子",  "0","5","≤0.5%",       "6月","数值分析","将感光胶片放置于...")' ;
+
         db.run(insert_sql);
 
         console.log("SELECT * FROM qsc_project limit 0,100");
@@ -152,6 +154,18 @@ exports.initializeData = function(req,res) {
             console.log(row);
         });
 
+    });
+
+    db.close();
+}
+
+exports.queryExample = function(req,res) {
+    db.serialize(function() {
+        db=initDb();
+        console.log("SELECT * FROM qsc_device_proj_result limit 0,100");
+        db.each("SELECT * FROM qsc_device_proj_result limit 0,100", function(err, row) {
+            console.log(row);
+        });
     });
 
     db.close();
@@ -171,7 +185,7 @@ function  drop() {
     if(db) db.close();
 }
 
-
+this.queryExample();
 
 // this.getData()
 // drop();

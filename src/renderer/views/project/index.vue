@@ -7,31 +7,38 @@
             <div class="project-search-lists">
                 <el-input placeholder="请输入项目名称"></el-input>
             </div>
-            <div class="project-search-lists">
-                <el-input placeholder="请输入阈值"></el-input>
-            </div>
-            <div class="project-search-lists">
-                <el-select placeholder="请选择检测日期">
-                    <el-option>
-                            <!--v-for="item in options"-->
-                            <!--:key="item.value"-->
-                            <!--:label="item.label"-->
-                            <!--:value="item.value"-->
+            <div class="project-search-lists" >
+                <el-select v-model="period" placeholder="请选择检测周期" >
+                    <el-option
+                            v-for="item in options"
+                            :key="item"
+                            :label="item"
+                            :value="item">
                     </el-option>
                 </el-select>
             </div>
-            <div class="project-search-lists">
-                <el-select placeholder="请选择合格有效期">
-                    <el-option>
-                        <!--v-for="item in options"-->
-                        <!--:key="item.value"-->
-                        <!--:label="item.label"-->
-                        <!--:value="item.value"-->
-                    </el-option>
-                </el-select>
+            <div class="project-search-lists" style="width: 150px">
+                <el-date-picker
+                        v-model="selDay"
+                        type="date"
+                        value-format="yyyy-MM-dd"
+                        format="yyyy-MM-dd"
+                        placeholder="请选择检测日期"
+                >
+                </el-date-picker>
+            </div>
+            <div class="project-search-lists" style="width: 100px">
+                <el-date-picker
+                        v-model="selValidDay"
+                        type="date"
+                        value-format="yyyy-MM-dd"
+                        format="yyyy-MM-dd"
+                        placeholder="请选择合格有效期"
+                >
+                </el-date-picker>
             </div>
             <div class="project-search-btn">
-                <el-button type="primary" class="active">查询</el-button>
+                <el-button type="primary" class="active" @click="search">查询</el-button>
             </div>
             <div class="project-search-btn">
                 <el-button type="primary">重置</el-button>
@@ -57,133 +64,41 @@
                     </tr>
                 </thead>
                 <tbody class="tab-lists">
-                    <tr>
-                        <td>6.6.3</td>
-                        <td>旋转运动标尺的零刻度位置</td>
-                        <td>-</td>
-                        <td class="table-more">
-                            <div class="table-child">x线</div>
-                            <div class="table-child">电子线</div>
-                        </td>
-                        <td class="table-more">
-                            <div class="table-child">x线：3mv-3.9</div>
-                            <div class="table-child">电子线：4mv-1.2</div>
-                        </td>
-                        <td>图像分析</td>
-                        <td>日检</td>
-                        <td>≤0.5°</td>
-                        <td>2021-02-19</td>
-                        <td>2021-02-19</td>
-                        <td>已过期</td>
-                        <td class="table-more">
-                            <div class="table-child">20cm*20cm</div>
-                            <div class="table-child">20cm*20cm</div>
-                        </td>
-                        <td>
-                            <div class="watch-history" @click="openDialog()">
-                                查看历史
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>6.6.3</td>
-                        <td>旋转运动标尺的零刻度位置</td>
-                        <td>-</td>
-                        <td class="table-more">
-                            <div class="table-child">x线</div>
-                            <div class="table-child">电子线</div>
-                        </td>
-                        <td class="table-more">
-                            <div class="table-child">x线：3mv-3.9</div>
-                            <div class="table-child">电子线：4mv-1.2</div>
-                        </td>
-                        <td>图像分析</td>
-                        <td>日检</td>
-                        <td>≤0.5°</td>
-                        <td>2021-02-19</td>
-                        <td>2021-02-19</td>
-                        <td>已过期</td>
-                        <td class="table-more">
-                            <div class="table-child">20cm*20cm</div>
-                            <div class="table-child">20cm*20cm</div>
-                        </td>
-                        <td>
-                            <div class="watch-history" @click="openDialog()">
-                                查看历史
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>6.6.3</td>
-                        <td>旋转运动标尺的零刻度位置</td>
-                        <td>-</td>
-                        <td class="table-more">
-                            <div class="table-child">x线</div>
-                            <div class="table-child">电子线</div>
-                        </td>
-                        <td class="table-more">
-                            <div class="table-child">x线：3mv-3.9</div>
-                            <div class="table-child">电子线：4mv-1.2</div>
-                        </td>
-                        <td>图像分析</td>
-                        <td>日检</td>
-                        <td>≤0.5°</td>
-                        <td>2021-02-19</td>
-                        <td>2021-02-19</td>
-                        <td>已过期</td>
-                        <td class="table-more">
-                            <div class="table-child">20cm*20cm</div>
-                            <div class="table-child">20cm*20cm</div>
-                        </td>
-                        <td>
-                            <div class="watch-history" @click="openDialog()">
-                                查看历史
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>6.6.3</td>
-                        <td>旋转运动标尺的零刻度位置</td>
-                        <td>-</td>
-                        <td class="table-more">
-                            <div class="table-child">x线</div>
-                            <div class="table-child">电子线</div>
-                        </td>
-                        <td class="table-more">
-                            <div class="table-child">x线：3mv-3.9</div>
-                            <div class="table-child">电子线：4mv-1.2</div>
-                        </td>
-                        <td>图像分析</td>
-                        <td>日检</td>
-                        <td>≤0.5°</td>
-                        <td>2021-02-19</td>
-                        <td>2021-02-19</td>
-                        <td>已过期</td>
-                        <td class="table-more">
-                            <div class="table-child">20cm*20cm</div>
-                            <div class="table-child">20cm*20cm</div>
-                        </td>
-                        <td>
-                            <div class="watch-history" @click="openDialog()">
-                                查看历史
-                            </div>
-                            <div class="watch-history" @click="openDialog2()">
-                                测试
-                            </div>
-                        </td>
-                    </tr>
+                    <tr v-for="(project,index) in projects" :key="index">
+                    <td>{{project.projectNo}}</td>
+                    <td>{{project.name}}</td>
+                    <td>{{project.subName}}</td>
+                    <td>{{project.radioType}}</td>
+                    <td> </td>
+                    <td>{{project.threshold}}</td>
+                    <td>{{project.detectType}}</td>
+                    <td>{{project.period}}</td>
+                    <td>{{project.createDate}}</td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                    <td class="">
+                        <div class="handle">
+                            <div class="handle-item" @click="showProjectChange(project)">修改</div>
+                            <div class="handle-item" @click="showDelete()">删除</div>
+                        </div>
+                    </td>
+                </tr>
+
+
                 </tbody>
             </table>
             <div class="pagination clearfix">
                 <el-pagination
-                        background="#1C1C1C"
+                        :background="true"
                         layout="prev, pager, next,jumper"
-                        :page-size="4"
-                        :total="40"
-                        :pager-count="3"
-                        :prev-text="'上一页'"
-                        :next-text="'下一页'"
+                        :page-size="10"
+                        :total="count"
+                        prev-text="上一页"
+                        next-text="下一页"
                         class="right"
+                        @current-change="handleCurrentChange"
+                        :current-page="currentPage"
                 >
                 </el-pagination>
                 
@@ -256,13 +171,15 @@
             <div slot="footer" class="dialog-footer">
                 <div class="pagination clearfix">
                     <el-pagination
-                            background="#1C1C1C"
+                            :background="true"
                             layout="prev, pager, next,jumper"
-                            :page-size="4"
-                            :total="40"
-                            :pager-count="3"
-                            :prev-text="'上一页'"
-                            :next-text="'下一页'"
+                            :page-size="10"
+                            :total="count"
+                            prev-text="上一页"
+                            next-text="下一页"
+                            class="right"
+                            @current-change="handleCurrentChange"
+                            :current-page="currentPage"
                     >
                     </el-pagination>
                 </div>
@@ -271,7 +188,8 @@
     </div>
 </template>
 <script>
-    import { getPlaylistHot,toplist,addDicom } from "../../api";
+    import { mapState } from 'vuex';
+    import { getProjects } from "../../api";
     export default {
         components: {
         },
@@ -279,17 +197,72 @@
             return {
                 topIndex:0,
                 dialogVisible:false,
+                selDay:'',
+                selValidDay:'',
+                count:0,
+                value1: [new Date(2021, 1, 10, 10, 10), new Date(2021, 3, 11, 10, 10)],
+                period:'请选择检测周期',
+                options:['1天','1周','1月','3月','6月','1年'],
+                currentPage:0,
+                projects:[],
+            }
+        },
+        computed: mapState({
+            currentDeviceID: state => state.user.currentDeviceID,
+        }),
+        watch: {
+            currentDeviceID: function (val) {
+                console.log(val);
+                getProjects({deviceID:val, period:this.period,pageNum:0,offset:100}).then(res =>{
+                    console.log(res);
+                    this.projects = res.projects;
+                    this.count = res.count;
+                })
             }
         },
         mounted() {
             console.log('mounted')
-            this.getTags();
+            var self = this;
+            setTimeout(function () {
+                console.log(self.currentDeviceID)
+                getProjects({
+                    deviceID:self.currentDeviceID,
+                    period:self.period,
+                    pageNum:0,
+                    offset:10}).then(res =>{
+                    console.log(res);
+                    self.projects = res.projects;
+                    self.count = res.count;
+                })
+            },1000);
+
         },
         methods: {
-            getTags() {
-                getPlaylistHot().then(res => {
-                    console.log(res)
-                    this.tags = res.tags
+            search(){
+
+                console.log(this.fromDate,this.toDate,this.period);
+                getProjects({
+                    deviceID:this.currentDeviceID,
+                    period:this.period,
+                    pageNum:0,
+                    offset:10}).then(res =>{
+                    console.log(res);
+                    this.projects = res.projects;
+                    this.count = res.count;
+                })
+            },
+            reset(){
+                this.fromDate = '';
+                this.toDate = '';
+                this.period = '请选择检测周期';
+                getProjects({
+                    deviceID:this.currentDeviceID,
+                    period:this.period,
+                    pageNum:this.currentPage-1,
+                    offset:10}).then(res =>{
+                    console.log(res);
+                    this.projects = res.projects;
+                    this.count = res.count;
                 })
             },
             handleClick() {
@@ -299,6 +272,19 @@
                     console.log(res)
                 })
 
+            },
+            handleCurrentChange(val) {
+                this.currentPage = val;
+                console.log(`当前页: ${val}`);
+                getProjects({
+                    deviceID:this.currentDeviceID,
+                    period:this.period,
+                    pageNum:this.currentPage-1,
+                    offset:10}).then(res =>{
+                    console.log(res);
+                    this.projects = res.projects;
+                    this.count = res.count;
+                })
             },
             handleClose(){
 
@@ -327,6 +313,7 @@
     .project-page {
         width: 100%;
        padding:25px 26px 44px;
+
         .project-search{
             width: 100%;
             height: 10%;

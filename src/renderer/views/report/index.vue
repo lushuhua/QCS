@@ -4,35 +4,39 @@
             <div class="report-search-left">
                 <div class="report-search-lists">
                     <el-date-picker
-                            v-model="value1"
+                            v-model="fromDate"
                             type="date"
+                            value-format="yyyy-MM-dd hh:mm"
+                            format="yyyy-MM-dd HH:mm"
                             placeholder="请选择开始日期"
                     >
                     </el-date-picker>
                 </div>
                 <div class="report-search-lists">
                     <el-date-picker
-                            v-model="value2"
+                            v-model="toDate"
                             type="date"
+                            value-format="yyyy-MM-dd hh:mm"
+                            format="yyyy-MM-dd HH:mm"
                             placeholder="请选择结束日期"
                     >
                     </el-date-picker>
                 </div>
                 <div class="report-search-lists">
-                    <el-select placeholder="请选择检测周期">
-                        <el-option>
-                            <!--v-for="item in options"-->
-                            <!--:key="item.value"-->
-                            <!--:label="item.label"-->      r
-                            <!--:value="item.value"-->
+                    <el-select v-model="period" placeholder="请选择检测周期">
+                        <el-option
+                                v-for="item in options"
+                                :key="item"
+                                :label="item"
+                                :value="item">
                         </el-option>
                     </el-select>
                 </div>
                 <div class="report-search-btn">
-                    <el-button type="primary" class="active">查询</el-button>
+                    <el-button type="primary" class="active" @click="search()">查询</el-button>
                 </div>
                 <div class="report-search-btn">
-                    <el-button type="primary">重置</el-button>
+                    <el-button type="primary" @click="reset()">重置</el-button>
                 </div>
             </div>
             <div class="report-search-right">
@@ -48,56 +52,45 @@
                         <th>项目号</th>
                         <th>项目名称</th>
                         <th>次级项目名称</th>
+                        <th>周期</th>
                         <th>检测值</th>
                         <th>阈值</th>
                         <th>检测日期</th>
                     </tr>
                 </thead>
                 <tbody class="tab-lists">
-                    <tr>
-                        <td>6.6.3</td>
-                        <td>旋转运动标尺的零刻度位置</td>
-                        <td>-</td>
-                        <td>1.2</td>
-                        <td>≤0.5°</td>
-                        <td>2021-02-19</td>
-                    </tr>
-                    <tr>
-                        <td>6.6.3</td>
-                        <td>旋转运动标尺的零刻度位置</td>
-                        <td>-</td>
-                        <td>1.2</td>
-                        <td>≤0.5°</td>
-                        <td>2021-02-19</td>
-                    </tr>
-                    <tr>
-                        <td>6.6.3</td>
-                        <td>旋转运动标尺的零刻度位置</td>
-                        <td>-</td>
-                        <td>1.2</td>
-                        <td>≤0.5°</td>
-                        <td>2021-02-19</td>
-                    </tr>
-                    <tr>
-                        <td>6.6.3</td>
-                        <td>旋转运动标尺的零刻度位置</td>
-                        <td>-</td>
-                        <td>1.2</td>
-                        <td>≤0.5°</td>
-                        <td>2021-02-19</td>
-                    </tr>
+                <tr v-for="(project,index) in projects" :key="index">
+                    <td>{{project.projectNo}}</td>
+                    <td>{{project.name}}</td>
+                    <td>{{project.subName?project.subName:'无'}}</td>
+                    <td>{{project.period}}</td>
+                    <td v-if="project.testResult.levelNum==1">
+                        <span>{{project.testResult.result}}</span>
+                    </td>
+                    <td v-if="project.testResult.levelNum>1">
+                        <div v-for="(item,key) in project.testResult" :key="key">
+                            <span v-if="key!='levelNum'">
+                                {{key}} {{item.result}}
+                            </span>
+                        </div>
+
+                    </td>
+                    <td>{{project.threshold}}</td>
+                    <td>{{project.createDate}}</td>
+                </tr>
                 </tbody>
             </table>
             <div class="pagination clearfix">
                 <el-pagination
-                        background="#1C1C1C"
+                        :background="true"
                         layout="prev, pager, next,jumper"
-                        :page-size="4"
-                        :total="40"
-                        :pager-count="3"
-                        :prev-text="'上一页'"
-                        :next-text="'下一页'"
+                        :page-size="10"
+                        :total="count"
+                        prev-text="上一页"
+                        next-text="下一页"
                         class="right"
+                        @current-change="handleCurrentChange"
+                        :current-page="currentPage"
                 >
                 </el-pagination>
                 
@@ -120,26 +113,97 @@
     </div>
 </template>
 <script>
+    import { mapState } from 'vuex';
+    import { getProjectTests,addTestResult } from "../../api";
+
     export default {
         components: {
         },
         data() {
             return {
                 dialogVisible:false,
-                value1:'',
-                value2:'',
+                fromDate:'',
+                toDate:'',
                 value3:'',
+                period:'请选择检测周期',
+                options:['1天','1周','1月','3月','6月','1年'],
+                currentPage:0,
+                projects:[],
+                count:0,
             }
         },
+        computed: mapState({
+            currentDeviceID: state => state.user.currentDeviceID,
+        }),
         mounted() {
+            getProjectTests({
+                deviceID:this.currentDeviceID,
+                fromDate:this.fromDate,
+                toDate:this.toDate,
+                period:this.period,
+                pageNum:0,
+                offset:10}).then(res =>{
+                console.log(res);
+                this.projects = res.projects;
+                this.count = res.count;
+            })
         },
         methods: {
             handleClick() {
 
             },
+            handleClose(){
+
+            },
             reportPrint(){
                 this.dialogVisible=true
-            }
+            },
+            search(){
+
+                console.log(this.fromDate,this.toDate,this.period);
+                getProjectTests({
+                    deviceID:this.currentDeviceID,
+                    fromDate:this.fromDate,
+                    toDate:this.toDate,
+                    period:this.period,
+                    pageNum:0,
+                    offset:10}).then(res =>{
+                    console.log(res);
+                    this.projects = res.projects;
+                    this.count = res.count;
+                })
+            },
+            reset(){
+                this.fromDate = '';
+                this.toDate = '';
+                this.period = '请选择检测周期';
+                getProjectTests({
+                    deviceID:this.currentDeviceID,
+                    fromDate:this.fromDate,
+                    toDate:this.toDate,
+                    period:this.period,
+                    pageNum:this.currentPage-1,
+                    offset:10}).then(res =>{
+                    console.log(res);
+                    this.projects = res.projects;
+                    this.count = res.count;
+                })
+            },
+            handleCurrentChange(val) {
+                this.currentPage = val;
+                console.log(`当前页: ${val}`);
+                getProjectTests({
+                    deviceID:this.currentDeviceID,
+                    fromDate:this.fromDate,
+                    toDate:this.toDate,
+                    period:this.period,
+                    pageNum:this.currentPage-1,
+                    offset:10}).then(res =>{
+                    console.log(res);
+                    this.projects = res.projects;
+                    this.count = res.count;
+                })
+            },
 
         }
     }

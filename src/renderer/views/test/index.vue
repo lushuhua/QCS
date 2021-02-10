@@ -22,8 +22,8 @@
         <div class="test-tab clearfix">
             <div class="test-tab-left left">
                 <div class="test-type clearfix">
-                    <div class="test-type-item left" :class="{active:typeName=='image'}" @click="typeName='image'">图像分析</div>
-                    <div class="test-type-item right" :class="{active:typeName=='number'}" @click="typeName='number'">数值分析</div>
+                    <div class="test-type-item left" :class="{active:typeName=='image'}"   @click="switchProject('image','图像分析')">图像分析</div>
+                    <div class="test-type-item right" :class="{active:typeName=='number'}" @click="switchProject('number','数值分析')">数值分析</div>
                 </div>
                 <div class="test-upload" v-if="typeName=='image'">
                     <el-button type="primary" class="active" @click="addImage">载入图片</el-button>
@@ -88,28 +88,34 @@
                             >
                                 <div class=test-item>
                                     <div class="test-result">
-                                        <div class="test-result-title">检测值</div>
+                                        <div class="test-result-title">{{item}}的检测值</div>
                                         <div class="test-result-item clearfix">
-                                            <div class="item-number left">{{item}}</div>
+                                            <div class="item-number left"><span>{{project.energyJson.levelNum}}</span></div>
                                             <div class="item-unit left">mm</div>
                                         </div>
                                     </div>
                                     <div class="test-number">
                                         <div class="test-number-title">输入值</div>
                                         <div class="test-number-lists clearfix">
-                                            <div v-for="n in project.testPoint" >
-                                                <div class="left" style="margin: 2%;"> {{(n)*2}}MU</div>
-                                                <div class="test-number-lists-item left" v-for="k in project.numOfInput" :style="{  width: (66/project.numOfInput)+'%'}" >
-                                                    <input type="text" >
+                                            <div v-if="project.energyJson.levelNum==1" ><!--此处无能量档 无检测点 -->
+                                                <div class="test-number-lists-item left" v-for="(inputValue,inputIndex) in project.energyJson.inputData" :key="inputIndex" :style="{  width: (66/project.numOfInput)+'%'}" >
+                                                    <input type="text" v-model="project.energyJson.inputData[inputIndex]">
                                                 </div>
                                             </div>
-                                            <div v-if="project.testPoint==0" >
-                                                <div class="test-number-lists-item left" v-for="k in project.numOfInput" :style="{  width: (66/project.numOfInput)+'%'}" >
-                                                    <input type="text" >
+                                            <div v-if="project.energyJson.levelNum==2" v-for="(energy,energyIndex) in project.energyJson" :key="energyIndex"><!--此处有能量档 无检测点-->
+                                                <div class="left" style="margin: 2%;" v-if="energyIndex!='levelNum'"> {{energyIndex}}</div>
+                                                <div class="test-number-lists-item left" v-if="energyIndex!='levelNum'" v-for="(inputValue,inputIndex) in energy.inputData" :key="inputIndex" :style="{  width: (66/project.numOfInput)+'%'}" >
+                                                    <input type="text" v-model="energy.inputData[inputIndex]">
                                                 </div>
                                             </div>
-
-
+                                            <div v-if="project.energyJson.levelNum==3" v-for="(energy,energyIndex) in project.energyJson" :key="energyIndex"><!--此处有能量档 有检测点-->
+                                                <div v-if="energyIndex!='levelNum'&&energyIndex==item"  v-for="(pointValues,pointIndex) in energy.points" :key="pointIndex">
+                                                    <div class="left" style="margin: 2%;" > {{pointIndex}}</div>
+                                                    <div class="test-number-lists-item left" v-for="(pointValue,pointValueIndex) in pointValues" :key="pointValueIndex" :style="{  width: (66/project.numOfInput)+'%'}" >
+                                                        <input type="text" v-model="pointValues[pointValueIndex]">
+                                                    </div>
+                                                </div>
+                                            </div>
 
                                         </div>
                                     </div>
@@ -123,7 +129,7 @@
                         <td>{{project.detectType}}</td>
                         <td class="" style="width: 50px;">
                             <div class="handle">
-                                <div class="handle-item" @click="showProjectChange(project)">保存</div>
+                                <div class="handle-item" @click="saveProjectChange(project)">保存</div>
                             </div>
                         </td>
                     </tr>
@@ -337,7 +343,7 @@
 </template>
 <script>
     import { mapState } from 'vuex';
-    import { addDicom,getDicoms,delDicom,addDevice,getDevices,delDevice,getProjects,updateProject } from "../../api";
+    import { addDicom,getDicoms,delDicom,addDevice,getDevices,delDevice,getProjects,updateProject,addTestResult } from "../../api";
     export default {
         components: {
         },
@@ -348,6 +354,7 @@
                 showImage:false,
                 showAnalyse:false,
                 typeName:'image',
+                detectType:'图像分析',
                 projects:[],
                 project:{},
                 projCount:0,
@@ -358,15 +365,37 @@
             currentDeviceID: state => state.user.currentDeviceID,
         }),
         mounted() {
-            getProjects({deviceID:this.currentDeviceID,pageNum:0,offset:100}).then(res =>{
+
+            getProjects({deviceID:this.currentDeviceID,detectType:this.detectType,pageNum:0,offset:100}).then(res =>{
                 console.log(res);
                 this.projects = res.projects;
                 //根据检测点数 和输入值的数量以及是否有x线和电子线来自动分配数据
+                this.makeupJson();
+                this.projCount = res.count;
+            })
+        },
+        watch: {
+            currentDeviceID: function (val) {
+                console.log(val);
+                getProjects({deviceID:val,detectType:this.detectType,pageNum:0,offset:100}).then(res =>{
+                    console.log(res);
+                    this.projects = res.projects;
+                    this.makeupJson();
+                    this.projCount = res.count;
+                })
+            }
+        },
+        methods: {
+            handleClick() {
+
+            },
+            makeupJson(){
                 for(var i in this.projects){
                     var project = this.projects[i];
+                    //
                     var energy = this.projects[i].energy;
                     var energyJson = {};
-                    if(energy.length==0){
+                    if(energy.length==0||(energy.length==1&&energy[0]=='-')){
                         //只需要处理输入值
                         energyJson.levelNum = 1;
                         energyJson.inputData = new Array(project.numOfInput).fill(0);
@@ -382,7 +411,7 @@
                             }
                             else{
                                 energyJson.levelNum = 3;
-                                for(var i=0;i<project.testPoint;i++){
+                                for(var n=0;n<project.testPoint;n++){
                                     energyJson[energy[j]]= {};
                                     energyJson[energy[j]]['points'] = {};
                                     energyJson[energy[j]]['points'][(project.testPoint)*2+'MU']=new Array(project.numOfInput).fill(0);
@@ -390,37 +419,97 @@
                             }
                         }
                     }
-                    console.log(energyJson);
+
                     this.projects[i].energyJson = energyJson;
                 }
-
-                this.projCount = res.count;
-            })
-        },
-        watch: {
-            currentDeviceID: function (val) {
-                console.log(val);
-                getProjects({deviceID:val,pageNum:0,offset:100}).then(res =>{
-                    console.log(res);
-                    this.projects = res.projects;
-                    this.projCount = res.count;
-                })
-            }
-        },
-        methods: {
-            handleClick() {
-
+                console.log(this.projects);
             },
             handleClose(){
-                console.log('handleClose')
+                console.log('handleClose2')
+            },
+            switchProject(typeName,detectType){
+                this.typeName = typeName;
+                this.detectType = detectType;
+                getProjects({deviceID:this.currentDeviceID,detectType:detectType,pageNum:0,offset:100}).then(res =>{
+                    console.log(res);
+                    this.projects = res.projects;
+                    //根据检测点数 和输入值的数量以及是否有x线和电子线来自动分配数据
+                    this.makeupJson();
+                    this.projCount = res.count;
+                })
             },
             handleCurrentChange() {
                 this.currentPage = val;
                 console.log(`当前页: ${val}`);
-                getProjects({deviceID:this.currentDeviceID,pageNum:val,offset:100}).then(res =>{
+                getProjects({deviceID:this.currentDeviceID,detectType:this.detectType,pageNum:val,offset:100}).then(res =>{
                     console.log(res);
                     this.projects = res.projects;
+                    this.makeupJson();
                     this.projCount = res.count;
+                })
+            },
+            saveProjectChange(project){
+                console.log(project)
+                //计算检测值
+                var calcValue = 0;
+                if(project.energyJson.levelNum==1){
+                    //平均值
+                    var num = 0;
+                    for(var i in project.energyJson.inputData){
+                        calcValue +=  parseInt(project.energyJson.inputData[i]);
+                        num++;
+                    }
+                    calcValue = calcValue/num;
+                    project.energyJson.result = calcValue;
+
+                }
+                else if(project.energyJson.levelNum==2){
+                    for(var i in project.energyJson){
+                        var inputData = project.energyJson[i].inputData;
+                        calcValue = 0;
+                        for(var j in inputData){
+                            calcValue +=  inputData[j];
+                        }
+                        project.energyJson[i].result = calcValue;
+                    }
+                }
+                else if(project.energyJson.levelNum==3){
+                    console.log(project.energyJson.levelNum)
+                    for(var i in project.energyJson){
+                        if(i=='levelNum')continue;
+
+                        var points = project.energyJson[i].points;
+                        console.log(project.energyJson[i],points)
+                        calcValue = 0;
+                        var oneInputData,num=0;
+                        for(var k in points){
+                            var inputData = points[k];
+                            num++;
+                            oneInputData = inputData;
+                            console.log(k,inputData);
+                            for(var j in inputData){
+                                console.log(inputData[j]);
+                                calcValue +=  parseInt(inputData[j]);
+                            }
+                        }
+                        console.log(calcValue,num,oneInputData.length)
+                        calcValue = calcValue/(num*oneInputData.length);
+
+                        project.energyJson[i].result = calcValue;
+                    }
+                }
+
+                console.log(project.energyJson,project.result)
+                var result={
+                    qscDeviceProjID:project.id,
+                    projectID:project.projectID,
+                    deviceID:project.deviceID,
+                    testResult:JSON.stringify(project.energyJson),
+                    personName:'无'
+                };
+                addTestResult(result).then(res =>{
+                    console.log(res);
+                    alert('保存成功');
                 })
             },
             getWidth(num){
