@@ -2,13 +2,13 @@ const crypto = require("crypto");
 var async = require("async");
 var express = require('express');
 var router = express.Router();
+const path = require('path');
+const os = require('os');
 import { createWebAPIRequest, request,getCurDate } from '../util/util';
-import {DBTABLE} from '../dbaccess/connectDb'
+import {DBTABLE,initCoreData} from '../dbaccess/connectDb'
 const sq3 = require('sqlite3').verbose()
-function  initDb() {
-    var db = new sq3.Database('/Users/cliff/develop/sqlite3db/medical.db');
-    return db;
-}
+
+initCoreData();
 //添加dicom
 router.post('/medical/addDicom', (req, res, next) => {
     var data = '';
@@ -23,7 +23,7 @@ router.post('/medical/addDicom', (req, res, next) => {
         console.log(data);
         var obj = JSON.parse(data);
         console.log(obj);
-        var db = new sq3.Database('/Users/cliff/develop/sqlite3db/medical.db');
+        var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
         var sql = 'INSERT INTO qsc_dicom (customer,aeTitle,ip,port)VALUES(?,?,?,?)';
         if(obj.id>0){
             sql = 'UPDATE qsc_dicom SET customer=?,aeTitle=?,ip=?,port=? WHERE id=? ';
@@ -56,7 +56,7 @@ router.post('/medical/delDicom', (req, res, next) => {
         console.log(data);
         var obj = JSON.parse(data);
         console.log(obj);
-        var db = new sq3.Database('/Users/cliff/develop/sqlite3db/medical.db');
+        var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
         db.run('DELETE FROM qsc_dicom WHERE id='+obj.id)
 
         db.close();
@@ -81,7 +81,7 @@ router.post('/medical/getDicoms', (req, res, next) => {
         console.log('/medical/getDicoms');
         var rows = [],index = 0;
         var resObj ={"msg":"","result":true,"token":"","templates":"","error_code":"0",code:200};
-        var db = new sq3.Database('/Users/cliff/develop/sqlite3db/medical.db');
+        var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
         if(!obj.offset)  obj.offset = 10;
         if(!obj.pageNum) obj.pageNum = 0;
         async.waterfall([
@@ -129,7 +129,7 @@ router.post('/medical/addDevice', (req, res, next) => {
         var obj = JSON.parse(data);
         var resObj ={"msg":"","result":true,"token":"","error_code":"0",code:200};
         console.log(obj);
-        var db = new sq3.Database('/Users/cliff/develop/sqlite3db/medical.db');
+        var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
         var stmt;
         if(obj.id>0){
             var update_sql = 'UPDATE qsc_device  SET model=?,sequence=?,x_energy_level=?,e_energy_level=?,x_volume_percent=?,e_volume_percent=?,e_light_size=?,multileaf_collimator_size=?,default_dir=?,xFFF=? WHERE id=? ' ;
@@ -257,7 +257,7 @@ router.post('/medical/delDevice', (req, res, next) => {
         console.log(data);
         var obj = JSON.parse(data);
         console.log(obj);
-        var db = new sq3.Database('/Users/cliff/develop/sqlite3db/medical.db');
+        var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
         db.run('DELETE FROM qsc_device WHERE id='+obj.id)
 
         db.close();
@@ -282,7 +282,7 @@ router.post('/medical/getDevices', (req, res, next) => {
         console.log('/medical/getDevices');
         var rows = [],index = 0;
         var resObj ={"msg":"","result":true,"token":"","error_code":"0",code:200};
-        var db = new sq3.Database('/Users/cliff/develop/sqlite3db/medical.db');
+        var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
         if(!obj.offset)  obj.offset = 10;
         if(!obj.pageNum) obj.pageNum = 0;
         async.waterfall([
@@ -332,7 +332,7 @@ router.post('/medical/getProjects', (req, res, next) => {
         console.log('/medical/getDevices');
         var rows = [],index = 0;
         var resObj ={"msg":"","result":true,"token":"","error_code":"0",code:200};
-        var db = new sq3.Database('/Users/cliff/develop/sqlite3db/medical.db');
+        var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
         if(!obj.offset)  obj.offset = 10;
         if(!obj.pageNum) obj.pageNum = 0;
         var cond_sql ='';
@@ -460,7 +460,7 @@ router.post('/medical/getProjectTests', (req, res, next) => {
         console.log('/medical/getDevices');
         var rows = [],index = 0;
         var resObj ={"msg":"","result":true,"token":"","error_code":"0",code:200};
-        var db = new sq3.Database('/Users/cliff/develop/sqlite3db/medical.db');
+        var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
         if(!obj.offset)  obj.offset = 10;
         if(!obj.pageNum) obj.pageNum = 0;
         var cond_sql ='';
@@ -541,7 +541,7 @@ router.post('/medical/updateProject', (req, res, next) => {
         console.log(data);
         var obj = JSON.parse(data);
         console.log(obj);
-        var db = new sq3.Database('/Users/cliff/develop/sqlite3db/medical.db');
+        var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
         if(obj.id>0){
             var sql = 'UPDATE '+DBTABLE.DEVICE_PROJ+' SET period=?,threshold=? WHERE id=? ';
             console.log(sql);
@@ -570,7 +570,7 @@ router.post('/medical/addTestResult', (req, res, next) => {
         console.log(data);
         var obj = JSON.parse(data);
         console.log(obj);
-        var db = new sq3.Database('/Users/cliff/develop/sqlite3db/medical.db');
+        var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
         var sql = 'INSERT INTO '+DBTABLE.DEVICE_PROJECT_RESULT+' (qscDeviceProjID,projectID,deviceID,testResult,personName,createDate)VALUES(?,?,?,?,?,?)';
         let stmt = db.prepare(sql);
         stmt.run(obj.qscDeviceProjID, obj.projectID, obj.deviceID,obj.testResult,obj.personName,getCurDate());
