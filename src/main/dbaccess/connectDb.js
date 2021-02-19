@@ -66,6 +66,7 @@ exports.initCoreData = function() {
                 "sequence TEXT," +
                 "x_energy_level TEXT," +
                 "e_energy_level TEXT," +
+                "xFFF TEXT,"+
                 "x_volume_percent INTEGER," +
                 "e_volume_percent INTEGER," +
                 "e_light_size INTEGER," +
