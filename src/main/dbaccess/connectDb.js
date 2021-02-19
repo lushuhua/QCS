@@ -59,7 +59,7 @@ exports.initCoreData = function() {
                 "detectCondition TEXT"+
                 ")");
 
-            // db.run("DROP TABLE qsc_device");
+            db.run("DROP TABLE qsc_device");
             db.run("CREATE TABLE if not exists qsc_device (" +
                 "id INTEGER PRIMARY KEY autoincrement," +
                 "model TEXT," +
