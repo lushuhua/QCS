@@ -20,13 +20,21 @@
             </div>
         </div>
         <div class="test-tab clearfix">
-            <div class="test-tab-left left">
+            <div class="test-tab-left left" style="overflow-y: auto;">
                 <div class="test-type clearfix">
                     <div class="test-type-item left" :class="{active:typeName=='image'}"   @click="switchProject('image','图像分析')">图像分析</div>
                     <div class="test-type-item right" :class="{active:typeName=='number'}" @click="switchProject('number','数值分析')">数值分析</div>
                 </div>
                 <div class="test-upload" v-if="typeName=='image'">
-                    <el-button type="primary" class="active" @click="addImage">载入图片</el-button>
+                    <el-upload class="upload-demo"
+                               action=""
+                               :show-file-list="false"
+                               :on-success="onSuccess"
+                               :http-request="onHttpRequest"
+                               multiple>
+                        <el-button @click="onSuccess">载入图片</el-button>
+                    </el-upload>
+                    <!--<el-button type="primary" class="active" @click="addImage">载入图片</el-button>-->
                     <el-button type="primary" class="active" @click="addDicom()">DICOM传输</el-button>
                 </div>
                 <table class="table test-tab-content" border="0" cellspacing="0" v-if="typeName=='image'">
@@ -63,7 +71,6 @@
                     <tr>
                         <th>项目号</th>
                         <th>项目名称</th>
-                        <th>次级项目名称</th>
                         <th>辐射类型</th>
                         <th>能量档</th>
                         <th>检测值</th>
@@ -76,8 +83,7 @@
                     <tbody class="tab-lists">
                     <tr v-for="(project,index) in projects" :key="index">
                         <td>{{project.projectNo}}</td>
-                        <td>{{project.name}}</td>
-                        <td>{{project.subName}}</td>
+                        <td>{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td>
                         <td>{{project.radioType}}</td>
                         <td>
                             <el-popover
@@ -135,10 +141,25 @@
                     </tr>
                     </tbody>
                 </table>
-                <div class="pagination clearfix">
+                <div class="pagination clearfix" v-if="typeName=='image'">
                     <el-pagination
                             :background="true"
-                            layout="prev, pager, next,jumper"
+                            layout="total, prev, pager, next,jumper"
+                            :page-size="offsetImage"
+                            :total="projCount"
+                            prev-text="上一页"
+                            next-text="下一页"
+                            class="right"
+                            @current-change="handleCurrentChange"
+                            :current-page="currentPage"
+                    >
+                    </el-pagination>
+
+                </div>
+                <div class="pagination clearfix" v-if="typeName=='number'">
+                    <el-pagination
+                            :background="true"
+                            layout="total, prev, pager, next,jumper"
                             :page-size="10"
                             :total="projCount"
                             prev-text="上一页"
@@ -153,7 +174,7 @@
             </div>
             <div class="test-tab-right right">
                  <div class="test-tab-right-item">
-                     拍片条件
+                     WS674标准
                  </div>
                 <div class="test-tab-right-name">
                     6.6.3 旋转运动标尺的零刻度位置
@@ -167,7 +188,6 @@
                 title="DICOM输出"
                 :visible.sync="showDICOM"
                 width="40%"
-                :before-close="handleClose"
                 center
         >
             <div slot="footer">
@@ -179,46 +199,17 @@
         <el-dialog
                 title="本地上传的DICOM图片"
                 :visible.sync="showImage"
-                width="40%"
-                :before-close="handleClose"
+                width="50vw"
                 center
         >
-            <div class="img-lists clearfix">
-                <div class="img-lists-item left">
-                    <img src="" alt="">
+            <div class="img-lists">
+                <div class="img-lists-item" v-for="v in files" :key="v.id">
+                    <img :src="v.fileUrl" alt="">
                 </div>
-                <div class="img-lists-item left">
-                    <img src="" alt="">
-                </div>
-                <div class="img-lists-item left">
-                    <img src="" alt="">
-                </div>
-                <div class="img-lists-item left">
-                    <img src="" alt="">
-                </div>
-                <div class="img-lists-item left">
-                    <img src="" alt="">
-                </div>
-                <div class="img-lists-item left">
-                    <img src="" alt="">
-                </div>
-                <div class="img-lists-item left">
-                    <img src="" alt="">
-                </div>
-                <div class="img-lists-item left">
-                    <img src="" alt="">
-                </div>
-                <div class="img-lists-item left">
-                    <img src="" alt="">
-                </div>
-                <div class="img-lists-item left">
-                    <img src="" alt="">
-                </div>
-
             </div>
             <div slot="footer">
                 <div class="add-image-btn">
-                    <el-button type="primary" class="">取消</el-button>
+                    <el-button type="primary" @click="showImage=false">取消</el-button>
                     <el-button type="primary" class="active" @click="showImageAnalyse()">下一步</el-button>
                 </div>
             </div>
@@ -226,8 +217,7 @@
         <el-dialog
                 title="载入图片分析"
                 :visible.sync="showAnalyse"
-                width="50%"
-                :before-close="handleClose"
+                width="50vw"
                 center
         >
             <div class="img-analyse">
@@ -238,52 +228,11 @@
                     <div class="list-name">
                         <div class="list-name-title">项目名称</div>
                         <div class="list-name-content">
-                            <div class="project-name-lists active">
+                            <div class="project-name-lists" :class="{'active': activeProjectIndex == index}" v-for="(v,index) in projectsData" @click="onProjectChange(index,v)" :key="v.id">
                                 <div class="project-name-lists-item">
-                                    旋转运动标尺的零刻度位置
+                                    {{v.name}}
                                 </div>
                             </div>
-                            <div class="project-name-lists">
-                                <div class="project-name-lists-item">
-                                    旋转运动标尺的零刻度位置
-                                </div>
-                            </div>
-                            <div class="project-name-lists">
-                                <div class="project-name-lists-item">
-                                    旋转运动标尺的零刻度位置
-                                </div>
-                            </div>
-                            <div class="project-name-lists">
-                                <div class="project-name-lists-item">
-                                    旋转运动标尺的零刻度位置
-                                </div>
-                            </div>
-                            <div class="project-name-lists">
-                                <div class="project-name-lists-item">
-                                    旋转运动标尺的零刻度位置
-                                </div>
-                            </div>
-                            <div class="project-name-lists">
-                                <div class="project-name-lists-item">
-                                    旋转运动标尺的零刻度位置
-                                </div>
-                            </div>
-                            <div class="project-name-lists">
-                                <div class="project-name-lists-item">
-                                    旋转运动标尺的零刻度位置
-                                </div>
-                            </div>
-                            <div class="project-name-lists">
-                                <div class="project-name-lists-item">
-                                    旋转运动标尺的零刻度位置
-                                </div>
-                            </div>
-                            <div class="project-name-lists">
-                                <div class="project-name-lists-item">
-                                    旋转运动标尺的零刻度位置
-                                </div>
-                            </div>
-                            
                         </div>
                     </div>
                     <div class="list-image-item">
@@ -343,7 +292,8 @@
 </template>
 <script>
     import { mapState } from 'vuex';
-    import { addDicom,getDicoms,delDicom,addDevice,getDevices,delDevice,getProjects,updateProject,addTestResult } from "../../api";
+    import '../../utils/main'
+    import { addDicom,getDicoms,delDicom,addDevice,getDevices,delDevice,getProjects,updateProject,addTestResult,getFiles } from "../../api";
     export default {
         components: {
         },
@@ -358,37 +308,63 @@
                 projects:[],
                 project:{},
                 projCount:0,
-                currentPage:0,
+                currentPage: 1,
+                offsetImage: 10,
+                files: [],
+                pageNum: 1,
+                offset: 10,
+                projectsData: [],
+                activeProject: {},
+                activeProjectIndex: 0
             }
         },
         computed: mapState({
             currentDeviceID: state => state.user.currentDeviceID,
         }),
         mounted() {
-
-            getProjects({deviceID:this.currentDeviceID,detectType:this.detectType,pageNum:0,offset:100}).then(res =>{
-                console.log(res);
-                this.projects = res.projects;
-                //根据检测点数 和输入值的数量以及是否有x线和电子线来自动分配数据
-                this.makeupJson();
-                this.projCount = res.count;
-            })
+            this.getProjectsFn(1)
         },
         watch: {
             currentDeviceID: function (val) {
                 console.log(val);
-                getProjects({deviceID:val,detectType:this.detectType,pageNum:0,offset:100}).then(res =>{
-                    console.log(res);
-                    this.projects = res.projects;
-                    this.makeupJson();
-                    this.projCount = res.count;
-                })
+                this.getProjectsFn(1)
             }
         },
         methods: {
-            handleClick() {
-
+            onProjectChange(index,value){
+                this.activeProjectIndex = index
+                this.activeProject = value
             },
+            getProjectsFn(state){
+                if (state)  this.pageNum=1
+                getProjects({deviceID: this.currentDeviceID,detectType:this.detectType,pageNum: this.pageNum-1,offset:this.offset}).then(res =>{
+                    console.log(res);
+                    this.projects = res.projects;
+                    //根据检测点数 和输入值的数量以及是否有x线和电子线来自动分配数据
+                    this.makeupJson();
+                    this.projCount = res.count;
+                })
+            },
+            async onHttpRequest(file){
+                // console.log('onHttpRequest',library)
+                console.log('onHttpRequest',file)
+                const libraryData = await library.loadFile(file.file)
+                console.log(libraryData)
+            },
+            onSuccess(file){
+                // console.log('onSuccess',library)
+                // console.log(file)
+                // this.showImage=true;
+                // getFiles({}).then(res=>{
+                //     this.files = res.files
+                // })
+                // getProjects({deviceID: this.currentDeviceID,pageNum: 0,offset: 200}).then(res =>{
+                //     console.log(res);
+                //     this.projectsData = res.projects;
+                //     this.makeupJson();
+                // })
+            },
+            handleClick() {},
             makeupJson(){
                 for(var i in this.projects){
                     var project = this.projects[i];
@@ -430,23 +406,19 @@
             switchProject(typeName,detectType){
                 this.typeName = typeName;
                 this.detectType = detectType;
-                getProjects({deviceID:this.currentDeviceID,detectType:detectType,pageNum:0,offset:100}).then(res =>{
-                    console.log(res);
-                    this.projects = res.projects;
-                    //根据检测点数 和输入值的数量以及是否有x线和电子线来自动分配数据
-                    this.makeupJson();
-                    this.projCount = res.count;
-                })
+                this.getProjectsFn()
             },
-            handleCurrentChange() {
-                this.currentPage = val;
+            handleCurrentChange(val) {
+                switch (this.typeName) {
+                    case 'image':
+                        this.currentPage = val
+                        break
+                    case 'number':
+                        this.pageNum = val
+                        break
+                }
                 console.log(`当前页: ${val}`);
-                getProjects({deviceID:this.currentDeviceID,detectType:this.detectType,pageNum:val,offset:100}).then(res =>{
-                    console.log(res);
-                    this.projects = res.projects;
-                    this.makeupJson();
-                    this.projCount = res.count;
-                })
+                this.getProjectsFn()
             },
             saveProjectChange(project){
                 console.log(project)
@@ -521,9 +493,6 @@
                 else if(num==5)  width='300px';
                 return width;
             },
-            addImage(){
-                this.showImage=true;
-            } ,
             addDicom(){
                 this.showDICOM=true;
             },
@@ -670,19 +639,30 @@
                     justify-content: flex-end;
                     align-items: center;
                     /deep/ .el-button--primary {
-                        width: 14%;
+                        /*width: 14%;*/
                         text-align: center;
                         background: rgba(255, 255, 255, 0.08);
                         border-radius: 4px;
                         border: 1px solid rgba(44, 206, 173, 0.5);
                         color: #2CCEAD;
-                        padding: 0.8% 0;
+                        padding: 0.7vh 1vw;
                         font-size: 14px;
                     }
                     .active{
                         background: #2CCEAD;
                         border-radius: 4px;
                         color: #FFFFFF;
+                    }
+                    .upload-demo{
+                        .el-button{
+                            background: #2CCEAD;
+                            border-radius: 4px;
+                            border: 1px solid rgba(44, 206, 173, 0.5);
+                            color: #FFFFFF;
+                            font-size: 14px;
+                            padding: 0.7vh 1vw;
+                            margin-right: 1vw;
+                        }
                     }
                 }
                 .test-tab-content{
@@ -763,13 +743,15 @@
                     font-size: 13px;
                     color: rgba(255,255,255,0.8);
                     border-bottom: 1px solid #464646;
+                    letter-spacing: 1px;
                 }
                 .test-tab-right-content{
                     font-size: 13px;
                     color: rgba(255,255,255,0.8);
-                    line-height: 15px;
+                    line-height: 30px;
                     padding: 0 10%;
                     margin-top: 10%;
+                    letter-spacing: 1px;
                 }
             }
 
@@ -827,11 +809,23 @@
     .img-lists{
         padding: 2%;
         border-bottom: 1px solid #464646;
+        display: flex;
+        flex-wrap: wrap;
         .img-lists-item{
             /*height: 75px;*/
             background: #fff;
             margin: 1%;
-            padding: 9%;
+            width: 18%;
+            height: 0;
+            padding-top: 18%;
+            position: relative;
+            img{
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+            }
         }
         .img-analyse{
             width: 100%;
@@ -940,7 +934,7 @@
             align-items: center;
             padding: 3% 0;
             .test-result-title{
-                
+
             }
             .test-result-item{
                 width: 40%;

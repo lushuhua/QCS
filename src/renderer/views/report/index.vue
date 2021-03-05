@@ -9,6 +9,7 @@
                             value-format="yyyy-MM-dd hh:mm"
                             format="yyyy-MM-dd HH:mm"
                             placeholder="请选择开始日期"
+                            size="mini"
                     >
                     </el-date-picker>
                 </div>
@@ -19,6 +20,7 @@
                             value-format="yyyy-MM-dd hh:mm"
                             format="yyyy-MM-dd HH:mm"
                             placeholder="请选择结束日期"
+                            size="mini"
                     >
                     </el-date-picker>
                 </div>
@@ -93,14 +95,13 @@
                         :current-page="currentPage"
                 >
                 </el-pagination>
-                
+
             </div>
         </div>
         <el-dialog
                 title="报表打印预览"
                 :visible.sync="dialogVisible"
                 width="40%"
-                :before-close="handleClose"
                 center
         >
 
@@ -371,7 +372,7 @@
                     }
                 }
 
-                
+
             }
         }
         /deep/ .el-dialog__wrapper{

@@ -7,6 +7,7 @@ const path = require('path');
 const os = require('os');
 
 
+console.log('db11111111111111199911');
 
 // var db = new sq3.Database(path.join('sqlite3db','medical.db'));
 exports.DBTABLE =
@@ -17,6 +18,7 @@ exports.DBTABLE =
         DEVICE_PROJ:'qsc_device_proj',
         DEVICE_PROJECT_RESULT:'qsc_device_proj_result',
         PERIOD_DATA:'qsc_period_data',
+        PROJECT_FILE:'qsc_project_file', /// 文件上传
     }
 
 
@@ -25,15 +27,15 @@ var i=3;
 exports.initCoreData = function() {
     let templateFilePath = path.join(process.resourcesPath, 'extraResources','medical.db')
     console.log(templateFilePath)
-    if (fs.existsSync(path.join(process.resourcesPath, 'extraResources'))) {
-        console.log('The path exists.');
-    }
-    else
+    // if (fs.existsSync(path.join(process.resourcesPath, 'extraResources'))) {
+    //     console.log('The path exists.');
+    // }
+    // else
         {
         console.log('the path not exist, start to create database and initial')
-        fs.mkdirSync(path.join(process.resourcesPath, 'extraResources'));
-        console.log(path.join(__dirname, 'extraResources','medical.db'));
-        console.log(path.join(process.resourcesPath, 'extraResources','medical.db'));
+        // fs.mkdirSync(path.join(process.resourcesPath, 'extraResources'));
+        // console.log(path.join(__dirname, 'extraResources','medical.db'));
+        // console.log(path.join(process.resourcesPath, 'extraResources','medical.db'));
         var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));//如果不存在，则会自动创建一个文件
         console.log('initCoreData')
         db.serialize(function() {
@@ -44,6 +46,7 @@ exports.initCoreData = function() {
                 "aeTitle TEXT," +
                 "ip TEXT," +
                 "port TEXT)");
+            // db.run("ALTER TABLE qsc_dicom ADD COLUMN deviceID INTEGER DEFAULT 0 ");
             // db.run("DROP TABLE qsc_project");
             db.run("CREATE TABLE if not exists qsc_project (" +
                 "id INTEGER PRIMARY KEY autoincrement," +
@@ -59,7 +62,7 @@ exports.initCoreData = function() {
                 "detectCondition TEXT"+
                 ")");
 
-            db.run("DROP TABLE qsc_device");
+            // db.run("DROP TABLE qsc_device");
             db.run("CREATE TABLE if not exists qsc_device (" +
                 "id INTEGER PRIMARY KEY autoincrement," +
                 "model TEXT," +
@@ -103,7 +106,14 @@ exports.initCoreData = function() {
                 "numOfDays INTEGER," +
                 "periodRemark TEXT" +
                 ")");
-
+            /// 文件上传数据
+            db.run("CREATE TABLE if not exists qsc_project_file (" +
+                "id INTEGER PRIMARY KEY autoincrement," +
+                "qscDeviceProjID INTEGER," +
+                "checked INTEGER," +
+                "fileUrl TEXT," +
+                "imageUrl TEXT" +
+                ")");
             // db.run("ALTER TABLE  qsc_device ADD COLUMN xFFF INTEGER DEFAULT 0 ");
 
             // db.run("CREATE UNIQUE INDEX dp_index ON qsc_device_proj(deviceID, projectID) ");
@@ -113,9 +123,9 @@ exports.initCoreData = function() {
             // });
             //初始化日期表
             var insert_sql = 'INSERT INTO qsc_period_data (numOfDays,periodRemark) VALUES(1,"1天"),(7,"1周"),(30,"1月"),(90,"3月"),(180,"6月"),(365,"1年")';
-            db.run(insert_sql);
+            // db.run(insert_sql);
             //初始化项目表
-            var insert_sql = 'INSERT INTO qsc_project (projectNo,name,subName,radioType,testPoint,numOfInput,threshold,period,detectType,detectCondition) ' +
+            insert_sql = 'INSERT INTO qsc_project (projectNo,name,subName,radioType,testPoint,numOfInput,threshold,period,detectType,detectCondition) ' +
                 'VALUES' +
                 '("6.5.2","等中心的指示（激光灯）",       "",                      "无",     "0","5","≤2 mm",       "1天","数值分析","将感光胶片放置于..."),' +
                 '("6.1.1","剂量偏差",                   "",                      "X和电子", "1","1","≤3%",         "1周","数值分析","将感光胶片放置于..."),' +
@@ -125,10 +135,13 @@ exports.initCoreData = function() {
                 '("6.7.3","治疗床的运动精度",             "前后",                  "无",      "1","1","≤2 mm",          "6月","影像分析","将感光胶片放置于..."),' +
                 '("6.1.6","日稳定性（剂量）"             ,  ""                    ,"无",      "2","3","2%",          "6月","数值分析","将感光胶片放置于..."),' +
                 '("6.1.2","重复性（剂量）"             ,  "",                     "X和电子",  "0","5","≤0.5%",       "6月","数值分析","将感光胶片放置于...")' ;
-            db.run(insert_sql);
+            // db.run(insert_sql);
             console.log("SELECT * FROM qsc_project limit 0,100");
-            db.each("SELECT * FROM qsc_project limit 0,100", function(err, row) {
-                console.log(row);
+            insert_sql = "SELECT * FROM qsc_project_file limit 0,10"
+            console.log('insert_sql',insert_sql)
+            db.run(insert_sql, function(err, row) {
+                console.log('err',err)
+                console.log('db119911',row);
             });
         });
         db.close();

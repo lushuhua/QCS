@@ -16,7 +16,7 @@
                     <el-option
                             v-for="item in devices"
                             :key="item.id"
-                            :label="item.value"
+                            :label="item.model+'-'+item.sequence"
                             :value="item.id">
                     </el-option>
                 </el-select>
@@ -40,6 +40,7 @@
 <script>
     import { getDevices } from "../../api";
     import { deepCopy } from "../../../main/util/util";
+    import {mapState} from 'vuex'
     const {BrowserWindow} = require('electron')
     export default {
         props: {
@@ -63,10 +64,28 @@
                         label: '设备2'
                     }
                 ],
-                devices:[],
+                // devices:[],
                 defaultDevice:{},
                 defaultID:0,
             }
+        },
+        created(){
+            getDevices({pageNum:0,offset:100}).then(res =>{
+                console.log(res);
+                // this.devices = res.devices;
+                // for(var i in this.devices){
+                //     this.devices[i].value = this.devices[i].model+'-'+ this.devices[i].sequence;
+                // }
+                // this.defaultDevice = this.devices[0];
+                // this.defaultID = this.devices[0].id
+                // this.$store.dispatch('SET_CUR_DEVICE',this.devices[0].id)
+                this.$store.commit('SET_DEVICES',res.devices)
+                if (res.devices && res.devices.length>0){
+                    this.$store.dispatch('SET_CUR_DEVICE',res.devices[0].id)
+                    this.defaultDevice = res.devices[0];
+                    this.defaultID = res.devices[0].id
+                }
+            })
         },
         computed:{
           getDateTime(){
@@ -76,22 +95,13 @@
               let days = date.getDate() < 10 ? '0'+date.getDate():date.getDate();
               let weeks = this.weekArr[date.getDay()];
               return years + '-' + months + '-'  + days + '  ' + weeks;
-          }
+          },
+          ...mapState({
+              devices: state=> state.user.devices
+          })
         },
         mounted() {
             console.log('0')
-
-            getDevices({pageNum:0,offset:100}).then(res =>{
-                console.log(res);
-                this.devices = res.devices;
-                for(var i in this.devices){
-                    this.devices[i].value = this.devices[i].model+'-'+ this.devices[i].sequence;
-                }
-                this.defaultDevice = this.devices[0];
-                this.defaultID = this.devices[0].id
-                this.$store.dispatch('SET_CUR_DEVICE',this.devices[0].id)
-
-            })
         },
         methods: {
             deviceChange(id){

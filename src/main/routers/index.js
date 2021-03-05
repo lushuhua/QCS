@@ -7,6 +7,7 @@ const os = require('os');
 import { createWebAPIRequest, request,getCurDate } from '../util/util';
 import {DBTABLE,initCoreData} from '../dbaccess/connectDb'
 const sq3 = require('sqlite3').verbose()
+const fileupload = require('./fileupload')
 
 initCoreData();
 //添加dicom
@@ -24,7 +25,7 @@ router.post('/medical/addDicom', (req, res, next) => {
         var obj = JSON.parse(data);
         console.log(obj);
         var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
-        var sql = 'INSERT INTO qsc_dicom (customer,aeTitle,ip,port)VALUES(?,?,?,?)';
+        var sql = 'INSERT INTO qsc_dicom (customer,aeTitle,ip,port,deviceID)VALUES(?,?,?,?,?)';
         if(obj.id>0){
             sql = 'UPDATE qsc_dicom SET customer=?,aeTitle=?,ip=?,port=? WHERE id=? ';
             let stmt = db.prepare(sql);
@@ -33,7 +34,7 @@ router.post('/medical/addDicom', (req, res, next) => {
         }
         else{
             let stmt = db.prepare(sql);
-            stmt.run(obj.customer, obj.aeTitle, obj.ip, obj.port);
+            stmt.run(obj.customer, obj.aeTitle, obj.ip, obj.port,obj.deviceID);
             stmt.finalize();
         }
 
@@ -86,7 +87,7 @@ router.post('/medical/getDicoms', (req, res, next) => {
         if(!obj.pageNum) obj.pageNum = 0;
         async.waterfall([
             function(callback) {
-                var select_sql = "SELECT * FROM qsc_dicom  ORDER BY id DESC limit "+obj.offset*obj.pageNum+','+obj.offset;
+                var select_sql = "SELECT * FROM qsc_dicom WHERE deviceID="+ obj.deviceID +" ORDER BY id DESC limit "+obj.offset*obj.pageNum+','+obj.offset;
                 console.log(select_sql)
                 db.all(select_sql, function(err, rows) {
                     console.log(rows)
@@ -95,7 +96,7 @@ router.post('/medical/getDicoms', (req, res, next) => {
                 });
             },
             function(callback) {
-                var select_all_sql = "SELECT COUNT(*) AS count FROM qsc_dicom ";
+                var select_all_sql = "SELECT COUNT(*) AS count FROM qsc_dicom  WHERE deviceID="+ obj.deviceID;
                 db.all(select_all_sql, function(err, row) {
                     console.log(row)
                     resObj.count = row[0].count;
@@ -290,7 +291,8 @@ router.post('/medical/getDevices', (req, res, next) => {
                 var select_sql = "SELECT * FROM qsc_device  ORDER BY id DESC limit "+obj.offset*obj.pageNum+','+obj.offset;
                 console.log(select_sql)
                 db.all(select_sql, function(err, rows) {
-                    console.log(rows)
+                    // console.log(rows)
+                    console.log(err,rows)
                     resObj.devices = rows;
                     callback(null);
                 });
@@ -298,7 +300,7 @@ router.post('/medical/getDevices', (req, res, next) => {
             function(callback) {
                 var select_all_sql = "SELECT COUNT(*) AS count FROM qsc_device ";
                 db.all(select_all_sql, function(err, row) {
-                    console.log(row)
+                    // console.log(row)
                     resObj.count = row[0].count;
                     callback(null);
                 });
@@ -352,7 +354,7 @@ router.post('/medical/getProjects', (req, res, next) => {
                 console.log(select_sql)
                 db.all(select_sql, function(err, rows) {
                     console.log(err)
-                    console.log(rows)
+                    // console.log(rows)
 
                     async.forEachOf(rows, function (row, index, eachcallback) {
                         var energy = [];
@@ -360,14 +362,14 @@ router.post('/medical/getProjects', (req, res, next) => {
                             var x_energy_arr = JSON.parse(row.x_energy_level);
                             console.log(x_energy_arr);
                             for(var j in x_energy_arr) {
-                                energy.push(x_energy_arr[j]+'MV')
+                                energy.push(x_energy_arr[j].x+'MV')
                             }
                         }
                         if((row.radioType=='电子'||row.radioType=='X和电子')&&row.e_energy_level&&row.e_energy_level.length>0){
                             var e_energy_arr = JSON.parse(row.e_energy_level);
                             console.log(e_energy_arr);
                             for(var j in e_energy_arr) {
-                                energy.push(e_energy_arr[j]+'MeV')
+                                energy.push(e_energy_arr[j].x+'MeV')
                             }
                         }
                         if(energy.length==0) energy[0] = '-';
@@ -376,7 +378,7 @@ router.post('/medical/getProjects', (req, res, next) => {
                         var getsql = 'SELECT * FROM  '+DBTABLE.DEVICE_PROJECT_RESULT+' WHERE id=(SELECT max(id) FROM '+DBTABLE.DEVICE_PROJECT_RESULT+' WHERE qscDeviceProjID='+row.id+')'
                         console.log(getsql);
                         db.all(getsql, function(err, result) {
-                            console.log(row.id,result)
+                            // console.log(row.id,result)
                             if(result&&result.length>0){
                                 if(result[0].testResult) {
                                     row.testResult = JSON.parse(result[0].testResult);
@@ -423,7 +425,7 @@ router.post('/medical/getProjects', (req, res, next) => {
                     " LEFT JOIN " +DBTABLE.PROJECT+' AS proj ON dp.projectID=proj.id'+
                     "  WHERE dp.deviceID="+obj.deviceID+cond_sql;
                 db.all(select_all_sql, function(err, row) {
-                    console.log(row)
+                    // console.log(row)
                     resObj.count = row[0].count;
                     callback(null);
                 });
@@ -2149,10 +2151,10 @@ router.get('/top/mv', (req, res, next) => {
 
     createWebAPIRequest(
         "music.163.com",
+        cookie,
         "/weapi/mv/toplist",
         "POST",
         data,
-        cookie,
         music_req => {
             res.setHeader("Content-Type", "application/json");
             res.send(music_req);
@@ -2522,5 +2524,41 @@ router.get('/user/update', (req, res, next) => {
     );
 });
 
+/// 文件上传
+router.post('/upload/file', fileupload.uploadFile);
+
+/// 获取上传的文件
+router.post('/file/getFiles', (req,res,next)=>{
+    var data = '';
+    req.on('data',function (chunk) {
+        console.log('-------');
+        console.log(chunk);
+        data +=chunk;
+    });
+    req.on('end',function (chunk) {
+        console.log('end');
+        var resObj ={"msg":"数据获取成功","result":true,"token":"","error_code":"0",code:200};
+        console.log('data',data);
+        var obj = JSON.parse(data);
+        console.log(obj);
+        var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
+        let sqlStr = ''
+        if (obj.hasOwnProperty('checked')){
+            sqlStr += ' AND checked='+ obj.checked
+        }
+        var sql = 'SELECT * FROM '+ DBTABLE.PROJECT_FILE +' WHERE 1'+ sqlStr +' ORDER BY id DESC';
+        db.all(sql,function (err,result) {
+            if (err){
+                console.log(err)
+                resObj.result = false
+                resObj.msg = '数据获取出错'
+            }else {
+                resObj.files = result
+            }
+            db.close();
+            res.send(resObj);
+        });
+    })
+});
 
 export default router

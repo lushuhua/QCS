@@ -7,6 +7,7 @@ export default {
         profile: locs.get('profile'),
         currentDeviceID:locs.get('deviceID'),
         isTemp:0,
+        devices: []
     },
     mutations: {
         SET_USER_DATA: (state, data) => {
@@ -17,6 +18,10 @@ export default {
         SET_DEVICE: (state, data) => {
             console.log(data)
             state.currentDeviceID = data;
+        },
+        SET_DEVICES: (state, data) => {
+            console.log(data)
+            state.devices = data;
         },
     },
     actions: {

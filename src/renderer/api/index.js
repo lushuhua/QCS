@@ -107,3 +107,6 @@ export function djlist(catid) {
 export function djcat() {
     return http.get('/dj/catelist')
 }
+export function getFiles(data) {
+    return http.post('/file/getFiles',data)
+}

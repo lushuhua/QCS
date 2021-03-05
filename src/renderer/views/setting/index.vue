@@ -31,8 +31,12 @@
                     <tr v-for="(device,index) in devices" :key="index">
                         <td>{{device.model}}</td>
                         <td>{{device.sequence}}</td>
-                        <td>{{device.x_energy_level}} {{device.xFFF==1?'FFF模式':''}}</td>
-                        <td>{{device.e_energy_level}}</td>
+                        <td>
+                            <div v-for="(v,index) in device.powerX" :key="index">{{v.x}}{{v.checked?' FFF模式':''}}</div>
+                        </td>
+                        <td>
+                            <div v-for="(v,index) in device.powerE" :key="index">{{v.x}}</div>
+                        </td>
                         <td>{{device.x_volume_percent}}</td>
                         <td>{{device.e_volume_percent}}</td>
                         <td>{{device.e_light_size}}</td>
@@ -51,7 +55,6 @@
                     <tr>
                         <th>项目号</th>
                         <th>项目名称</th>
-                        <th>次级项目名称</th>
                         <th>阈值</th>
                         <th>检测周期</th>
                         <th>辐射类型</th>
@@ -63,12 +66,11 @@
                     <tbody class="tab-lists">
                     <tr v-for="(project,index) in projects" :key="index">
                         <td>{{project.projectNo}}</td>
-                        <td>{{project.name}}</td>
-                        <td>{{project.subName}}</td>
+                        <td>{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td>
                         <td>{{project.threshold}}</td>
                         <td>{{project.period}}</td>
                         <td>{{project.radioType}}</td>
-                        <td>{{project.energy}}</td>
+                        <td><div v-for="(v,index) in device.powerX" :key="index">{{v.x}}{{v.checked?' FFF模式':''}}</div></td>
                         <td>{{project.detectType}}</td>
                         <td class="">
                             <div class="handle">
@@ -107,17 +109,47 @@
 
                     </tbody>
                 </table>
-                <div class="pagination clearfix">
+                <div class="pagination clearfix" v-show="showTypeIndex==0">
                     <el-pagination
                             :background="true"
-                            layout="prev, pager, next,jumper"
+                            layout="total, prev, pager, next,jumper"
                             :page-size="10"
-                            :total="dicomCount"
+                            :total="deviceInfo.count"
                             prev-text="上一页"
                             next-text="下一页"
                             class="right"
                             @current-change="handleCurrentChange"
-                            :current-page="currentPage"
+                            :current-page="deviceInfo.pageNum"
+                    >
+                    </el-pagination>
+
+                </div>
+                <div class="pagination clearfix" v-show="showTypeIndex==1">
+                    <el-pagination
+                            :background="true"
+                            layout="total, prev, pager, next,jumper"
+                            :page-size="10"
+                            :total="projectInfo.count"
+                            prev-text="上一页"
+                            next-text="下一页"
+                            class="right"
+                            @current-change="handleCurrentChange"
+                            :current-page="projectInfo.pageNum"
+                    >
+                    </el-pagination>
+
+                </div>
+                <div class="pagination clearfix" v-show="showTypeIndex==2">
+                    <el-pagination
+                            :background="true"
+                            layout="total, prev, pager, next,jumper"
+                            :page-size="10"
+                            :total="dicomsInfo.count"
+                            prev-text="上一页"
+                            next-text="下一页"
+                            class="right"
+                            @current-change="handleCurrentChange"
+                            :current-page="dicomsInfo.pageNum"
                     >
                     </el-pagination>
 
@@ -126,89 +158,99 @@
                         title="添加加速器"
                         :visible.sync="showAccelerate"
                         width="60%"
-                        :before-close="handleClose"
                         center
                 >
                     <div class="project-change-lists">
-                        <div class="project-change-lists-item clearfix">
-                            <div class="item-content left">
-                                <input type="text" placeholder="请输入" v-model="device.model">
-                            </div>
-                            <div class="item-name left">型号</div>
+                        <div class="project-change-lists-item required">
+                            <input type="text" class="item-content" placeholder="请输入" v-model="device.model">
+                            <div class="item-name">加速器型号</div>
                         </div>
-                        <div class="project-change-lists-item clearfix">
-                            <div class="item-content left">
-                                <input type="text" placeholder="请输入" v-model="device.sequence">
-                            </div>
-                            <div class="item-name left">序号</div>
+                        <div class="project-change-lists-item required">
+                            <input type="number" min="0" class="item-content" placeholder="请输入" v-model="device.sequence">
+                            <div class="item-name">加速器序号</div>
                         </div>
                     </div>
                     <div class="project-change-lists">
 
-                        <div class="project-change-lists-item clearfix">
-                            <div class="item-content left" style="width: 30%">
-                                <input type="text" placeholder="请输入" v-model="curX">
+                        <div class="project-change-lists-item project-change-x-line required" :class="{'project-change-line': !device.powerX || device.powerX.length==0}">
+                            <div class="content">
+                                <input type="number" class="item-content" min="0" placeholder="请输入" style="width: 30%;" v-model="curX">
+                                <div class="item-name-short">x线/MV</div>
                             </div>
-                            <div class="item-name-short left">x线/MV</div>
-                            <div class="item-name-short left">
-                                <input type="checkbox" placeholder="请输入" v-model="device.xFFF">FFF模式
+                            <!--<div class="item-name-short">-->
+                                <!--<input type="checkbox" placeholder="请输入" v-model="device.xFFF">FFF模式-->
+                            <!--</div>-->
+                            <!--<input type="checkbox" placeholder="请输入" v-model="device.xFFF">FFF模式-->
+                            <div class="project-change-checkbox">
+                                <el-checkbox v-model="curCheckedX">FFF模式</el-checkbox>
                             </div>
                         </div>
-
-                        <div class="project-change-lists-item clearfix">
-                            <div class="item-content left">
-                                能量档：<span v-for="(x,index) in xArr" :key="index">{{x}},</span>
+                        <div class="project-change-lists-item project-change-x-line" :class="{'project-change-line': index === device.powerX.length-1}" v-for="(v,index) in device.powerX" :key="index">
+                            <div class="content">
+                                <input type="text" class="item-content" placeholder="请输入" style="width: 30%;" v-model="v.x" readonly>
+                                <div class="item-name-short">x线/MV</div>
+                                <img src="../../assets/images/del.png" class="content-del" @click="onPowerClickDel(index)">
                             </div>
-                            <div class="item-name left" @click="addEnergyX()">
-                                添加
+                            <div class="project-change-checkbox">
+                                <el-checkbox v-model="v.checked" readonly>FFF模式</el-checkbox>
                             </div>
-
+                        </div>
+                        <div class="project-change-lists-item project-change-power-add" @click="onPowerClickX">
+                            <!--<div class="item-content left">-->
+                                <!--能量档：<span v-for="(x,index) in xArr" :key="index">{{x}},</span>-->
+                            <!--</div>-->
+                            <!--<div class="item-name left" @click="addEnergyX()">-->
+                                <!--添加-->
+                            <!--</div>-->
+                            <img src="../../assets/images/add.png" width="18" style="margin-right: 5px;vertical-align: middle">添加x线能量档
                         </div>
                     </div>
                     <div class="project-change-lists">
-                        <div class="project-change-lists-item clearfix">
-                            <div class="item-content left">
-                                <input type="text" placeholder="请输入" v-model="curE">
-                            </div>
+                        <div class="project-change-lists-item project-change-e" :class="{'project-change-line': !device.powerE || device.powerE.length==0}">
+                            <input type="number" min="0" class="item-content" placeholder="请输入" v-model="curE">
                             <div class="item-name left">电子线/MeV</div>
                         </div>
-                        <div class="project-change-lists-item clearfix">
-                            <div class="item-content left">
-                                能量档：<span v-for="(x,index) in eArr" :key="index">{{x}},</span>
-                            </div>
+                        <div class="project-change-lists-item project-change-e" :class="{'project-change-line': index === device.powerE.length-1}" v-for="(v,index) in device.powerE" :key="index">
+                            <input type="number" min="0" class="item-content" placeholder="请输入" v-model="v.x" readonly>
+                            <div class="item-name left">电子线/MeV</div>
+                            <img src="../../assets/images/del.png" class="content-del" @click="onPowerClickDelE(index)">
+                        </div>
+                        <div class="project-change-lists-item project-change-power-add" @click="onPowerClickE">
+                            <!--<div class="item-content">-->
+                                <!--能量档：<span v-for="(x,index) in eArr" :key="index">{{x}},</span>-->
+                            <!--</div>-->
 
-                            <div class="item-name left" @click="addEnergyE()">
-                                添加
-                            </div>
-
+                            <!--<div class="item-name" @click="addEnergyE()">-->
+                                <!--添加-->
+                            <!--</div>-->
+                            <img src="../../assets/images/add.png" width="18" style="margin-right: 5px;vertical-align: middle">添加电子线能量档
                         </div>
                     </div>
                     <div class="project-change-lists">
-                        <div class="project-change-lists-item clearfix">
-                            <div class="item-content left">
-                                <input type="text" placeholder="请输入" v-model="device.x_volume_percent">
-                            </div>
-                            <div class="item-name left">x线深度百分计量/%</div>
+                        <div class="project-change-lists-item required">
+                            <input type="number" class="item-content" min="0" placeholder="请输入" style="width: 20%;" v-model="device.x_volume_percent">
+                            <div class="item-name">x线深度百分剂量/%</div>
                         </div>
-                        <div class="project-change-lists-item clearfix">
-                            <div class="item-content left">
-                                <input type="text" placeholder="请输入" v-model="device.e_volume_percent">
-                            </div>
-                            <div class="item-name left">电子线深度百分计量/%</div>
+                        <div class="project-change-lists-item">
+                            <input type="number" class="item-content" min="0" placeholder="请输入" style="width: 20%;" v-model="device.e_volume_percent">
+                            <div class="item-name">电子线深度百分剂量/%</div>
                         </div>
                     </div>
                     <div class="project-change-lists">
-                        <div class="project-change-lists-item clearfix">
-                            <div class="item-content left">
-                                <input type="text" placeholder="请输入" v-model="device.e_light_size">
-                            </div>
-                            <div class="item-name left">电子线光筒/cm cone</div>
+                        <div class="project-change-lists-item required">
+                            <input type="number" class="item-content" min="0" placeholder="请输入" style="width: 20%;" v-model="device.e_light_size">
+                            <div class="item-name">电子限光筒/cm cone</div>
                         </div>
-                        <div class="project-change-lists-item clearfix">
-                            <div class="item-content left">
-                                <input type="text" placeholder="请输入" v-model="device.multileaf_collimator_size">
+                        <div class="project-change-lists-item">
+                            <div class="item-content project-change-radio-group" style="width: 65%;">
+                                <!--<input type="text" placeholder="请输入" v-model="device.multileaf_collimator_size">-->
+                                <el-radio-group v-model="device.multileaf_collimator_size">
+                                    <el-radio :label="40">40</el-radio>
+                                    <el-radio :label="60">60</el-radio>
+                                    <el-radio :label="80">80</el-radio>
+                                </el-radio-group>
                             </div>
-                            <div class="item-name left">多叶光栅</div>
+                            <div class="item-name">多叶光栅(对)</div>
                         </div>
                     </div>
                     <div slot="footer">
@@ -222,7 +264,6 @@
                         title="删除"
                         :visible.sync="isShowDelete"
                         width="30%"
-                        :before-close="handleClose"
                         center
                 >
                     <div class="delete-item clearfix">
@@ -239,21 +280,16 @@
                         title="修改项目配置"
                         :visible.sync="isShowProjectChange"
                         width="50%"
-                        :before-close="handleClose"
                         center
                 >
                     <div class="project-change-lists">
-                         <div class="project-change-lists-item clearfix">
-                             <div class="item-content left">
-                                 <input type="text" v-model="project.period">
-                             </div>
-                             <div class="item-name left">检测周期</div>
+                         <div class="project-change-lists-item">
+                             <input class="item-content" type="text" v-model="project.period">
+                             <div class="item-name">检测周期</div>
                          </div>
-                        <div class="project-change-lists-item clearfix">
-                            <div class="item-content left">
-                                <input type="text" v-model="project.threshold">
-                            </div>
-                            <div class="item-name left">阈值</div>
+                        <div class="project-change-lists-item">
+                            <input type="text" class="item-content" v-model="project.threshold">
+                            <div class="item-name">阈值</div>
                         </div>
                     </div>
                     <div slot="footer">
@@ -266,36 +302,27 @@
                 <el-dialog
                         title="添加DICOM输出配置"
                         :visible.sync="isShowDICOM"
-                        width="40%"
-                        :before-close="handleClose"
+                        width="55%"
                         center
                 >
                     <div class="project-change-lists">
-                        <div class="project-change-lists-item clearfix">
-                            <div class="item-content left">
-                                <input type="text" placeholder="请输入" v-model="diCom.customer">
-                            </div>
-                            <div class="item-name left">客户端</div>
+                        <div class="project-change-lists-item">
+                            <input type="text" class="item-content" style="width: 60%" placeholder="请输入" v-model="diCom.customer">
+                            <div class="item-name ">客户端</div>
                         </div>
-                        <div class="project-change-lists-item clearfix">
-                            <div class="item-content left">
-                                <input type="text" placeholder="请输入" v-model="diCom.aeTitle">
-                            </div>
-                            <div class="item-name left">AE Title</div>
+                        <div class="project-change-lists-item ">
+                            <input type="text" class="item-content" style="width: 60%" placeholder="请输入" v-model="diCom.aeTitle">
+                            <div class="item-name">AE Title</div>
                         </div>
                     </div>
-                    <div class="project-change-lists" style="border-bottom: 1px solid #464646;padding: 0 0 4% 0;">
-                        <div class="project-change-lists-item clearfix">
-                            <div class="item-content left">
-                                <input type="text" placeholder="请输入" v-model="diCom.ip">
-                            </div>
-                            <div class="item-name left">IP地址</div>
+                    <div class="project-change-lists">
+                        <div class="project-change-lists-item">
+                            <input class="item-content" type="text" style="width: 60%" placeholder="请输入" v-model="diCom.ip">
+                            <div class="item-name">IP地址</div>
                         </div>
-                        <div class="project-change-lists-item clearfix">
-                            <div class="item-content left">
-                                <input type="text" placeholder="请输入" v-model="diCom.port">
-                            </div>
-                            <div class="item-name left">端口号</div>
+                        <div class="project-change-lists-item">
+                            <input type="text" class="item-content" style="width: 60%" placeholder="请输入" v-model="diCom.port">
+                            <div class="item-name">端口号</div>
                         </div>
                     </div>
                     <div slot="footer">
@@ -335,43 +362,42 @@
                     sequence:'',
                     x_energy_level:'',
                     e_energy_level:'',
-                    x_volume_percent:0,
-                    e_volume_percent:0,
-                    e_light_size:0,
-                    multileaf_collimator_size:0,
+                    x_volume_percent: undefined,
+                    e_volume_percent: undefined,
+                    e_light_size: undefined,
+                    multileaf_collimator_size: undefined,
                     default_dir:'',
+                    powerX: [], //当前x的能量档
+                    powerE: []  //当前y的能量档
                 },
-                xArr:[],//当前x的能量档
-                eArr:[],//当前y的能量档
-                curX:0,//能量档
-                curE:0,//能量档
+                curX: undefined,//能量档
+                curE: undefined,//能量档
                 dicoms:[],
-                dicomCount:0,
+                totalCount:0,
                 currentPage:0,
                 devices:[],
-                devicesCount:0,
                 projects:[],
                 project:{},
+                curCheckedX: false,
+                deviceInfo: {
+                    pageNum: 1,
+                    offset: 10,
+                    count: 0
+                },
+                dicomsInfo: {
+                    pageNum: 1,
+                    offset: 10,
+                    count: 0
+                },
+                projectInfo: {
+                    pageNum: 1,
+                    offset: 10,
+                    count: 0
+                }
             }
         },
         mounted() {
              console.log('0')
-            getDicoms({pageNum:0,offset:10}).then(res =>{
-                console.log(res);
-                this.dicoms = res.dicoms;
-                this.dicomCount = res.count;
-            })
-            getDevices({pageNum:0,offset:10}).then(res =>{
-                console.log(res);
-                this.devices = res.devices;
-                this.deviceount = res.count;
-            })
-            console.log(this.currentDeviceID)
-            getProjects({deviceID:this.currentDeviceID,pageNum:0,offset:100}).then(res =>{
-                console.log(res);
-                this.projects = res.projects;
-                this.deviceount = res.count;
-            })
         },
         computed: mapState({
             currentDeviceID: state => state.user.currentDeviceID,
@@ -382,6 +408,7 @@
         created(){
             console.log('setting created')
             console.log(this.currentDevice)
+            this.getDevicesData(1)
         },
         beforeMount(){
             console.log('beforeMount')
@@ -389,14 +416,85 @@
         watch: {
             currentDeviceID: function (val) {
                 console.log(val);
-                getProjects({deviceID:val,pageNum:0,offset:100}).then(res =>{
-                    console.log(res);
-                    this.projects = res.projects;
-                    this.deviceount = res.count;
-                })
+                this.getProjectsData()
             }
         },
         methods: {
+            getProjectsData(state){
+                if (state) this.projectInfo.pageNum = 1
+                getProjects({deviceID:this.currentDeviceID,pageNum: this.projectInfo.pageNum-1,offset: this.projectInfo.offset}).then(res =>{
+                    console.log(res);
+                    if (res.devices){
+                        res.devices.forEach(val=>{
+                            val.powerX = JSON.parse(val.energy)
+                            // val.powerE = val.e_energy_level?JSON.parse(val.e_energy_level):[]
+                        })
+                    }
+                    this.projects = res.projects;
+                    this.projectInfo.count = res.count;
+                })
+            },
+            getDicomsData(state){
+                if (state) this.dicomsInfo.pageNum = 1
+                getDicoms({deviceID:this.currentDeviceID,pageNum: this.dicomsInfo.pageNum-1,offset: this.dicomsInfo.offset}).then(res =>{
+                    console.log(res);
+                    this.dicoms = res.dicoms;
+                    this.dicomsInfo.count = res.count;
+                })
+            },
+            getDevicesData(state){
+                if (state) this.deviceInfo.pageNum = 1
+                getDevices({pageNum: this.deviceInfo.pageNum-1,offset: this.deviceInfo.offset}).then(res =>{
+                    console.log(res);
+                    if (res.devices){
+                        res.devices.forEach(val=>{
+                            val.powerX = JSON.parse(val.x_energy_level)
+                            val.powerE = val.e_energy_level?JSON.parse(val.e_energy_level):[]
+                        })
+                    }
+                    this.devices = res.devices;
+                    this.deviceInfo.count = res.count;
+                    this.$store.commit('SET_DEVICES',res.devices)
+                })
+            },
+            onPowerClickX(){
+                this.device.powerX = this.device.powerX?this.device.powerX:[]
+                if (this.curCheckedX) {  /// FFF模式只能有一个
+                    let index = this.device.powerX.findIndex(val=>val.checked)
+                    if (index != -1){
+                        this.$message.error('FFF模式只能有一个')
+                        return
+                    }
+                }
+                if (!this.curX){
+                    this.$message.error('请填写X线')
+                    return
+                }
+                this.device.powerX.push({x: this.curX,checked: this.curCheckedX})
+                console.log(this.device.powerX)
+                this.curX = undefined
+                this.curCheckedX = false
+                this.$forceUpdate()
+            },
+            onPowerClickDel(index){
+                this.device.powerX.splice(index,1)
+                this.$forceUpdate()
+            },
+            onPowerClickE(){
+                this.device.powerE = this.device.powerE?this.device.powerE:[]
+                if (!this.curE){
+                    this.$message.error('请填写电子线')
+                    return
+                }
+                this.device.powerE.push({x: this.curE})
+                console.log(this.device.powerE)
+                this.curE = undefined
+                this.$forceUpdate()
+            },
+            onPowerClickDelE(index){
+                this.device.powerE.splice(index,1)
+                this.$forceUpdate()
+            },
             handleClick() {
 
             },
@@ -408,56 +506,69 @@
                 console.log(`每页 ${val} 条`);
             },
             handleCurrentChange(val) {
-                this.currentPage = val;
                 console.log(`当前页: ${val}`);
-                getDicoms({pageNum:this.currentPage-1,offset:10}).then(res =>{
-                    console.log(res);
-                    this.dicoms = res.dicoms;
-                    this.dicomCount = res.count;
-                })
+                switch (this.showTypeIndex) {
+                    case 0:
+                        this.deviceInfo.pageNum = val
+                        break;
+                    case 1:
+                        this.projectInfo.pageNum = val
+                        break;
+                    case 2:
+                        this.dicomsInfo.pageNum = val
+                        break;
+                }
+                this.changeType(this.typeName,this.showTypeIndex)
             },
             saveDicom(){
               console.log(this.diCom);
+                this.diCom.deviceID = this.currentDeviceID
                 addDicom(this.diCom).then(res =>{
                     console.log(res);
                     this.isShowDICOM = false;
-                    getDicoms({pageNum:0,offset:10}).then(res =>{
-                        console.log(res);
-                        this.dicoms = res.dicoms;
-                        this.dicomCount = res.count;
-                    })
+                    this.getDicomsData(1)
                 })
             },
             saveDevice(){
+                if (!this.device.model){
+                    this.$message.error('请填写加速器型号')
+                    return
+                }
+                if (!this.device.sequence){
+                    this.$message.error('请填写加速器序号')
+                    return
+                }
+                if (!this.device.powerX || this.device.powerX.length===0){
+                    this.$message.error('请填写X线能量档')
+                    return
+                }
+                if (!this.device.x_volume_percent){
+                    this.$message.error('请填写x线深度百分剂量')
+                    return
+                }
+                if (!this.device.e_light_size){
+                    this.$message.error('请填写电子限光筒')
+                    return
+                }
                 console.log(this.device);
-                if(this.xArr.length) this.device.x_energy_level = JSON.stringify(this.xArr);
-                if(this.eArr.length) this.device.e_energy_level = JSON.stringify(this.eArr);
+                this.device.x_energy_level = JSON.stringify(this.device.powerX);
+                if(this.device.powerE && this.device.powerE.length>0) this.device.e_energy_level = JSON.stringify(this.device.powerE);
                 console.log(this.device);
+                // return
                 addDevice(this.device).then(res =>{
                     console.log(res);
                     this.showAccelerate = false;
-                    getDevices({pageNum:0,offset:10}).then(res =>{
-                        console.log(res);
-                        this.devices = res.devices;
-                        this.devicecount = res.count;
-                    })
+                    this.getDevicesData(1)
                 })
             },
             updateProject(){
                 console.log(this.project);
                 updateProject(this.project).then(res =>{
                     this.isShowProjectChange = false;
-//                    getProjects({deviceID:this.currentDeviceID,pageNum:0,offset:100}).then(res =>{
-//                        console.log(res);
-//                        this.projects = res.projects;
-//                    })
+                    this.getProjectsData()
                 })
             },
             cancel(){
-                this.xArr=[];
-                this.curX = 0;
-                this.curE = 0;
-                this.eArr=[];
                 this.showAccelerate = false;
                 this.isShowDICOM = false;
                 this.isShowProjectChange =false;
@@ -465,35 +576,27 @@
             changeType(typeName,index){
                this.typeName = typeName;
                this.showTypeIndex = index;
-
+                switch (index) {
+                    case 0:
+                        this.getDevicesData()
+                        break;
+                    case 1:
+                        this.getProjectsData()
+                        break;
+                    case 2:
+                        this.getDicomsData()
+                        break;
+                }
             },
             addAccelerate(device){
                 if(device) {
                     this.device = device;
-                }
-                else this.device = {
-                    model:'',
-                    sequence:'',
-                    x_energy_level:'',
-                    e_energy_level:'',
-                    x_volume_percent:0,
-                    e_volume_percent:0,
-                    e_light_size:0,
-                    multileaf_collimator_size:0,
-                    default_dir:'',
-                    xFFF:0,
-                };
+                } else this.device = {}
                 this.showAccelerate=true;
             },
             addDICOM(diCom){
-               if(diCom) this.diCom = diCom;
-               else this.dicom = {
-                   customer:'',
-                   aeTitle:'',
-                   ip:'',
-                   port:'',
-                   id:0,
-               };
+               if(diCom) this.diCom = diCom
+               else this.diCom = {}
                this.isShowDICOM = true;
             },
             addEnergyX(){
@@ -512,11 +615,7 @@
                     delDicom(this.diCom).then(res =>{
                         console.log(res);
                         this.isShowDelete = false;
-                        getDicoms({pageNum:0,offset:10}).then(res =>{
-                            console.log(res);
-                            this.dicoms = res.dicoms;
-                            this.dicomCount = res.count;
-                        })
+                        this.getDicomsData(1)
                     })
                 }
                 else if(this.showTypeIndex==0)
@@ -524,11 +623,7 @@
                     delDevice(this.device).then(res =>{
                         console.log(res);
                         this.isShowDelete = false;
-                        getDevices({pageNum:0,offset:10}).then(res =>{
-                            console.log(res);
-                            this.devices = res.devices;
-                            this.devicecount = res.count;
-                        })
+                       this.getDevicesData(1)
                     })
                 }
 
@@ -552,6 +647,22 @@
     }
 </script>
 <style lang="scss" scoped>
+    .required{
+        position: relative;
+        &::after{
+            position: absolute;
+            display: block;
+            content: '*';
+            top: 0;
+            left: -20px;
+            bottom: 0;
+            margin: auto;
+            color: #F22335;
+            width: 20px;
+            font-size: 25px;
+            height: 20px;
+        }
+    }
     .setting-page {
         width: 100%;
        padding:25px 26px 44px;
@@ -801,39 +912,100 @@
         }
     }
     .project-change-lists{
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        padding: 4% 0 4% 0;
+        /*display: flex;*/
+        /*justify-content: space-around;*/
+        /*align-items: center;*/
+        padding: 3% 5%;
+        width: 100%;
+        &::after{
+            display: block;
+            content: '';
+            clear: both;
+        }
+        .project-change-checkbox {
+            float: left;
+            margin-left: 1%;
+            height: 5.5vh;
+            display: flex;
+            align-items: center;
+        }
         .project-change-lists-item{
+            float: left;
+            margin-right: 10%;
             width: 40%;
             border: 1px solid #464646;
             background-color: #2C2C2C;
             font-size: 12px;
-           .item-content{
-               width: 58%;
-               input{
-                   width: 100%;
-                   background-color: #2C2C2C;
-                   padding: 6% 0;
-                   border: 0;
-                   color: #fff;
-               }
-           }
+            height: 5.5vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            .content-del{
+                position: absolute;
+                top: -8px;
+                right: -8px;
+                width: 20px;
+            }
+            &:nth-child(2n){
+                margin-right: 0;
+            }
+            .item-content{
+                width: 40%;
+                flex: none;
+                background-color: #2C2C2C;
+                padding: 0 5%;
+                border: 0;
+                height: 100%;
+                border-right: 1px solid rgba(255, 255, 255, 0.08);
+            }
+            .project-change-radio-group{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 0;
+                .el-radio{
+                    margin-right: 1vw;
+                    &:last-child{
+                        margin-right: 0;
+                    }
+                }
+            }
             .item-name{
-                width: 35%;
-                border-left: 1px solid #464646;
-                margin-left: 2%;
-                padding: 3% 0;
                 text-align: center;
+                flex: auto;
             }
             .item-name-short{
-                width: 30%;
-                border-left: 1px solid #464646;
-                margin-left: 2%;
-                padding: 3% 0;
                 text-align: center;
+                font-size: 15px;
+                flex: auto;
             }
+        }
+        .project-change-power-add{
+            border-color: rgba(44, 206, 173, 0.5);
+            justify-content: center;
+            cursor: pointer;
+            color: #2CCEAD;
+        }
+        .project-change-x-line{
+            border-color: transparent;
+            background: transparent;
+            margin-bottom: 20px;
+            .content{
+                height: 100%;
+                width: 60%;
+                display: flex;
+                align-items: center;
+                background-color: #2C2C2C;
+                border: 1px solid #464646;
+                margin-right: 3%;
+                position: relative;
+            }
+        }
+        .project-change-e{
+            margin-bottom: 20px;
+        }
+        .project-change-line{
+            margin-bottom: 0;
         }
     }
     .handle{

@@ -17,23 +17,29 @@
                     </el-option>
                 </el-select>
             </div>
-            <div class="project-search-lists" style="width: 150px">
+            <div class="project-search-lists" style="width: 120px">
                 <el-date-picker
                         v-model="selDay"
                         type="date"
                         value-format="yyyy-MM-dd"
                         format="yyyy-MM-dd"
                         placeholder="请选择检测日期"
+                        size="mini"
+                        style="width: 100%"
+                        align="center"
                 >
                 </el-date-picker>
             </div>
-            <div class="project-search-lists" style="width: 100px">
+            <div class="project-search-lists" style="width: 120px">
                 <el-date-picker
                         v-model="selValidDay"
                         type="date"
                         value-format="yyyy-MM-dd"
                         format="yyyy-MM-dd"
                         placeholder="请选择合格有效期"
+                        size="mini"
+                        style="width: 100%"
+                        align="center"
                 >
                 </el-date-picker>
             </div>
@@ -41,7 +47,7 @@
                 <el-button type="primary" class="active" @click="search">查询</el-button>
             </div>
             <div class="project-search-btn">
-                <el-button type="primary">重置</el-button>
+                <el-button type="primary" @click="reset">重置</el-button>
             </div>
         </div>
         <div class="project-tab">
@@ -50,8 +56,8 @@
                     <tr>
                         <th>项目号</th>
                         <th>项目名称</th>
-                        <th>次级项目名称</th>
-                        <th>辐射类型</th>
+                        <!--<th>次级项目名称</th>-->
+                        <!--<th>辐射类型</th>-->
                         <th>检测值</th>
                         <th>阈值</th>
                         <th>检测类型</th>
@@ -66,9 +72,9 @@
                 <tbody class="tab-lists">
                     <tr v-for="(project,index) in projects" :key="index">
                     <td>{{project.projectNo}}</td>
-                    <td>{{project.name}}</td>
-                    <td>{{project.subName}}</td>
-                    <td>{{project.radioType}}</td>
+                    <td>{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td>
+                    <!--<td>{{project.subName}}</td>-->
+                    <!--<td>{{project.radioType}}</td>-->
                     <td> </td>
                     <td>{{project.threshold}}</td>
                     <td>{{project.detectType}}</td>
@@ -91,7 +97,7 @@
             <div class="pagination clearfix">
                 <el-pagination
                         :background="true"
-                        layout="prev, pager, next,jumper"
+                        layout="total,prev, pager, next,jumper"
                         :page-size="10"
                         :total="count"
                         prev-text="上一页"
@@ -101,7 +107,7 @@
                         :current-page="currentPage"
                 >
                 </el-pagination>
-                
+
             </div>
         </div>
         <el-dialog
@@ -213,7 +219,7 @@
         watch: {
             currentDeviceID: function (val) {
                 console.log(val);
-                getProjects({deviceID:val, period:this.period,pageNum:0,offset:100}).then(res =>{
+                getProjects({deviceID:val, period:this.period,pageNum:0,offset:10}).then(res =>{
                     console.log(res);
                     this.projects = res.projects;
                     this.count = res.count;
@@ -255,6 +261,8 @@
                 this.fromDate = '';
                 this.toDate = '';
                 this.period = '请选择检测周期';
+                this.selValidDay = ''
+                this.selDay = ''
                 getProjects({
                     deviceID:this.currentDeviceID,
                     period:this.period,
@@ -377,7 +385,7 @@
             }
         }
         .project-tab{
-            height: 84%;
+            /*height: 84%;*/
             margin-top: 25px;
             background: rgba(255,255,255,0.1);
             .project-tab-content{
@@ -437,7 +445,7 @@
                     }
                 }
 
-                
+
             }
         }
         /deep/ .el-dialog__wrapper{

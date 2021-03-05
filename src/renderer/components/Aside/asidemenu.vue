@@ -2,7 +2,7 @@
     <div class="aside-menu scroll-page">
         <div class="menu-lists">
             <div class="menu-list-content">
-                <div class="menu-list-item" :class="{active:menu =='project'}" @click="toNext('project')">项目总揽</div>
+                <div class="menu-list-item" :class="{active:menu =='project'}" @click="toNext('project')">项目总览</div>
             </div>
             <div class="menu-list-content">
                 <div class="menu-list-item" :class="{active:menu =='report'}" @click="toNext('report')">报表</div>
@@ -100,7 +100,7 @@
             .active{
                 background: #2CCEAD;
                 border-radius: 4px;
-                border: 1px solid rgba(255, 255, 255, 0.15); 
+                border: 1px solid rgba(255, 255, 255, 0.15);
             }
         }
     }
