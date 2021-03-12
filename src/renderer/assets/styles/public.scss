@@ -119,12 +119,12 @@ img {
   //background: #2C2C2C;
 }
 .table>thead>tr>th{
-  padding: 2vh 0;
+  padding: 2vh 0.8vw;
   font-weight: 400;
   border-right: 1px solid #464646;
 }
 .table>tbody>tr>td{
-  padding: 1.8vh 0;
+  padding: 1.5vh 0.8vw;
   font-weight: 400;
   border-right: 1px solid #464646;
 }
@@ -178,6 +178,9 @@ img {
 }
 .el-date-picker .el-month-table tr td:hover a,.el-date-picker .el-month-table td.current:not(.disabled) a{
   color: #2CCEAD;
+}
+.table-project-name{
+  max-width: 180px;
 }
 
 

@@ -5,10 +5,9 @@ var router = express.Router();
 const path = require('path');
 const os = require('os');
 import { createWebAPIRequest, request,getCurDate } from '../util/util';
-import {DBTABLE,initCoreData} from '../dbaccess/connectDb'
+import {DBTABLE,initCoreData,loadProject} from '../dbaccess/connectDb'
 const sq3 = require('sqlite3').verbose()
-const fileupload = require('./fileupload')
-
+// loadProject()
 initCoreData();
 //添加dicom
 router.post('/medical/addDicom', (req, res, next) => {
@@ -292,7 +291,7 @@ router.post('/medical/getDevices', (req, res, next) => {
                 console.log(select_sql)
                 db.all(select_sql, function(err, rows) {
                     // console.log(rows)
-                    console.log(err,rows)
+                    // console.log(err,rows)
                     resObj.devices = rows;
                     callback(null);
                 });
@@ -339,6 +338,9 @@ router.post('/medical/getProjects', (req, res, next) => {
         if(!obj.pageNum) obj.pageNum = 0;
         var cond_sql ='';
         if(obj.detectType) cond_sql =' AND proj.detectType="'+obj.detectType+'"';
+        if(obj.name) cond_sql =' AND proj.name LIKE "%'+obj.name+'%"';
+        if(obj.step) cond_sql =' AND proj.step="'+obj.step+'"';
+        if(obj.analysis) cond_sql =' AND proj.analysis="'+obj.analysis+'"';
         async.waterfall([
             function(callback) {
 
@@ -2522,43 +2524,6 @@ router.get('/user/update', (req, res, next) => {
         music_req => res.send(music_req),
         err => res.status(502).send("fetch error")
     );
-});
-
-/// 文件上传
-router.post('/upload/file', fileupload.uploadFile);
-
-/// 获取上传的文件
-router.post('/file/getFiles', (req,res,next)=>{
-    var data = '';
-    req.on('data',function (chunk) {
-        console.log('-------');
-        console.log(chunk);
-        data +=chunk;
-    });
-    req.on('end',function (chunk) {
-        console.log('end');
-        var resObj ={"msg":"数据获取成功","result":true,"token":"","error_code":"0",code:200};
-        console.log('data',data);
-        var obj = JSON.parse(data);
-        console.log(obj);
-        var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
-        let sqlStr = ''
-        if (obj.hasOwnProperty('checked')){
-            sqlStr += ' AND checked='+ obj.checked
-        }
-        var sql = 'SELECT * FROM '+ DBTABLE.PROJECT_FILE +' WHERE 1'+ sqlStr +' ORDER BY id DESC';
-        db.all(sql,function (err,result) {
-            if (err){
-                console.log(err)
-                resObj.result = false
-                resObj.msg = '数据获取出错'
-            }else {
-                resObj.files = result
-            }
-            db.close();
-            res.send(resObj);
-        });
-    })
 });
 
 export default router

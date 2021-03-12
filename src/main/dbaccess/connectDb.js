@@ -5,9 +5,7 @@ const sq3 = require('sqlite3')
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-
-
-console.log('db11111111111111199911');
+const ejsExcel = require('ejsexcel');
 
 // var db = new sq3.Database(path.join('sqlite3db','medical.db'));
 exports.DBTABLE =
@@ -21,12 +19,11 @@ exports.DBTABLE =
         PROJECT_FILE:'qsc_project_file', /// 文件上传
     }
 
-
 //表的创建 加速器配置  项目配置 dicom输出配置
 var i=3;
 exports.initCoreData = function() {
     let templateFilePath = path.join(process.resourcesPath, 'extraResources','medical.db')
-    console.log(templateFilePath)
+    console.log('templateFilePath',templateFilePath)
     // if (fs.existsSync(path.join(process.resourcesPath, 'extraResources'))) {
     //     console.log('The path exists.');
     // }
@@ -59,7 +56,15 @@ exports.initCoreData = function() {
                 "threshold INTEGER," +
                 "period TEXT," +
                 "detectType TEXT,"+
-                "detectCondition TEXT"+
+                "detectCondition TEXT,"+
+                "step TEXT,"+
+                "remark TEXT,"+
+                "dataRequire TEXT,"+
+                "extraRequire TEXT,"+
+                "moduleRequire TEXT,"+
+                "type TEXT,"+
+                "analysis TEXT,"+
+                "views TEXT"+
                 ")");
 
             // db.run("DROP TABLE qsc_device");
@@ -137,11 +142,11 @@ exports.initCoreData = function() {
                 '("6.1.2","重复性（剂量）"             ,  "",                     "X和电子",  "0","5","≤0.5%",       "6月","数值分析","将感光胶片放置于...")' ;
             // db.run(insert_sql);
             console.log("SELECT * FROM qsc_project limit 0,100");
-            insert_sql = "SELECT * FROM qsc_project_file limit 0,10"
+            insert_sql = "SELECT * FROM qsc_project"
             console.log('insert_sql',insert_sql)
-            db.run(insert_sql, function(err, row) {
+            db.all(insert_sql, function(err, row) {
                 console.log('err',err)
-                console.log('db119911',row);
+                console.log('db119911',row.length);
             });
         });
         db.close();
@@ -184,7 +189,6 @@ exports.initializeData = function(db) {
         });
 
     });
-
     db.close();
 }
 
@@ -214,9 +218,36 @@ function  drop(db) {
     if(db) db.close();
 }
 
-
+/// 导入原始项目数据
+exports.loadProject = function() {
+    console.log('loadProject')
+    try {
+        let exBuf = fs.readFileSync(path.join(__dirname,'../../extraResources/qcs项目目录.xlsx')),options_arr=[]
+        ejsExcel.getExcelArr(exBuf).then(function(exlJson) {
+            console.log("************  read success:getExcelArr");
+            let workBook = exlJson;
+            let workSheets = workBook[0];
+            // return
+            const db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));//如果不存在，则会自动创建一个文件
+            db.serialize(function() {
+                let insert_sql = 'INSERT INTO qsc_project (name,radioType,subName,projectNo,testPoint,numOfInput,dataRequire,extraRequire,analysis,views,type,detectCondition,period,threshold,step,remark,moduleRequire,detectType) ' +
+                    'VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+                let stmt = db.prepare(insert_sql);
+                workSheets.forEach((val,index)=>{
+                    if (index>0 && val.length>0){
+                        stmt.run(val)
+                    }
+                });
+                stmt.finalize();
+            })
+        })
+    } catch (e) {
+        console.log('readFileSync error')
+        console.log(e)
+    }
+}
 // this.queryExample();
-
-this.initCoreData()
+// loadProject()
+// this.initCoreData()
 // drop();
 // this.initializeData();

@@ -85,4 +85,7 @@ input::-webkit-inner-spin-button {
   -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
   background-color: #555;
 }
+  .el-dialog{
+    background: #262626;
+  }
 </style>
