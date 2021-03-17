@@ -3,19 +3,26 @@
         <div class="test-search">
             <div class="test-search-left">
                 <div class="test-search-lists">
-                    <el-input placeholder="请输入项目号"></el-input>
+                    <el-input placeholder="请输入项目号" v-model="projectSearch.projectNo"></el-input>
                 </div>
                 <div class="test-search-lists">
-                    <el-input placeholder="请输入项目名称"></el-input>
+                    <el-input placeholder="请输入项目名称" v-model="projectSearch.name"></el-input>
                 </div>
                 <div class="test-search-lists">
-                    <el-input placeholder="请输入检测值"></el-input>
+                    <el-select v-model="projectSearch.period" placeholder="请选择检测周期" >
+                        <el-option value="一天"></el-option>
+                        <el-option value="一周"></el-option>
+                        <el-option value="一个月"></el-option>
+                        <el-option value="三个月"></el-option>
+                        <el-option value="六个月"></el-option>
+                        <el-option value="一年"></el-option>
+                    </el-select>
                 </div>
                 <div class="test-search-btn">
-                    <el-button type="primary" class="active">查询</el-button>
+                    <el-button type="primary" class="active" @click="getProjectsFn(1)">查询</el-button>
                 </div>
                 <div class="test-search-btn">
-                    <el-button type="primary">重置</el-button>
+                    <el-button type="primary" @click="resetFn">重置</el-button>
                 </div>
             </div>
         </div>
@@ -36,45 +43,109 @@
                     <!--<el-button type="primary" class="active" @click="addImage">载入图片</el-button>-->
                     <el-button type="primary" class="active" @click="onclickDicom()">RT_Plan Dicom输出</el-button>
                 </div>
-                <table class="table test-tab-content" border="0" cellspacing="0" v-if="typeName=='image'">
-                    <thead class="tab-header">
-                    <tr>
-                        <th>全选</th>
-                        <th>项目号</th>
-                        <th>项目名称</th>
-                        <th>检测值</th>
-                        <th>辐射类型</th>
-                        <th>阈值</th>
-                        <th>上次检测时间</th>
-                        <th>过期提醒</th>
-                        <th>操作</th>
-                    </tr>
-                    </thead>
-                    <tbody class="tab-lists">
-                    <tr v-for="(project,index) in projectImage.data" :key="index">
-                        <td>
-                            <input type="checkbox"/>
-                        </td>
-                        <td>{{project.projectNo}}</td>
-                        <td class="table-project-name">{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td>
-                        <td>{{project.radioType11}}</td>
-                        <td>{{project.radioType}}</td>
-                        <td>{{project.threshold}}</td>
-                        <td>{{project.threshold11}}</td>
-                        <td>{{project.threshold1111}}</td>
-                        <td style="width: 50px;"><div class="handle">
-                            <div class="handle-item" @click="saveProjectChangeImage(project)">保存</div>
-                        </div></td>
-                    </tr>
+                <div v-show="typeName=='image'">
+                    <el-table
+                            ref="multipleTable"
+                            :data="projectImage.data"
+                            tooltip-effect="dark"
+                            style="width: 100%"
+                            @selection-change="handleSelectionChange">
+                        <el-table-column
+                                type="selection"
+                                width="55"></el-table-column>
+                        <el-table-column
+                                label="项目号"
+                                prop="projectNo"
+                                width="80"></el-table-column>
+                        <el-table-column
+                                prop="name"
+                                label="项目名称"
+                                width="160">
+                            <template slot-scope="scope">{{ scope.row.name}}{{scope.row.subName?('('+scope.row.subName+')'):'' }}</template>
+                        </el-table-column>
+                        <el-table-column
+                                prop="test"
+                                label="检测值">
+                            <template slot-scope="scope">
+                                <div v-if="scope.row.tmpResult">
+                                    <div v-for="v in scope.row.tmpResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>
+                                </div>
+                                <div v-else>
+                                    <div v-for="v in scope.row.testResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>
+                                </div>
+                            </template>
+                        </el-table-column>
+                        <el-table-column
+                                label="阈值"
+                                prop="threshold"></el-table-column>
+                        <el-table-column
+                                label="上次检测时间"
+                                prop="createDate"></el-table-column>
+                        <el-table-column
+                                label="过期提醒"
+                                prop="overDate">
+                            <template slot-scope="scope">
+                                <div :style="{color: getOverDate(scope.row).color}">{{getOverDate(scope.row).name}}</div>
+                            </template>
+                        </el-table-column>
+                        <el-table-column
+                                label="操作"
+                                prop="toDo"
+                                width="50">
+                            <template slot-scope="scope">
+                                <div class="handle">
+                                    <div class="handle-item" :style="{color: scope.row.tmpResult&&scope.row.tmpResult.length>0?'#2CCEAD':'rgba(255, 255, 255, 0.8)'}" @click="saveProjectChangeImage(project)">保存</div>
+                                </div>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </div>
+                <!--<table class="table test-tab-content" border="0" cellspacing="0" v-if="typeName=='image'">-->
+                    <!--<thead class="tab-header">-->
+                    <!--<tr>-->
+                        <!--<th>全选</th>-->
+                        <!--<th>项目号</th>-->
+                        <!--<th>项目名称</th>-->
+                        <!--<th>检测值</th>-->
+                        <!--&lt;!&ndash;<th>辐射类型</th>&ndash;&gt;-->
+                        <!--<th>阈值</th>-->
+                        <!--<th>上次检测时间</th>-->
+                        <!--<th>过期提醒</th>-->
+                        <!--<th>操作</th>-->
+                    <!--</tr>-->
+                    <!--</thead>-->
+                    <!--<tbody class="tab-lists">-->
+                    <!--<tr v-for="(project,index) in projectImage.data" :key="index">-->
+                        <!--<td>-->
+                            <!--<input type="checkbox"/>-->
+                        <!--</td>-->
+                        <!--<td>{{project.projectNo}}</td>-->
+                        <!--<td class="table-project-name">{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td>-->
+                        <!--<td>-->
+                            <!--<div v-if="project.tmpResult">-->
+                                <!--<div v-for="v in project.tmpResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>-->
+                            <!--</div>-->
+                            <!--<div v-else>-->
+                                <!--<div v-for="v in project.testResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>-->
+                            <!--</div>-->
+                        <!--</td>-->
+                        <!--&lt;!&ndash;<td>{{project.radioType}}</td>&ndash;&gt;-->
+                        <!--<td>{{project.threshold}}</td>-->
+                        <!--<td>{{project.createDate}}</td>-->
+                        <!--<td><div :style="{color: getOverDate(project).color}">{{getOverDate(project).name}}</div></td>-->
+                        <!--<td style="width: 50px;"><div class="handle">-->
+                            <!--<div class="handle-item" :style="{color: project.tmpResult&&project.tmpResult.length>0?'#2CCEAD':'rgba(255, 255, 255, 1)'}" @click="saveProjectChangeImage(project)">保存</div>-->
+                        <!--</div></td>-->
+                    <!--</tr>-->
 
-                    </tbody>
-                </table>
+                    <!--</tbody>-->
+                <!--</table>-->
                 <table class="table test-tab-content" border="0" cellspacing="0" v-if="typeName=='number'" style="margin-top: 2%;">
                     <thead class="tab-header">
                     <tr>
                         <th>项目号</th>
                         <th>项目名称</th>
-                        <th>辐射类型</th>
+                        <!--<th>辐射类型</th>-->
                         <th>能量档</th>
                         <th>检测值</th>
                         <th>阈值</th>
@@ -87,7 +158,7 @@
                     <tr v-for="(project,index) in projectNum.data" :key="index">
                         <td>{{project.projectNo}}</td>
                         <td class="table-project-name">{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td>
-                        <td>{{project.radioType}}</td>
+                        <!--<td>{{project.radioType}}</td>-->
                         <td>
                             <el-popover
                                     placement="bottom"
@@ -132,10 +203,10 @@
                                 <div slot="reference">{{item}}</div>
                             </el-popover>
                         </td>
-                        <td></td>
+                        <td>{{project.testResult?project.testResult.result:''}}</td>
                         <td>{{project.threshold}}</td>
-                        <td>{{project.period}}</td>
-                        <td>{{project.detectType}}</td>
+                        <td>{{project.createDate}}</td>
+                        <td><div :style="{color: getOverDate(project).color}">{{getOverDate(project).name}}</div></td>
                         <td class="" style="width: 50px;">
                             <div class="handle">
                                 <div class="handle-item" @click="saveProjectChange(project)">保存</div>
@@ -197,18 +268,23 @@
                 <table class="table test-tab-content" border="0" cellspacing="0" style="margin-top: 2%;">
                     <thead class="tab-header">
                     <tr>
-                        <th>项目号</th>
+                        <th></th>
                         <th>终端名</th>
                         <th>AE TITLE</th>
                         <th>IP</th>
                     </tr>
                     </thead>
                     <tbody class="tab-lists">
-                    <tr v-for="(v,index) in dicomData.data" :key="index">
-                        <td></td>
-                        <td>{{v.customer}}</td>
-                        <td>{{v.aeTitle}}</td>
-                        <td>{{v.ip}}</td>
+                    <tr v-for="(v,index) in dicomData.data" :key="index" @click="onclickTr(v)">
+                        <td>
+                            <!--<el-radio name="dicomname" @click="onclickTr(v)"  :ref="v.refName"></el-radio>-->
+                            <!--<input name="dicomname" type="radio" @click="onclickTr(v)"  :ref="v.refName">-->
+                            <label class="page-radio"><input type="radio" name="dicomname" @click="onclickTr(v)"  :ref="v.refName"><label><span class="radio-span"></span></label></label>
+
+                        </td>
+                        <td style="width: 100px;text-align: center">{{v.customer}}</td>
+                        <td style="width: 100px;text-align: center">{{v.aeTitle}}</td>
+                        <td style="width: 100px;text-align: center">{{v.ip}}:{{v.port}}</td>
                     </tr>
                     </tbody>
                 </table>
@@ -228,8 +304,9 @@
                 </div>
             </div>
             <div slot="footer">
-                <div>
-
+                <div class="add-image-btn" style="margin-top: 20px">
+                    <el-button type="primary" @click="showDICOM=false">取消</el-button>
+                    <el-button type="primary" class="active" @click="onclickSave()">保存</el-button>
                 </div>
             </div>
         </el-dialog>
@@ -261,7 +338,7 @@
                 <div class="img-analyse">
                     <div class="list-name">
                         <div class="list-name-title">项目名称</div>
-                        <div class="list-name-content">
+                        <div class="list-name-content list-name-content-val">
                             <div class="project-name-lists" :class="{'active': activeProjectIndex == index}" v-for="(v,index) in projectsData" @click="onProjectChange(index,v)" :key="v.id">
                                 <div class="project-name-lists-item">
                                     {{v.name}}{{v.subName?('('+v.subName+')'):''}}
@@ -271,18 +348,23 @@
                     </div>
                     <div class="list-image-item list-image-item-content">
                         <div class="list-name-title">照射野</div>
-                        <div class="image-canvas image-canvas-view" v-for="(v,index) in viewData" :key="index">
-                            <div class="image-canvas-item "  draggable="true" @dragstart="dragStart($event, index,0)" @drop="drop($event,index,viewData,imageData,0)" @dragover="allowDrop($event)">
-                                <canvas :ref="v.refNameAna"  v-if="v.refNameAna" :name="getDataAna(index,v)"></canvas>
+                        <div class="list-name-content-val">
+                            <div class="image-canvas image-canvas-view" v-for="(v,index) in viewData" :key="index">
+                                <div class="image-canvas-item "  draggable="true" @dragstart="dragStart($event, index,0)" @drop="drop($event,index,viewData,viewImageData,0)" @dragover="allowDrop($event)">
+                                    <canvas :ref="v.refNameAna"  v-if="v.refNameAna" :name="getDataAna(index,v)"></canvas>
+                                </div>
+                                <div class="image-canvas-text">{{v.power}} - {{v.size}}</div>
                             </div>
-                            <div class="image-canvas-text">{{v.power}} - {{v.size}}</div>
+
                         </div>
                     </div>
                     <div class="list-image-item list-image-item-content">
                         <div class="list-name-title">已上传图片</div>
-                        <div class="image-canvas" v-for="(v,index) in imageData" :key="index">
-                            <div class="image-canvas-item" draggable="true" @dragstart="dragStart($event,index,1)" @drop="drop($event,index,imageData,viewData,1)" @dragover="allowDrop($event)">
-                                <canvas :ref="v.refNameAna" v-if="v.refNameAna" :name="getDataAna(index,v)"></canvas>
+                        <div class="list-name-content-val">
+                            <div class="image-canvas" v-for="(v,index) in viewImageData" :key="index">
+                                <div class="image-canvas-item" draggable="true" @dragstart="dragStart($event,index,1)" @drop="drop($event,index,viewImageData,viewData,1)" @dragover="allowDrop($event)">
+                                    <canvas :ref="v.refNameAna" v-if="v.refNameAna" :name="getDataAna(index,v)"></canvas>
+                                </div>
                             </div>
                         </div>
 
@@ -303,7 +385,8 @@
     import { mapState } from 'vuex';
     import '../../utils/main'
     import { deepCopy } from "../../../main/util/util";
-    import { addDicom,getDicoms,delDicom,addDevice,getDevices,delDevice,getProjects,updateProject,addTestResult,getFiles } from "../../api";
+    import { calcWarningTime } from "../../utils";
+    import { addDicom,getDicoms,delDicom,addDevice,getDevices,delDevice,getProjects,updateProject,addTestResult,getTestValue } from "../../api";
     export default {
         components: {
         },
@@ -322,10 +405,11 @@
                 activeProjectIndex: 0,
                 imageData: [],
                 viewData: [],
+                viewImageData: [],
                 projectImage: {
                     data: [],
                     pageNum: 1,
-                    offset: 10,
+                    offset: 110,
                     count: 0
                 },
                 projectNum: {
@@ -339,7 +423,14 @@
                     pageNum: 1,
                     offset: 10,
                     count: 0
-                }
+                },
+                projectSearch: {
+                    projectNo: undefined,
+                    name: undefined,
+                    testValue: undefined
+                },
+                selectedVal : [],
+                selectedDicom: {}
             }
         },
         computed: mapState({
@@ -354,9 +445,11 @@
                             canvas = canvas[0]
                             const ctx = canvas.getContext('2d');
                             const pixelData = val.data
-                            canvas.width = pixelData.width
-                            canvas.height = pixelData.height
-                            ctx.putImageData(pixelData, 0, 0);
+                            if (pixelData){
+                                canvas.width = pixelData.width
+                                canvas.height = pixelData.height
+                                ctx.putImageData(pixelData, 0, 0);
+                            }
                         }
                     })
                     return 1
@@ -373,12 +466,19 @@
                             canvas = canvas[0]
                             const ctx = canvas.getContext('2d');
                             const pixelData = val.data
-                            canvas.width = pixelData.width
-                            canvas.height = pixelData.height
-                            ctx.putImageData(pixelData, 0, 0);
+                            if (pixelData){
+                                canvas.width = pixelData.width
+                                canvas.height = pixelData.height
+                                ctx.putImageData(pixelData, 0, 0);
+                            }
                         }
                     })
                     return 1
+                }
+            },
+            getOverDate(){
+                return function (val) {
+                    return calcWarningTime(val)
                 }
             }
         }),
@@ -414,10 +514,28 @@
             onProjectChange(index,value){
                 this.activeProjectIndex = index
                 this.viewData = this.getViewData()
+                this.viewImageData = []
+                this.imageData.forEach(val=>{
+                    this.viewImageData.push({
+                        data: val.data,
+                        refNameAna: val.refNameAna,
+                        testValue: val.testValue
+                    })
+                })
             },
             getProjectsImage(state){
                 if (state)  this.projectImage.pageNum=1
-                getProjects({deviceID: this.currentDeviceID,detectType:this.detectType,pageNum: this.projectImage.pageNum-1,offset:this.projectImage.offset}).then(res =>{
+                let obj = {
+                    deviceID: this.currentDeviceID,
+                    detectType:this.detectType,
+                    pageNum: this.projectImage.pageNum-1,
+                    offset:this.projectImage.offset,
+                    analysis: 1,
+                    projectNo: this.projectSearch.projectNo,
+                    name: this.projectSearch.name,
+                    period: this.projectSearch.period
+                }
+                getProjects(obj).then(res =>{
                     console.log(res);
                     //根据检测点数 和输入值的数量以及是否有x线和电子线来自动分配数据
                     this.projectImage.data = this.makeupJson(res.projects);
@@ -427,7 +545,16 @@
             },
             getProjectsNum(state){
                 if (state)  this.projectNum.pageNum=1
-                getProjects({deviceID: this.currentDeviceID,detectType:this.detectType,pageNum: this.projectNum.pageNum-1,offset:this.projectNum.offset}).then(res =>{
+                let obj = {
+                    deviceID: this.currentDeviceID,
+                    detectType:this.detectType,
+                    pageNum: this.projectNum.pageNum-1,
+                    offset:this.projectNum.offset,
+                    projectNo: this.projectSearch.projectNo,
+                    name: this.projectSearch.name,
+                    period: this.projectSearch.period
+                }
+                getProjects(obj).then(res =>{
                     console.log(res);
                     //根据检测点数 和输入值的数量以及是否有x线和电子线来自动分配数据
                     this.projectNum.data = this.makeupJson(res.projects);
@@ -438,9 +565,16 @@
                 // console.log('onHttpRequest',library)
                 console.log('onHttpRequest',file)
                 const libraryData = await library.loadFile(file.file)
+                const testValue = await getTestValue({filePath: file.file.path})
                 console.log(libraryData)
+                console.log(`libraryData=${testValue}`)
                 let len = this.imageData.length
-                this.imageData.push({data: libraryData,refName: 'canvas'+ len,refNameAna: 'canvasAna'+ len})
+                this.imageData.push({
+                    data: libraryData,
+                    refName: 'canvas'+ len,
+                    refNameAna: 'canvasAna'+ len,
+                    testValue: testValue?testValue.toFixed(1): 0
+                })
                 this.showImage=true;
                 console.log('onHttpRequest',this.imageData)
             },
@@ -453,14 +587,23 @@
                 })
             },
             onclickDicom(){
+                if (this.selectedVal.length==0){
+                    this.$message.error('请选择项目')
+                    return
+                }
                 this.showDICOM = true
                 this.getDicomdData()
             },
             getDicomdData(state){
                 if (state)  this.dicomData.pageNum=1
                 getDicoms({deviceID: this.currentDeviceID,pageNum: this.dicomData.pageNum-1,offset: this.dicomData.offset}).then(res=>{
-                    console.log('getDicomdData',res)
+                    if (res.dicoms && res.dicoms.length>0){
+                        res.dicoms.forEach(val=>{
+                            val.refName = 'dicom'+val.id
+                        })
+                    }
                     this.dicomData.data = res.dicoms
+                    console.log('getDicomdData',this.dicomData.data)
                     this.dicomData.count = res.count
                 })
             },
@@ -509,8 +652,10 @@
                 this.detectType = detectType;
                 this.getProjectsFn()
             },
-            handleCurrentChangeDicom(){
-
+            onclickTr(val){
+                console.log(this.$refs[val.refName][0])
+                this.$refs[val.refName][0].checked = true
+                this.selectedDicom = val
             },
             handleCurrentChangeDic(val){
                 this.dicomData.pageNum = val
@@ -534,8 +679,24 @@
                         break
                 }
             },
+            resetFn(){
+                this.projectSearch = {}
+                this.getProjectsFn(1)
+            },
             saveProjectChangeImage(project){
-
+                if (!project.tmpResult || project.tmpResult.length===0) return
+                var result={
+                    qscDeviceProjID: project.id,
+                    projectID: project.projectID,
+                    deviceID: project.deviceID,
+                    testResult: JSON.stringify(project.tmpResult),
+                    personName: '无'
+                };
+                addTestResult(result).then(res =>{
+                    console.log(res);
+                    this.$message.success('保存成功');
+                    this.getProjectsFn()
+                })
             },
             saveProjectChange(project){
                 console.log(project)
@@ -554,11 +715,13 @@
                 }
                 else if(project.energyJson.levelNum==2){
                     for(var i in project.energyJson){
+                        if (i=='levelNum') continue
                         var inputData = project.energyJson[i].inputData;
                         calcValue = 0;
                         for(var j in inputData){
                             calcValue +=  inputData[j];
                         }
+                        console.log(212)
                         project.energyJson[i].result = calcValue;
                     }
                 }
@@ -598,16 +761,17 @@
                 };
                 addTestResult(result).then(res =>{
                     console.log(res);
-                    alert('保存成功');
+                    this.$message.success('保存成功');
+                    this.getProjectsFn()
                 })
             },
             getWidth(num){
-                var width='100';
+                var width='240';
                 if(num==1)  width='240';
-                else if(num==2)  width='120';
-                else if(num==3)  width='180';
-                else if(num==4)  width='240';
-                else if(num==5)  width='360';
+                else if(num==2)  width='240';
+                else if(num==3)  width='360';
+                else if(num==4)  width='360';
+                else if(num==5)  width='480';
                 return width;
             },
             addDicom(){
@@ -616,14 +780,41 @@
             showImageAnalyse(){
                 this.showImage=false;
                 this.showAnalyse = true;
+                this.viewImageData = []
+                this.imageData.forEach(val=>{
+                    this.viewImageData.push({
+                        data: val.data,
+                        refNameAna: val.refNameAna,
+                        testValue: val.testValue
+                    })
+                })
+                console.log(this.viewImageData)
             },
             toLastStpe(){
                 this.showImage=true;
             },
             onclickAna(){
                 if (this.projectsData && this.projectsData.length>0){
+                    let activeProject = this.projectsData[this.activeProjectIndex]
                     console.log(this.projectsData[this.activeProjectIndex])
                     this.showAnalyse = false;
+                    console.log(this.viewData)
+                    let index = this.projectImage.data.findIndex(val=>val.id === activeProject.id)
+                    if (index!=-1){
+                        let obj = deepCopy(this.projectImage.data[index])
+                        obj.tmpResult = []
+                        this.viewData.forEach(val=>{
+                            if (val.data){
+                                obj.tmpResult.push({
+                                    power: val.power,
+                                    size: val.size,
+                                    value: val.testValue
+                                })
+                            }
+                        })
+                        this.projectImage.data.splice(index,1,obj)
+                    }
+                    console.log(this.projectImage.data)
                 }
             },
             dragStart($event,index,type){
@@ -640,31 +831,58 @@
                 let fromIndex = $event.dataTransfer.getData("imageIndex");
                 let fromType = $event.dataTransfer.getData("type");
                 if (fromType == type) {  /// 同一区域内拖拽
-                    let itemFrom = data[fromIndex]
-                    let itemFromData = itemFrom.data
-                    let itemFromRef = itemFrom.refNameAna
-                    data[fromIndex].data = data[index].data
-                    data[fromIndex].refNameAna = data[index].refNameAna
-                    data[index].data = itemFromData
-                    data[index].refNameAna = itemFromRef
+                    // let itemFrom = data[fromIndex]
+                    // let itemFromData = itemFrom.data
+                    // let itemFromRef = itemFrom.refNameAna
+                    // data[fromIndex].data = data[index].data
+                    // data[fromIndex].refNameAna = data[index].refNameAna
+                    // data[index].data = itemFromData
+                    // data[index].refNameAna = itemFromRef
+                    this.changeValue(data[fromIndex],data[index])
                 }else {
                     if (fromType==1){
-                        data[index] = Object.assign(data[index],fromData[fromIndex])
-                        fromData.splice(fromIndex,1,{})
+                        // if (!fromData[fromIndex].data) return
+                        // data[index] = Object.assign(data[index],fromData[fromIndex])
+                        // fromData.splice(fromIndex,1,{})
+                        this.changeValue(fromData[fromIndex],data[index])
                     } else {
                         console.log('right')
+                        this.changeValue(fromData[fromIndex],data[index])
                         let imageData = fromData[fromIndex].data
                         if (imageData){
-                            data[index].data = imageData
-                            data[index].refNameAna = fromData[fromIndex].refNameAna
-                            delete fromData[fromIndex].data
-                            delete fromData[fromIndex].refNameAna
+                            // data[index].data = imageData
+                            // data[index].refNameAna = fromData[fromIndex].refNameAna
+                            // delete fromData[fromIndex].data
+                            // delete fromData[fromIndex].refNameAna
+                            // this.changeValue(fromData[fromIndex],data[index])
                         }
                     }
                 }
                 console.log('drop',data,fromData,fromIndex,index)
                 this.$forceUpdate()
             },
+            changeValue(dataFrom,dataTo){
+                if (!dataFrom.data) return
+                let itemFromData = dataFrom.data
+                let itemFromRef = dataFrom.refNameAna
+                let itemFromVal = dataFrom.testValue
+                dataFrom.data = dataTo.data
+                dataFrom.refNameAna = dataTo.refNameAna
+                dataFrom.testValue = dataTo.testValue
+                dataTo.data = itemFromData
+                dataTo.refNameAna = itemFromRef
+                dataTo.testValue = itemFromVal
+            },
+            handleSelectionChange(val){
+                this.selectedVal = val
+            },
+            onclickSave(){
+                if (!this.selectedDicom.id){
+                    this.$message.error('请选择DICOM输出配置')
+                    return
+                }
+                console.log(this.selectedDicom,this.selectedVal)
+            }
         }
     }
 </script>
@@ -672,6 +890,42 @@
     .test-page {
         width: 100%;
        padding:25px 26px 44px;
+        .pagination{
+            margin-top: 2%;
+            /deep/ .el-pagination{
+                .btn-prev{
+                    background-color: #1C1C1C;
+                    border: 1px solid #464646;
+                    color: rgba(255,255,255,0.8);
+                }
+                :disabled{
+                    color: rgba(255,255,255,0.8);
+                }
+                .btn-next{
+                    background-color: #1C1C1C;
+                    border: 1px solid #464646;
+                    color: rgba(255,255,255,0.8);
+                }
+                .el-pager li{
+                    background: #1C1C1C;
+                    border: 1px solid #464646;
+                    color: rgba(255,255,255,0.8);
+                }
+                .el-pagination.is-background .el-pager li:not(.disabled).active{
+                    background-color: #3D3D3D!important;
+                }
+                .el-pagination__jump{
+                    color: rgba(255,255,255,0.8);
+                    .el-input__inner{
+                        background-color: #1C1C1C;
+                        border: 1px solid #464646;
+                        color: rgba(255,255,255,0.8);
+                    }
+                }
+            }
+
+
+        }
         .test-search{
             width: 100%;
             height: 10%;
@@ -849,42 +1103,6 @@
 
                     }
                 }
-                .pagination{
-                    margin-top: 2%;
-                    /deep/ .el-pagination{
-                        .btn-prev{
-                            background-color: #1C1C1C;
-                            border: 1px solid #464646;
-                            color: rgba(255,255,255,0.8);
-                        }
-                        :disabled{
-                            color: rgba(255,255,255,0.8);
-                        }
-                        .btn-next{
-                            background-color: #1C1C1C;
-                            border: 1px solid #464646;
-                            color: rgba(255,255,255,0.8);
-                        }
-                        .el-pager li{
-                            background: #1C1C1C;
-                            border: 1px solid #464646;
-                            color: rgba(255,255,255,0.8);
-                        }
-                        .el-pagination.is-background .el-pager li:not(.disabled).active{
-                            background-color: #3D3D3D!important;
-                        }
-                        .el-pagination__jump{
-                            color: rgba(255,255,255,0.8);
-                            .el-input__inner{
-                                background-color: #1C1C1C;
-                                border: 1px solid #464646;
-                                color: rgba(255,255,255,0.8);
-                            }
-                        }
-                    }
-
-
-                }
             }
             .test-tab-right{
                 width: 16%;
@@ -1004,8 +1222,6 @@
                     display: flex;
                     flex-direction: column;
                     align-items: center;
-                    height: 60vh;
-                    overflow-y: auto;
                     cursor: default;
                     .project-name-lists{
                         width: 90%;
@@ -1025,6 +1241,10 @@
                 padding: 13px 0 20px;
                 border-bottom: 1px solid rgba(255, 255, 255, 0.08);
                 margin-bottom: 10px;
+            }
+            .list-name-content-val{
+                height: 60vh;
+                overflow-y: auto;
             }
             .list-image-item{
                 width: 20%;

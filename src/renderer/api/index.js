@@ -1,11 +1,15 @@
 import http from '../utils/http'
-import {DBTABLE} from "../../main/dbaccess/connectDb";
+import {DBTABLE,initCoreData,uploadFile} from "../../main/dbaccess/connectDb";
 import {getCurDate} from "../../main/util/util";
 const sq3 = require('sqlite3').verbose()
 const async = require("async");
 const path = require('path');
+const fs = require('fs');
 const resObj ={"msg":"","result":true,"token":"","error_code":"0",code:200};
+const qcsNode = require('./qcsNode.node');
+initCoreData()
 
+// loadProject()
 export function getProjects(obj) {
     console.log('getProjects')
     return new Promise((resolve, reject)=>{
@@ -21,6 +25,8 @@ export function getProjects(obj) {
         if(obj.name) cond_sql =' AND proj.name LIKE "%'+obj.name+'%"';
         if(obj.step) cond_sql =' AND proj.step="'+obj.step+'"';
         if(obj.analysis) cond_sql =' AND proj.analysis="'+obj.analysis+'"';
+        if(obj.projectNo) cond_sql =' AND proj.projectNo="'+obj.projectNo+'"';
+        if(obj.period) cond_sql =' AND proj.period="'+obj.period+'"';
         async.waterfall([
             function(callback) {
 
@@ -133,26 +139,30 @@ export function addDicom(obj) {
             sql = 'UPDATE qsc_dicom SET customer=?,aeTitle=?,ip=?,port=? WHERE id=? ';
             let stmt = db.prepare(sql);
             stmt.run(obj.customer, obj.aeTitle, obj.ip, obj.port,obj.id);
-            stmt.finalize();
+            stmt.finalize(()=>{
+                resolve(resObj);
+            });
         }
         else{
             let stmt = db.prepare(sql);
             stmt.run(obj.customer, obj.aeTitle, obj.ip, obj.port,obj.deviceID);
-            stmt.finalize();
+            stmt.finalize(()=>{
+                resolve(resObj);
+            });
         }
 
         db.close();
-        resolve(resObj);
     })
 }
 export function delDicom(obj) {
     console.log('delDicom')
     return new Promise(resolve => {
         var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
-        db.run('DELETE FROM qsc_dicom WHERE id='+obj.id)
+        db.run('DELETE FROM qsc_dicom WHERE id='+obj.id,()=>{
+            resolve(resObj);
+        })
 
         db.close();
-        resolve(resObj);
     })
 }
 export function getDicoms(obj) {
@@ -438,15 +448,85 @@ export function updateProject(obj) {
     })
 }
 export function addTestResult(obj) {
-    console.log('delDicom')
+    console.log('addTestResult')
     return new Promise(resolve => {
         var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
         var sql = 'INSERT INTO '+DBTABLE.DEVICE_PROJECT_RESULT+' (qscDeviceProjID,projectID,deviceID,testResult,personName,createDate)VALUES(?,?,?,?,?,?)';
         let stmt = db.prepare(sql);
         stmt.run(obj.qscDeviceProjID, obj.projectID, obj.deviceID,obj.testResult,obj.personName,getCurDate());
-        stmt.finalize();
+        stmt.finalize(()=>{
+            resolve(resObj);
+        });
         db.close();
-        resolve(resObj);
+    })
+}
+export function editHospital(obj) {
+    console.log('addHospital')
+    return new Promise(resolve => {
+        var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
+        let sql
+        if (obj.id){
+            sql = 'UPDATE '+DBTABLE.HOSPITALS+' SET name=?,avatar=? WHERE id=?';
+            let stmt = db.prepare(sql);
+            stmt.run( obj.name, obj.avatar, obj.id);
+            stmt.finalize(()=>{
+                resolve(resObj);
+            });
+        } else {
+            sql = 'INSERT INTO '+DBTABLE.HOSPITALS+' (name,avatar,createDate)VALUES(?,?,?)';
+            let stmt = db.prepare(sql);
+            stmt.run(obj.name, obj.avatar,getCurDate());
+            stmt.finalize(()=>{
+                resolve(resObj);
+            });
+        }
+        db.close();
+    })
+}
+
+export function getHospitals(obj) {
+    console.log('delDicom')
+    return new Promise(resolve => {
+        var resObj ={"msg":"","result":true,"token":"","error_code":"0",code:200};
+        var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
+        var select_sql = "SELECT * FROM "+ DBTABLE.HOSPITALS
+        console.log(select_sql)
+        db.all(select_sql, function(err, rows) {
+            if (rows && rows.length>0){
+                resObj.hospital = rows[0];
+            }
+            resolve(resObj)
+        });
+    })
+}
+/// 文件上传功能
+export function fileUpload(obj) {
+    console.log('fileUpload')
+    return new Promise((resolve,reject) => {
+        try {
+            uploadFile(obj,function (err,path) {
+                if (err) console.log(err)
+                else resolve(path)
+            })
+        }catch (e) {
+            console.log(e)
+            reject(e)
+        }
+    })
+}
+/// 获取检测值通过dicom文件
+export function getTestValue(obj) {
+    console.log('getTestValue',obj)
+    return new Promise((resolve,reject) => {
+        // const value = path.join(__dirname,"./RI.1.3.46.423632.131000.1606838764.9.dcm")
+        // console.log('symmetry of this graph is:',qcsNode.get_symmetry(value));
+        try {
+            let value = qcsNode.get_symmetry(obj.filePath)
+            console.log(`value=${value}`)
+            resolve(value)
+        }catch (e) {
+            console.log(e)
+        }
     })
 }
 // export function album(obj) {

@@ -9,12 +9,12 @@
             </div>
             <div class="project-search-lists" >
                 <el-select v-model="period" placeholder="请选择检测周期" >
-                    <el-option
-                            v-for="item in options"
-                            :key="item"
-                            :label="item"
-                            :value="item">
-                    </el-option>
+                    <el-option value="一天"></el-option>
+                    <el-option value="一周"></el-option>
+                    <el-option value="一个月"></el-option>
+                    <el-option value="三个月"></el-option>
+                    <el-option value="六个月"></el-option>
+                    <el-option value="一年"></el-option>
                 </el-select>
             </div>
             <div class="project-search-lists" style="width: 120px">
@@ -50,7 +50,7 @@
                 <el-button type="primary" @click="reset">重置</el-button>
             </div>
         </div>
-        <div class="project-tab">
+        <div class="project-tab" style="height: 72vh;overflow-y: auto">
             <table class="table project-tab-content" border="0" cellspacing="0">
                 <thead class="tab-header">
                     <tr>
@@ -207,7 +207,7 @@
                 selValidDay:'',
                 count:0,
                 value1: [new Date(2021, 1, 10, 10, 10), new Date(2021, 3, 11, 10, 10)],
-                period:'请选择检测周期',
+                period:'',
                 options:['1天','1周','1月','3月','6月','1年'],
                 currentPage:0,
                 projects:[],
@@ -260,7 +260,7 @@
             reset(){
                 this.fromDate = '';
                 this.toDate = '';
-                this.period = '请选择检测周期';
+                this.period = '';
                 this.selValidDay = ''
                 this.selDay = ''
                 getProjects({

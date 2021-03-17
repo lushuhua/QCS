@@ -17,15 +17,6 @@ export default new Router({
             component: require('@/views/main').default,
             children: [
                 {
-                    path: 'music',
-                    name: 'music',
-                    component: () => import('../views/music/index.vue')
-                }, {
-                    path: 'playlist-detail',
-                    name: 'playlist-detail',
-                    component: () => import('../views/playlist/detail')
-                },
-                {
                     path: 'project',
                     name: 'project',
                     component: () => import('../views/project/index.vue')

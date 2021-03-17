@@ -1,5 +1,6 @@
 <template>
     <div class="report-page">
+        <iframe id="iframePrint" style="display: none"></iframe>
         <div class="report-search">
             <div class="report-search-left">
                 <div class="report-search-lists">
@@ -26,12 +27,12 @@
                 </div>
                 <div class="report-search-lists">
                     <el-select v-model="period" placeholder="请选择检测周期">
-                        <el-option
-                                v-for="item in options"
-                                :key="item"
-                                :label="item"
-                                :value="item">
-                        </el-option>
+                        <el-option value="一天"></el-option>
+                        <el-option value="一周"></el-option>
+                        <el-option value="一个月"></el-option>
+                        <el-option value="三个月"></el-option>
+                        <el-option value="六个月"></el-option>
+                        <el-option value="一年"></el-option>
                     </el-select>
                 </div>
                 <div class="report-search-btn">
@@ -47,14 +48,13 @@
                   </div>
             </div>
         </div>
-        <div class="report-tab">
+        <div class="report-tab" style="height: 72vh;overflow-y: auto">
             <table class="table report-tab-content" border="0" cellspacing="0">
                 <thead class="tab-header">
                     <tr>
                         <th>项目号</th>
                         <th>项目名称</th>
-                        <th>次级项目名称</th>
-                        <th>周期</th>
+                        <!--<th>周期</th>-->
                         <th>检测值</th>
                         <th>阈值</th>
                         <th>检测日期</th>
@@ -63,19 +63,22 @@
                 <tbody class="tab-lists">
                 <tr v-for="(project,index) in projects" :key="index">
                     <td>{{project.projectNo}}</td>
-                    <td>{{project.name}}</td>
-                    <td>{{project.subName?project.subName:'无'}}</td>
-                    <td>{{project.period}}</td>
-                    <td v-if="project.testResult.levelNum==1">
-                        <span>{{project.testResult.result}}</span>
-                    </td>
-                    <td v-if="project.testResult.levelNum>1">
-                        <div v-for="(item,key) in project.testResult" :key="key">
-                            <span v-if="key!='levelNum'">
-                                {{key}} {{item.result}}
-                            </span>
+                    <td>{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td>
+                    <!--<td>{{project.period}}</td>-->
+                    <td>
+                        <div v-if="project.detectType=='影像分析'">
+                            <div v-for="v in project.testResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>
                         </div>
-
+                        <div v-else>
+                            <div v-if="project.testResult.levelNum==1">{{project.testResult.result?project.testResult.result.toFixed(2):''}}</div>
+                            <div v-else>
+                                <div v-for="(item,key) in project.testResult" :key="key">
+                                            <span v-if="key!='levelNum'">
+                                                {{key}} {{item.result}}
+                                            </span>
+                                </div>
+                            </div>
+                        </div>
                     </td>
                     <td>{{project.threshold}}</td>
                     <td>{{project.createDate}}</td>
@@ -85,13 +88,15 @@
             <div class="pagination clearfix">
                 <el-pagination
                         :background="true"
-                        layout="prev, pager, next,jumper"
-                        :page-size="10"
+                        layout="sizes, prev, pager, next,jumper"
+                        :page-sizes="[10,20,50,100,200,500]"
+                        :page-size="offset"
                         :total="count"
                         prev-text="上一页"
                         next-text="下一页"
                         class="right"
                         @current-change="handleCurrentChange"
+                        @size-change="handleSizeChange"
                         :current-page="currentPage"
                 >
                 </el-pagination>
@@ -101,21 +106,70 @@
         <el-dialog
                 title="报表打印预览"
                 :visible.sync="dialogVisible"
-                width="40%"
+                width="70vw"
                 center
+                ref="print"
         >
-
-            <div slot="footer">
-                <div>
-
+            <div id="print-wrapper" style="margin: 20px 30px;overflow-y: auto;padding: 20px">
+                <div v-if="hospitalInfo">
+                    <img :src="hospitalInfo.avatar" width="50" height="50" style="border-radius: 50%;margin-right: 10px;vertical-align: middle" alt="">{{hospitalInfo.name}}
                 </div>
+                <div class="report-tab" style="font-size: 30px;margin-top: 20px;height: 60vh;overflow-y: auto">
+                    <table class="table report-tab-content" border="0" cellspacing="0">
+                        <thead class="tab-header">
+                        <tr>
+                            <th>项目名称</th>
+                            <!--<th>周期</th>-->
+                            <th>检测值</th>
+                            <!--<th>阈值</th>-->
+                            <th>检测时间</th>
+                        </tr>
+                        </thead>
+                        <tbody class="tab-lists">
+                        <tr v-for="(project,index) in projects" :key="index">
+                            <td>{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td>
+                            <!--<td>{{project.period}}</td>-->
+                            <td>
+                                <div v-if="project.detectType=='影像分析'">
+                                    <div v-for="v in project.testResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>
+                                </div>
+                                <div v-else>
+                                    <div v-if="project.testResult.levelNum==1">{{project.testResult.result?project.testResult.result.toFixed(2):''}}</div>
+                                    <div v-else>
+                                        <div v-for="(item,key) in project.testResult" :key="key">
+                                            <span v-if="key!='levelNum'">
+                                                {{key}} {{item.result}}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <!--<td v-if="project.testResult.levelNum==1">-->
+                                <!--<span>{{project.testResult.result?project.testResult.result.toFixed(2):''}}</span>-->
+                            <!--</td>-->
+                            <!--<td v-if="project.testResult.levelNum>1">-->
+                                <!--<div v-for="(item,key) in project.testResult" :key="key">-->
+                                    <!--<span v-if="key!='levelNum'">-->
+                                        <!--{{key}} {{item.result}}-->
+                                    <!--</span>-->
+                                <!--</div>-->
+                            <!--</td>-->
+                            <!--<td>{{project.threshold}}</td>-->
+                            <td>{{project.createDate}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div slot="footer">
+                <el-button type="primary" class="active active-print" @click="onclickPrint">打印报表</el-button>
             </div>
         </el-dialog>
     </div>
 </template>
 <script>
     import { mapState } from 'vuex';
-    import { getProjectTests,addTestResult } from "../../api";
+    import { getProjectTests,addTestResult,getHospitals } from "../../api";
 
     export default {
         components: {
@@ -130,24 +184,19 @@
                 options:['1天','1周','1月','3月','6月','1年'],
                 currentPage:0,
                 projects:[],
+                offset: 10,
                 count:0,
+                hospitalInfo: undefined
             }
         },
         computed: mapState({
             currentDeviceID: state => state.user.currentDeviceID,
         }),
         mounted() {
-            getProjectTests({
-                deviceID:this.currentDeviceID,
-                fromDate:this.fromDate,
-                toDate:this.toDate,
-                period:this.period,
-                pageNum:0,
-                offset:10}).then(res =>{
-                console.log(res);
-                this.projects = res.projects;
-                this.count = res.count;
-            })
+
+        },
+        created(){
+            this.getTestData()
         },
         methods: {
             handleClick() {
@@ -158,54 +207,51 @@
             },
             reportPrint(){
                 this.dialogVisible=true
+                getHospitals().then(res=>{
+                    console.log(res)
+                    if (res.hospital){
+                        this.hospitalInfo = res.hospital
+                    }
+                })
+            },
+            onclickPrint(){
+                let iframeWindow = document.getElementById("iframePrint");
+                iframeWindow.contentWindow.document.body.innerHTML = document.getElementById("print-wrapper").innerHTML
+                iframeWindow.contentWindow.print();
             },
             search(){
-
                 console.log(this.fromDate,this.toDate,this.period);
-                getProjectTests({
-                    deviceID:this.currentDeviceID,
-                    fromDate:this.fromDate,
-                    toDate:this.toDate,
-                    period:this.period,
-                    pageNum:0,
-                    offset:10}).then(res =>{
-                    console.log(res);
-                    this.projects = res.projects;
-                    this.count = res.count;
-                })
+                this.getTestData(1)
             },
             reset(){
                 this.fromDate = '';
                 this.toDate = '';
                 this.period = '请选择检测周期';
-                getProjectTests({
-                    deviceID:this.currentDeviceID,
-                    fromDate:this.fromDate,
-                    toDate:this.toDate,
-                    period:this.period,
-                    pageNum:this.currentPage-1,
-                    offset:10}).then(res =>{
-                    console.log(res);
-                    this.projects = res.projects;
-                    this.count = res.count;
-                })
+                this.getTestData(1)
             },
             handleCurrentChange(val) {
                 this.currentPage = val;
                 console.log(`当前页: ${val}`);
+                this.getTestData()
+            },
+            getTestData(state){
+                if (state) this.currentPage = 1
                 getProjectTests({
                     deviceID:this.currentDeviceID,
                     fromDate:this.fromDate,
                     toDate:this.toDate,
                     period:this.period,
                     pageNum:this.currentPage-1,
-                    offset:10}).then(res =>{
+                    offset:this.offset}).then(res =>{
                     console.log(res);
                     this.projects = res.projects;
                     this.count = res.count;
                 })
             },
-
+            handleSizeChange(val){
+                this.offset = val
+                this.getTestData()
+            }
         }
     }
 </script>
@@ -414,6 +460,29 @@
         .dialog-footer{
 
         }
+        #print-wrapper{
+            background: #ffffff;
+            color: #333;
+            table{
+                border: 1px solid #D2D2D2;
+            }
+            th{
+                color: #333;
+                border-color: #D2D2D2;
+                border-bottom: 1px solid #D2D2D2;
+            }
+            td{
+                background: #ffffff;
+                color: #333;
+                border-color: #D2D2D2;
+                border-bottom: 1px solid #D2D2D2;
+            }
+            tr:last-of-type{
+                td{
+                    border-bottom: none;
+                }
+            }
+        }
     }
     .table-more{
         padding: 0;
@@ -424,5 +493,8 @@
         :last-child{
             border-bottom: 0;
         }
+    }
+    .active-print{
+        border-color: transparent;
     }
 </style>

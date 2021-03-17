@@ -134,6 +134,19 @@ img {
 .table-list>tbody>tr:hover{
   background: #2C2C2C;
 }
+.el-table th,.el-table td{
+  background: #3C3C3C;
+  padding: 2% 0;
+  color: rgba(255,255,255,0.8);
+  border-color: rgba(255, 255, 255, 0.25)!important;
+  font-size: 13px!important;
+}
+.el-table tr:nth-child(odd) td{
+  background: #2C2C2C;
+}
+.el-table--enable-row-hover .el-table__body tr:hover > td {
+  background: #333333;
+}
 .table-list>thead>tr>th{
   padding: 2% 0;
   font-weight: 400;
@@ -168,7 +181,7 @@ img {
  }
 .el-date-picker tr.el-date-table__row td:hover span,.el-date-table td.current:not(.disabled) span{
   background: #2CCEAD;
-  color: #ffffff;
+  color: rgba(255,255,255,0.8);
 }
 .el-date-picker__header .el-picker-panel__icon-btn:hover,.el-date-picker__header .el-date-picker__header-label:hover{
   color: #2CCEAD;

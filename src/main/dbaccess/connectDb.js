@@ -3,6 +3,8 @@
  */
 const sq3 = require('sqlite3')
 const fs = require('fs');
+const S3 = require('aws-sdk/clients/s3')
+
 const path = require('path');
 const os = require('os');
 const ejsExcel = require('ejsexcel');
@@ -17,6 +19,7 @@ exports.DBTABLE =
         DEVICE_PROJECT_RESULT:'qsc_device_proj_result',
         PERIOD_DATA:'qsc_period_data',
         PROJECT_FILE:'qsc_project_file', /// 文件上传
+        HOSPITALS:'qsc_hospitals', /// 文件上传
     }
 
 //表的创建 加速器配置  项目配置 dicom输出配置
@@ -112,15 +115,24 @@ exports.initCoreData = function() {
                 "periodRemark TEXT" +
                 ")");
             /// 文件上传数据
-            db.run("CREATE TABLE if not exists qsc_project_file (" +
-                "id INTEGER PRIMARY KEY autoincrement," +
-                "qscDeviceProjID INTEGER," +
-                "checked INTEGER," +
-                "fileUrl TEXT," +
-                "imageUrl TEXT" +
-                ")");
+            // db.run("DROP TABLE qsc_project_file");
+            // db.run("CREATE TABLE if not exists qsc_project_file (" +
+            //     "id INTEGER PRIMARY KEY autoincrement," +
+            //     "qscDeviceProjID INTEGER," +
+            //     "checked INTEGER," +
+            //     "fileUrl TEXT," +
+            //     "imageUrl TEXT" +
+            //     ")");
             // db.run("ALTER TABLE  qsc_device ADD COLUMN xFFF INTEGER DEFAULT 0 ");
 
+            /// 医院信息
+            db.run("CREATE TABLE if not exists qsc_hospitals (" +
+                "id INTEGER PRIMARY KEY autoincrement," +
+                "deviceID INTEGER," +
+                "name TEXT," +
+                "avatar TEXT," +
+                "createDate TEXT" +
+                ")");
             // db.run("CREATE UNIQUE INDEX dp_index ON qsc_device_proj(deviceID, projectID) ");
             //     db.run('select * from sqlite_master where type="table" and name="qsc_device_proj"')
             // db.each('select * from sqlite_master where type="table" and name="qsc_device_proj_result"', function(err, row) {
@@ -244,6 +256,21 @@ exports.loadProject = function() {
     } catch (e) {
         console.log('readFileSync error')
         console.log(e)
+    }
+}
+
+/// 导入原始项目数据
+exports.uploadFile = function(data,callback) {
+    console.log('loadProject')
+    try {
+        let file = data.file,toPath = path.join(__dirname,'../upload/images/'+ Date.now() +'.png')
+        console.log('loadProject',file.path)
+        let fileBuffer = fs.readFileSync(file.path);
+        fs.writeFileSync(toPath,fileBuffer)
+        callback(null,toPath)
+    } catch (e) {
+        console.log('uploadFile error')
+        callback(e)
     }
 }
 // this.queryExample();

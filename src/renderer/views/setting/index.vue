@@ -8,150 +8,154 @@
                     <div class="setting-type-item right" :class="{active:typeName=='DICOM'}" @click="changeType('DICOM',2)">DICOM输出配置</div>
                 </div>
                 <div class="setting-upload" v-if="showTypeIndex==0">
+                    <el-button type="primary" class="active" @click="addHospital()">设置医院信息</el-button>
                     <el-button type="primary" class="active" @click="addAccelerate()">添加</el-button>
                 </div>
                 <div class="setting-upload" v-if="showTypeIndex==2">
                     <el-button type="primary" class="active" @click="addDICOM()">添加</el-button>
                 </div>
-                <table class="table setting-tab-content" border="0" cellspacing="0" v-if="showTypeIndex==0">
-                    <thead class="tab-header">
-                    <tr>
-                        <th>加速器型号</th>
-                        <th>加速器序号</th>
-                        <th>x射线能量档</th>
-                        <th>电子射线能量档</th>
-                        <th>x射线百分深度计量</th>
-                        <th>电子射线百分深度计量</th>
-                        <th>电子线线光筒</th>
-                        <th>多叶光栅对数</th>
-                        <th>操作</th>
-                    </tr>
-                    </thead>
-                    <tbody class="tab-lists">
-                    <tr v-for="(device,index) in devices" :key="index">
-                        <td>{{device.model}}</td>
-                        <td>{{device.sequence}}</td>
-                        <td>
-                            <div v-for="(v,index) in device.powerX" :key="index">{{v.x}}{{v.checked?' FFF模式':''}}</div>
-                        </td>
-                        <td>
-                            <div v-for="(v,index) in device.powerE" :key="index">{{v.x}}</div>
-                        </td>
-                        <td>{{device.x_volume_percent}}</td>
-                        <td>{{device.e_volume_percent}}</td>
-                        <td>{{device.e_light_size}}</td>
-                        <td>{{device.multileaf_collimator_size}}</td>
-                        <td class="">
-                            <div class="handle">
-                                <div class="handle-item" @click="addAccelerate(device)">修改</div>
-                                <div class="handle-item" @click="showDelete(device)">删除</div>
-                            </div>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-                <table class="table setting-tab-content" border="0" cellspacing="0" v-if="showTypeIndex==1">
-                    <thead class="tab-header">
-                    <tr>
-                        <th>项目号</th>
-                        <th>项目名称</th>
-                        <th>阈值</th>
-                        <th>检测周期</th>
-                        <th>辐射类型</th>
-                        <th>能量档</th>
-                        <th>检测类型</th>
-                        <th>操作</th>
-                    </tr>
-                    </thead>
-                    <tbody class="tab-lists">
-                    <tr v-for="(project,index) in projects" :key="index">
-                        <td>{{project.projectNo}}</td>
-                        <td>{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td>
-                        <td>{{project.threshold}}</td>
-                        <td>{{project.period}}</td>
-                        <td>{{project.radioType}}</td>
-                        <td><div v-for="(v,index) in device.powerX" :key="index">{{v.x}}{{v.checked?' FFF模式':''}}</div></td>
-                        <td>{{project.detectType}}</td>
-                        <td class="">
-                            <div class="handle">
-                                <div class="handle-item" @click="showProjectChange(project)">修改</div>
-                                <div class="handle-item" @click="showDelete()">删除</div>
-                            </div>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-                <table class="table setting-tab-content" border="0" cellspacing="0" v-if="showTypeIndex==2">
-                    <thead class="tab-header">
-                    <tr>
-                        <th>序号</th>
-                        <th>客户端</th>
-                        <th>AE Title</th>
-                        <th>IP</th>
-                        <th>端口号</th>
-                        <th>操作</th>
-                    </tr>
-                    </thead>
-                    <tbody class="tab-lists">
-                    <tr v-for="(dicom,index) in dicoms" :key="index">
-                        <td>{{dicom.id}}</td>
-                        <td>{{dicom.customer}}</td>
-                        <td>{{dicom.aeTitle}}</td>
-                        <td>{{dicom.ip}}</td>
-                        <td>{{dicom.port}}</td>
-                        <td class="">
-                            <div class="handle">
-                                <div class="handle-item" @click="addDICOM(dicom)">修改</div>
-                                <div class="handle-item" @click="showDelete(dicom)">删除</div>
-                            </div>
-                        </td>
-                    </tr>
+                <div class="setting-tab-content">
+                    <table class="table" border="0" cellspacing="0" v-if="showTypeIndex==0">
+                        <thead class="tab-header">
+                        <tr>
+                            <th>加速器型号</th>
+                            <th>加速器序号</th>
+                            <th>x射线能量档</th>
+                            <th>电子射线能量档</th>
+                            <th>x射线百分深度计量</th>
+                            <th>电子射线百分深度计量</th>
+                            <th>电子线线光筒</th>
+                            <th>多叶光栅对数</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody class="tab-lists">
+                        <tr v-for="(device,index) in devices" :key="index">
+                            <td>{{device.model}}</td>
+                            <td>{{device.sequence}}</td>
+                            <td>
+                                <div v-for="(v,index) in device.powerX" :key="index">{{v.x}}{{v.checked?' FFF模式':''}}</div>
+                            </td>
+                            <td>
+                                <div v-for="(v,index) in device.powerE" :key="index">{{v.x}}</div>
+                            </td>
+                            <td>{{device.x_volume_percent}}</td>
+                            <td>{{device.e_volume_percent}}</td>
+                            <td>{{device.e_light_size}}</td>
+                            <td>{{device.multileaf_collimator_size}}</td>
+                            <td class="">
+                                <div class="handle">
+                                    <div class="handle-item" @click="addAccelerate(device)">修改</div>
+                                    <div class="handle-item" @click="showDelete(device)">删除</div>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <table class="table" border="0" cellspacing="0" v-if="showTypeIndex==1">
+                        <thead class="tab-header">
+                        <tr>
+                            <th>项目号</th>
+                            <th>项目名称</th>
+                            <th>阈值</th>
+                            <th>检测周期</th>
+                            <th>辐射类型</th>
+                            <th>能量档</th>
+                            <th>检测类型</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody class="tab-lists">
+                        <tr v-for="(project,index) in projects" :key="index">
+                            <td>{{project.projectNo}}</td>
+                            <td>{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td>
+                            <td>{{project.threshold}}</td>
+                            <td>{{project.period}}</td>
+                            <td>{{project.radioType}}</td>
+                            <td><div v-for="(v,index) in device.powerX" :key="index">{{v.x}}{{v.checked?' FFF模式':''}}</div></td>
+                            <td>{{project.detectType}}</td>
+                            <td class="">
+                                <div class="handle">
+                                    <div class="handle-item" @click="showProjectChange(project)">修改</div>
+                                    <div class="handle-item" @click="showDelete()">删除</div>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <table class="table" border="0" cellspacing="0" v-if="showTypeIndex==2">
+                        <thead class="tab-header">
+                        <tr>
+                            <th>序号</th>
+                            <th>客户端</th>
+                            <th>AE Title</th>
+                            <th>IP</th>
+                            <th>端口号</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody class="tab-lists">
+                        <tr v-for="(dicom,index) in dicoms" :key="index">
+                            <td>{{dicom.id}}</td>
+                            <td>{{dicom.customer}}</td>
+                            <td>{{dicom.aeTitle}}</td>
+                            <td>{{dicom.ip}}</td>
+                            <td>{{dicom.port}}</td>
+                            <td class="">
+                                <div class="handle">
+                                    <div class="handle-item" @click="addDICOM(dicom)">修改</div>
+                                    <div class="handle-item" @click="showDelete(dicom)">删除</div>
+                                </div>
+                            </td>
+                        </tr>
 
-                    </tbody>
-                </table>
-                <div class="pagination clearfix" v-show="showTypeIndex==0">
-                    <el-pagination
-                            :background="true"
-                            layout="total, prev, pager, next,jumper"
-                            :page-size="10"
-                            :total="deviceInfo.count"
-                            prev-text="上一页"
-                            next-text="下一页"
-                            class="right"
-                            @current-change="handleCurrentChange"
-                            :current-page="deviceInfo.pageNum"
-                    >
-                    </el-pagination>
+                        </tbody>
+                    </table>
+                    <div class="pagination clearfix" v-show="showTypeIndex==0">
+                        <el-pagination
+                                :background="true"
+                                layout="total, prev, pager, next,jumper"
+                                :page-size="10"
+                                :total="deviceInfo.count"
+                                prev-text="上一页"
+                                next-text="下一页"
+                                class="right"
+                                @current-change="handleCurrentChange"
+                                :current-page="deviceInfo.pageNum"
+                        >
+                        </el-pagination>
 
-                </div>
-                <div class="pagination clearfix" v-show="showTypeIndex==1">
-                    <el-pagination
-                            :background="true"
-                            layout="total, prev, pager, next,jumper"
-                            :page-size="10"
-                            :total="projectInfo.count"
-                            prev-text="上一页"
-                            next-text="下一页"
-                            class="right"
-                            @current-change="handleCurrentChange"
-                            :current-page="projectInfo.pageNum"
-                    >
-                    </el-pagination>
+                    </div>
+                    <div class="pagination clearfix" v-show="showTypeIndex==1">
+                        <el-pagination
+                                :background="true"
+                                layout="total, prev, pager, next,jumper"
+                                :page-size="10"
+                                :total="projectInfo.count"
+                                prev-text="上一页"
+                                next-text="下一页"
+                                class="right"
+                                @current-change="handleCurrentChange"
+                                :current-page="projectInfo.pageNum"
+                        >
+                        </el-pagination>
 
-                </div>
-                <div class="pagination clearfix" v-show="showTypeIndex==2">
-                    <el-pagination
-                            :background="true"
-                            layout="total, prev, pager, next,jumper"
-                            :page-size="10"
-                            :total="dicomsInfo.count"
-                            prev-text="上一页"
-                            next-text="下一页"
-                            class="right"
-                            @current-change="handleCurrentChange"
-                            :current-page="dicomsInfo.pageNum"
-                    >
-                    </el-pagination>
+                    </div>
+                    <div class="pagination clearfix" v-show="showTypeIndex==2">
+                        <el-pagination
+                                :background="true"
+                                layout="total, prev, pager, next,jumper"
+                                :page-size="10"
+                                :total="dicomsInfo.count"
+                                prev-text="上一页"
+                                next-text="下一页"
+                                class="right"
+                                @current-change="handleCurrentChange"
+                                :current-page="dicomsInfo.pageNum"
+                        >
+                        </el-pagination>
+
+                    </div>
 
                 </div>
                 <el-dialog
@@ -332,13 +336,45 @@
                         </div>
                     </div>
                 </el-dialog>
+
+                <el-dialog
+                        title="设置医院信息"
+                        :visible.sync="dialogHospital"
+                        width="50vw"
+                        center
+                >
+                    <div class="hospital">
+                        <div class="hospital-item">
+                            <el-upload
+                                    class="upload-demo"
+                                    action=""
+                                    accept="image/jpg,image/jpeg,image/png"
+                                    :show-file-list="false"
+                                    :http-request="onHttpRequest">
+                                <i class="el-icon-plus upload-icon" v-if="!hospitalInfo.avatar"></i>
+                                <img :src="hospitalInfo.avatar" width="117" height="117" v-else>
+                                <span>请上传医院logo，仅支持jpg、jpeg、png等格式</span>
+                            </el-upload>
+                        </div>
+                        <div class="hospital-item hospital-item-input">
+                            <input class="item-content" v-model="hospitalInfo.name" placeholder="请输入医院名称" type="text">
+                            <div style="flex: none; width: 115px;text-align: center">医院名称</div>
+                        </div>
+                    </div>
+                    <div slot="footer">
+                        <div class="confirm-btn">
+                            <el-button type="primary" class="" @click="dialogHospital=false">取消</el-button>
+                            <el-button type="primary" class="active" @click="onclickHos()">保存</el-button>
+                        </div>
+                    </div>
+                </el-dialog>
             </div>
         </div>
     </div>
 </template>
 <script>
     import { mapState } from 'vuex';
-    import { addDicom,getDicoms,delDicom,addDevice,getDevices,delDevice,getProjects,updateProject } from "../../api";
+    import { addDicom,getDicoms,delDicom,addDevice,getDevices,delDevice,getProjects,updateProject,getHospitals,editHospital,fileUpload } from "../../api";
     export default {
         components: {
         },
@@ -393,7 +429,9 @@
                     pageNum: 1,
                     offset: 10,
                     count: 0
-                }
+                },
+                dialogHospital: false,
+                hospitalInfo: {name: '',avatar: ''}
             }
         },
         mounted() {
@@ -588,14 +626,37 @@
                         break;
                 }
             },
+            addHospital(){
+                this.dialogHospital = true
+                getHospitals().then(res=>{
+                    console.log(res)
+                    if (res.hospital){
+                        this.hospitalInfo = res.hospital
+                    }
+                })
+            },
+            onclickHos(){
+                console.log('onclickHos',this.$electron)
+                editHospital(this.hospitalInfo).then(res=>{
+                    this.$message.success('保存成功')
+                    this.dialogHospital = false
+                })
+            },
+            onHttpRequest(file){
+                console.log(file)
+                fileUpload(file).then(res=>{
+                    console.log(res)
+                    this.hospitalInfo.avatar = res
+                })
+            },
             addAccelerate(device){
                 if(device) {
-                    this.device = device;
+                    this.device = JSON.parse(JSON.stringify(device));
                 } else this.device = {}
                 this.showAccelerate=true;
             },
             addDICOM(diCom){
-               if(diCom) this.diCom = diCom
+               if(diCom) this.diCom = JSON.parse(JSON.stringify(diCom))
                else this.diCom = {}
                this.isShowDICOM = true;
             },
@@ -714,6 +775,11 @@
                 }
                 .setting-tab-content{
                     width: 100%;
+                    height: 72vh;
+                    overflow-y: auto;
+                    table{
+                        width: 100%;
+                    }
                     .tab-header{
                         background: rgba(255,255,255,0.1);
                         color: #fff;
@@ -839,6 +905,29 @@
         }
         .dialog-footer{
 
+        }
+        .hospital{
+            padding: 20px;
+            &-item{
+                &:not(:last-child){
+                    margin-bottom: 20px;
+                }
+                .item-content{
+                    background-color: #2C2C2C;
+                    padding: 0 1vw;
+                    border: 0;
+                    border-right: 1px solid rgba(255, 255, 255, 0.08);
+                    line-height: 30px;
+                    flex: auto;
+                }
+                &-input{
+                    background: rgba(255, 255, 255, 0.08);
+                    border-radius: 4px;
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    display: flex;
+                    align-items: center;
+                }
+            }
         }
     }
     .table-more{
@@ -1025,5 +1114,18 @@
     }
     .el-popover{
           background: #2C2C2C !important;
+    }
+    .upload-icon{
+        width: 117px;
+        height: 117px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 4px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        display: inline-flex;
+        vertical-align: middle;
+        justify-content: center;
+        align-items: center;
+        font-size: 20px;
+        color: #2CCEAD;
     }
 </style>

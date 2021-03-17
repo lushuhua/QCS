@@ -62,6 +62,11 @@ input::-webkit-inner-spin-button {
 .el-pagination .el-pager li.active{
   background: #2CCEAD !important;
 }
+.el-pagination__sizes .el-input__inner{
+  background: #1C1C1C;
+  border-color: #464646;
+  color: rgba(255,255,255,0.8);
+}
 /*定义滚动条高宽及背景 高宽分别对应横竖滚动条的尺寸*/
 ::-webkit-scrollbar
 {
@@ -88,4 +93,85 @@ input::-webkit-inner-spin-button {
   .el-dialog{
     background: #262626;
   }
+
+/*单选框*/
+.page-radio {
+  font-size: 12px;
+  font-weight: normal;
+  font-family: "PingFangSC Light";
+  color: #333333;
+  cursor: pointer;
+  cursor: pointer;
+  position: relative;
+}
+
+.page-radio .radio-span {
+  /*position: absolute;*/
+  /*display: block;*/
+  /*content: " ";*/
+  /*top: 4px;*/
+  /*left: 4px;*/
+  width: 6px;
+  height: 6px;
+  border-radius: 100%;
+  background: transparent;
+  -webkit-transform: scale(0);
+  -moz-transform: scale(0);
+  -ms-transform: scale(0);
+  transform: scale(1);
+  -webkit-transition: all .12s ease-in-out;
+  -moz-transition: all .12s ease-in-out;
+  transition: all .12s ease-in-out;
+}
+
+.page-radio input[type="radio"] {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.page-radio input[type='radio'] + label {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  justify-content: center;
+  align-items: center;
+  border-radius: 100%;
+  vertical-align: middle;
+  border: 1px solid #777777;
+  /*padding:0;*/
+  /*background:url("../images/success.png") no-repeat -12px -12px;*/
+  /*background-size: 100% 100%;*/
+  position: relative;
+  background-color: transparent;
+}
+
+.page-radio input[type='radio']:checked + label {
+  background-color: #2CCEAD;
+  border: 1px solid #2CCEAD;
+}
+.page-radio input[type='radio']:checked + label span {
+  background-color: #ffffff;
+}
+
+.el-button--primary{
+  background: #2CCEAD;
+}
+.el-button--default:hover,.el-button--default:active{
+  color: #333;
+  border-color: #DCDFE6;
+}
+.el-button--primary:hover,.el-button--primary:active,.el-button--primary:focus{
+  background: #2CCEAD;
+  color: #ffffff;
+}
 </style>
