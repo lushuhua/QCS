@@ -2,13 +2,13 @@
     <div class="project-page">
         <div class="project-search">
             <div class="project-search-lists">
-                <el-input placeholder="请输入项目号"></el-input>
+                <el-input placeholder="请输入项目号" v-model="searchObj.projectNo" @change="getProjectsData(1)"></el-input>
             </div>
             <div class="project-search-lists">
-                <el-input placeholder="请输入项目名称"></el-input>
+                <el-input placeholder="请输入项目名称" v-model="searchObj.name" @change="getProjectsData(1)"></el-input>
             </div>
             <div class="project-search-lists" >
-                <el-select v-model="period" placeholder="请选择检测周期" >
+                <el-select v-model="searchObj.period" placeholder="请选择检测周期" @change="getProjectsData(1)" >
                     <el-option value="一天"></el-option>
                     <el-option value="一周"></el-option>
                     <el-option value="一个月"></el-option>
@@ -19,32 +19,32 @@
             </div>
             <div class="project-search-lists" style="width: 120px">
                 <el-date-picker
-                        v-model="selDay"
+                        v-model="searchObj.testDate"
                         type="date"
                         value-format="yyyy-MM-dd"
                         format="yyyy-MM-dd"
                         placeholder="请选择检测日期"
                         size="mini"
                         style="width: 100%"
-                        align="center"
+                        align="center" @change="getProjectsData(1)"
                 >
                 </el-date-picker>
             </div>
             <div class="project-search-lists" style="width: 120px">
                 <el-date-picker
-                        v-model="selValidDay"
+                        v-model="searchObj.validDate"
                         type="date"
                         value-format="yyyy-MM-dd"
                         format="yyyy-MM-dd"
                         placeholder="请选择合格有效期"
                         size="mini"
                         style="width: 100%"
-                        align="center"
+                        align="center" @change="getProjectsData(1)"
                 >
                 </el-date-picker>
             </div>
             <div class="project-search-btn">
-                <el-button type="primary" class="active" @click="search">查询</el-button>
+                <el-button type="primary" class="active" @click="getProjectsData(1)">查询</el-button>
             </div>
             <div class="project-search-btn">
                 <el-button type="primary" @click="reset">重置</el-button>
@@ -70,23 +70,36 @@
                     </tr>
                 </thead>
                 <tbody class="tab-lists">
-                    <tr v-for="(project,index) in projects" :key="index">
+                    <tr v-for="(project,index) in searchObj.data" :key="index">
                     <td>{{project.projectNo}}</td>
                     <td>{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td>
                     <!--<td>{{project.subName}}</td>-->
                     <!--<td>{{project.radioType}}</td>-->
-                    <td> </td>
+                    <td>
+                        <div v-if="project.detectType=='影像分析'">
+                            <div v-for="v in project.testResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>
+                        </div>
+                        <div v-else-if="project.testResult">
+                            <div v-if="project.testResult.levelNum==1">{{project.testResult.result?project.testResult.result.toFixed(2):''}}</div>
+                            <div v-else>
+                                <div v-for="(item,key) in project.testResult" :key="key">
+                                            <span v-if="key!='levelNum'">
+                                                {{key}} {{item.result}}
+                                            </span>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
                     <td>{{project.threshold}}</td>
                     <td>{{project.detectType}}</td>
                     <td>{{project.period}}</td>
                     <td>{{project.createDate}}</td>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
+                    <td> </td>
+                    <td> <div :style="{color: getOverDate(project).color}">{{getOverDate(project).name}}</div></td>
+                    <td> </td>
                     <td class="">
                         <div class="handle">
-                            <div class="handle-item" @click="showProjectChange(project)">修改</div>
-                            <div class="handle-item" @click="showDelete()">删除</div>
+                            <div class="handle-item" @click="showHistory(project)">查看历史</div>
                         </div>
                     </td>
                 </tr>
@@ -98,94 +111,52 @@
                 <el-pagination
                         :background="true"
                         layout="total,prev, pager, next,jumper"
-                        :page-size="10"
-                        :total="count"
+                        :page-size="searchObj.offset"
+                        :total="searchObj.count"
                         prev-text="上一页"
                         next-text="下一页"
                         class="right"
                         @current-change="handleCurrentChange"
-                        :current-page="currentPage"
+                        :current-page="searchObj.pageNum"
                 >
                 </el-pagination>
 
             </div>
         </div>
         <el-dialog
-                title="项目6.6.3 检测历史记录"
-                :visible.sync="dialogVisible"
-                width="40%"
-                :before-close="handleClose"
+                :title="test.title"
+                :visible.sync="test.visible"
+                width="60vw"
                 center
         >
-            <table class="table-list " border="0" cellspacing="0">
-                <thead class="tab-header">
-                <tr>
-                    <th>检测日期</th>
-                    <th>检测值</th>
-                    <th>阈值</th>
-                </tr>
-                </thead>
-                <tbody class="tab-lists">
-                <tr>
-                    <td>2021-02-19</td>
-                    <td class="table-more">
-                        <div class="table-child">x线：3mv-3.9</div>
-                        <div class="table-child">x线：3mv-3.9</div>
-                        <div class="table-child">x线：3mv-3.9</div>
-                    </td>
-                    <td>≤0.5°</td>
-                </tr>
-                <tr>
-                    <td>2021-02-19</td>
-                    <td class="table-more">
-                        <div class="table-child">x线：3mv-3.9</div>
-                        <div class="table-child">x线：3mv-3.9</div>
-                        <div class="table-child">x线：3mv-3.9</div>
-                    </td>
-                    <td>≤0.5°</td>
-                </tr>
-                <tr>
-                    <td>2021-02-19</td>
-                    <td class="table-more">
-                        <div class="table-child">x线：3mv-3.9</div>
-                        <div class="table-child">x线：3mv-3.9</div>
-                        <div class="table-child">x线：3mv-3.9</div>
-                    </td>
-                    <td>≤0.5°</td>
-                </tr>
-                <tr>
-                    <td>2021-02-19</td>
-                    <td class="table-more">
-                        <div class="table-child">x线：3mv-3.9</div>
-                        <div class="table-child">x线：3mv-3.9</div>
-                        <div class="table-child">x线：3mv-3.9</div>
-                    </td>
-                    <td>≤0.5°</td>
-                </tr>
-                <tr>
-                    <td>2021-02-19</td>
-                    <td class="table-more">
-                        <div class="table-child">x线：3mv-3.9</div>
-                        <div class="table-child">x线：3mv-3.9</div>
-                        <div class="table-child">x线：3mv-3.9</div>
-                    </td>
-                    <td>≤0.5°</td>
-                </tr>
-
-                </tbody>
-            </table>
+            <el-main>
+                <el-table
+                        ref="multipleTable"
+                        :data="test.data"
+                        tooltip-effect="dark">
+                    <el-table-column
+                            label="检测日期"
+                            prop="createDate"></el-table-column>
+                    <el-table-column
+                            label="检测值"
+                            prop="testResult.result"></el-table-column>
+                    <el-table-column
+                            label="阈值"
+                            prop="threshold"></el-table-column>
+                </el-table>
+            </el-main>
             <div slot="footer" class="dialog-footer">
                 <div class="pagination clearfix">
                     <el-pagination
                             :background="true"
                             layout="prev, pager, next,jumper"
-                            :page-size="10"
-                            :total="count"
+                            :page-size="test.offset"
+                            :total="test.count"
                             prev-text="上一页"
                             next-text="下一页"
                             class="right"
-                            @current-change="handleCurrentChange"
-                            :current-page="currentPage"
+                            @current-change="handleCurrentChangeTest"
+                            :current-page="test.pageNum"
                     >
                     </el-pagination>
                 </div>
@@ -195,124 +166,111 @@
 </template>
 <script>
     import { mapState } from 'vuex';
-    import { getProjects } from "../../api";
+    import { getProjects,getProjectTests } from "../../api";
+    import {calcWarningTime} from "../../utils";
+
     export default {
         components: {
         },
         data() {
             return {
                 topIndex:0,
-                dialogVisible:false,
-                selDay:'',
-                selValidDay:'',
-                count:0,
                 value1: [new Date(2021, 1, 10, 10, 10), new Date(2021, 3, 11, 10, 10)],
-                period:'',
                 options:['1天','1周','1月','3月','6月','1年'],
-                currentPage:0,
-                projects:[],
+                searchObj: {
+                    period: '',
+                    projectNo: '',
+                    name: '',
+                    testDate: '',
+                    validDate: '',
+                    data: [],
+                    pageNum: 1,
+                    offset: 10,
+                    count: 0
+                },
+                test: {
+                    visible: false,
+                    title: '',
+                    data: [],
+                    pageNum: 1,
+                    offset: 10,
+                    count: 0
+                }
             }
         },
         computed: mapState({
             currentDeviceID: state => state.user.currentDeviceID,
+            getOverDate(){
+                return function (val) {
+                    return calcWarningTime(val)
+                }
+            }
         }),
         watch: {
             currentDeviceID: function (val) {
                 console.log(val);
-                getProjects({deviceID:val, period:this.period,pageNum:0,offset:10}).then(res =>{
-                    console.log(res);
-                    this.projects = res.projects;
-                    this.count = res.count;
-                })
+                this.getProjectsData(1)
             }
         },
         mounted() {
-            console.log('mounted')
-            var self = this;
-            setTimeout(function () {
-                console.log(self.currentDeviceID)
-                getProjects({
-                    deviceID:self.currentDeviceID,
-                    period:self.period,
-                    pageNum:0,
-                    offset:10}).then(res =>{
-                    console.log(res);
-                    self.projects = res.projects;
-                    self.count = res.count;
-                })
-            },1000);
-
+        },
+        created(){
+            // this.getProjectsData(1)
         },
         methods: {
-            search(){
-
-                console.log(this.fromDate,this.toDate,this.period);
+            getProjectsData(state){
+                if (state) this.searchObj.pageNum = 1
                 getProjects({
                     deviceID:this.currentDeviceID,
-                    period:this.period,
-                    pageNum:0,
-                    offset:10}).then(res =>{
+                    period:this.searchObj.period,
+                    pageNum: this.searchObj.pageNum-1,
+                    offset: this.searchObj.offset,
+                    projectNo: this.searchObj.projectNo,
+                    name: this.searchObj.name,
+                    testDate: this.searchObj.testDate,
+                    validDate: this.searchObj.validDate
+                }).then(res =>{
                     console.log(res);
-                    this.projects = res.projects;
-                    this.count = res.count;
+                    this.searchObj.data = res.projects;
+                    this.searchObj.count = res.count;
                 })
             },
             reset(){
-                this.fromDate = '';
-                this.toDate = '';
-                this.period = '';
-                this.selValidDay = ''
-                this.selDay = ''
-                getProjects({
-                    deviceID:this.currentDeviceID,
-                    period:this.period,
-                    pageNum:this.currentPage-1,
-                    offset:10}).then(res =>{
-                    console.log(res);
-                    this.projects = res.projects;
-                    this.count = res.count;
-                })
-            },
-            handleClick() {
-                console.log('handleClick=',this.topIndex)
-                this.topIndex++;
-                toplist(this.topIndex).then(res => {
-                    console.log(res)
-                })
-
+                this.searchObj = {
+                    pageNum: 1,
+                    offset: 10,
+                    data: []
+                };
+                this.getProjectsData(1)
             },
             handleCurrentChange(val) {
-                this.currentPage = val;
+                this.searchObj.pageNum = val;
                 console.log(`当前页: ${val}`);
-                getProjects({
+                this.getProjectsData()
+            },
+            showHistory(val){
+                this.test.visible = true
+                this.test.title = `项目 ${val.projectNo} 检测历史记录`
+                this.test.projectID = val.projectID
+                this.getTestData()
+            },
+            handleCurrentChangeTest(val){
+                this.test.pageNum = val;
+                this.getTestData()
+            },
+            getTestData(state){
+                if (state) this.test.pageNum = 1
+                getProjectTests({
                     deviceID:this.currentDeviceID,
-                    period:this.period,
-                    pageNum:this.currentPage-1,
-                    offset:10}).then(res =>{
+                    pageNum:this.test.pageNum-1,
+                    offset:this.test.offset,
+                    projectID: this.test.projectID
+                }).then(res =>{
                     console.log(res);
-                    this.projects = res.projects;
-                    this.count = res.count;
+                    this.test.data = res.projects;
+                    this.test.count = res.count;
                 })
             },
-            handleClose(){
-
-            },
-            openDialog(){
-                console.log('openDialog')
-                this.getTags();
-                this.dialogVisible=true
-            },
-            openDialog2(){
-                    var dicom={
-                    customer: "SRS",
-                    aeTitle:"AE TITLE1",
-                    ip:"192.168.0.2",
-                    port:"8081"
-                };
-                addDicom(dicom).then(res =>{
-                    console.log(res);
-                })
-            }
 
         }
     }

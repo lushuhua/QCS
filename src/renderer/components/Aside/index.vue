@@ -4,7 +4,6 @@
     </div>
 </template>
 <script>
-
 import AsideMenu from './asidemenu'
 export default {
     components: {

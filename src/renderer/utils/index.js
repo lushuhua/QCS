@@ -1,6 +1,6 @@
 // 过期提醒计算
 export function calcWarningTime(val) {
-    let colorOver = '',colorWarn='',color='rgba(255,255,255,0.8)'
+    let colorOver = '#E02020',colorWarn='#FF7E2A',color='rgba(255,255,255,0.8)'
     let overDate = {
         name: '',
         color: color,

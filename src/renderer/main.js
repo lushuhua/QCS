@@ -1,7 +1,8 @@
 import Vue from 'vue'
 // import axios from './utils/http'
 import ElementUI from 'element-ui';
-import './assets/styles/theme.scss';
+// import './assets/styles/theme.scss';
+import './assets/styles/theme/index.css';
 Vue.use(ElementUI);
 import App from './App'
 import router from './router'

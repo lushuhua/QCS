@@ -45,9 +45,6 @@ input::-webkit-inner-spin-button {
  /*.el-select-dropdown__item.hover{*/
    /*background-color: #464646;*/
  /*}*/
-.el-select-dropdown__item.selected{
-  color: #1C1C1C;
-}
 .el-checkbox__label,.el-radio__label{
   color: rgba(255,255,255,0.8);
   padding-left: 6px;
@@ -72,7 +69,7 @@ input::-webkit-inner-spin-button {
 {
   width: 6px;
   height: 6px;
-  background-color: #F5F5F5;
+  background-color: #c1c1c0;
 }
 
 /*定义滚动条轨道 内阴影+圆角*/
@@ -80,7 +77,7 @@ input::-webkit-inner-spin-button {
 {
   -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
   border-radius: 10px;
-  background-color: #F5F5F5;
+  background-color: #c1c1c0;
 }
 
 /*定义滑块 内阴影+圆角*/
@@ -162,16 +159,24 @@ input::-webkit-inner-spin-button {
 .page-radio input[type='radio']:checked + label span {
   background-color: #ffffff;
 }
-
-.el-button--primary{
-  background: #2CCEAD;
-}
-.el-button--default:hover,.el-button--default:active{
-  color: #333;
-  border-color: #DCDFE6;
-}
-.el-button--primary:hover,.el-button--primary:active,.el-button--primary:focus{
-  background: #2CCEAD;
-  color: #ffffff;
-}
+  .input-label-container{
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.08);
+    width: auto;
+    input{
+      background: rgba(255, 255, 255, 0.08);
+      border: 0;
+      border-right: 1px solid rgba(255, 255, 255, 0.2);
+      line-height: 30px;
+    }
+    span{
+      flex: none;
+      width: 40px;
+      align-self: stretch;
+      display: flex;justify-content: center;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.08);
+    }
+  }
 </style>

@@ -70,6 +70,9 @@ exports.initCoreData = function() {
                 "views TEXT"+
                 ")");
 
+            // db.run("ALTER TABLE qsc_project ADD COLUMN detail TEXT ",function (err) {
+            //     console.log(err)
+            // });
             // db.run("DROP TABLE qsc_device");
             db.run("CREATE TABLE if not exists qsc_device (" +
                 "id INTEGER PRIMARY KEY autoincrement," +
@@ -242,8 +245,8 @@ exports.loadProject = function() {
             // return
             const db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));//如果不存在，则会自动创建一个文件
             db.serialize(function() {
-                let insert_sql = 'INSERT INTO qsc_project (name,radioType,subName,projectNo,testPoint,numOfInput,dataRequire,extraRequire,analysis,views,type,detectCondition,period,threshold,step,remark,moduleRequire,detectType) ' +
-                    'VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+                let insert_sql = 'INSERT OR REPLACE INTO qsc_project (id,name,radioType,subName,projectNo,testPoint,numOfInput,dataRequire,extraRequire,analysis,views,type,detectCondition,period,threshold,step,remark,moduleRequire,detectType,detail) ' +
+                    'VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
                 let stmt = db.prepare(insert_sql);
                 workSheets.forEach((val,index)=>{
                     if (index>0 && val.length>0){
@@ -274,7 +277,7 @@ exports.uploadFile = function(data,callback) {
     }
 }
 // this.queryExample();
-// loadProject()
+// this.loadProject()
 // this.initCoreData()
 // drop();
 // this.initializeData();

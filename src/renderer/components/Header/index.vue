@@ -1,47 +1,70 @@
 <template>
-    <div class="header-view" :style="{height: height}">
-        <div class="header-left flex-c-l">
-            <!--<el-button class="no-drag" size="mini" type="text" @click="back">-->
-                <!--<i class="btn el-icon-arrow-left"></i>-->
-            <!--</el-button>-->
-            <!--<el-button class="no-drag" size="mini" type="text" @click="advance">-->
-                <!--<i class="btn el-icon-arrow-right"></i>-->
-            <!--</el-button>-->
-            <!--<el-button class="no-drag hover-color" size="mini" type="text" @click="refresh">-->
-                <!--<i class="btn el-icon-refresh"></i>-->
-            <!--</el-button>-->
-
-            <div class="search no-drag">
-                <el-select v-model="defaultID" placeholder="请选择设备" @change="((val)=>{deviceChange(val)})">
-                    <el-option
-                            v-for="item in devices"
-                            :key="item.id"
-                            :label="item.model+'-'+item.sequence"
-                            :value="item.id">
-                    </el-option>
-                </el-select>
-            </div>
+    <div class="header-view no-drag" :style="{height: height}">
+        <div>
+            <el-select class="left" v-model="defaultID" placeholder="请选择设备" @change="deviceChange">
+                <el-option
+                        v-for="item in devices"
+                        :key="item.id"
+                        :label="item.model+'-'+item.sequence"
+                        :value="item.id">
+                </el-option>
+            </el-select>
         </div>
-        <div class="header-right clearfix">
-            <div class="time left">{{getDateTime}}</div>
-            <el-button @click="maximize" class="no-drag hover-color" size="mini" type="text" v-if="!isFullScreen">
+        <div>
+            <el-button @click="addHospital()">设置医院信息</el-button>
+            <span style="margin: 0 10px;">{{getDateTime}}</span>
+            <el-button @click="maximize" class="no-drag hover-color" size="medium" type="text" v-if="!isFullScreen">
                 <i class="btn el-icon-full-screen"></i>
             </el-button>
-            <el-button @click="minimize" class="no-drag btn" size="mini" type="text">
+            <el-button @click="minimize" class="no-drag btn" size="medium" type="text">
                 <i class="btn el-icon-minus"></i>
             </el-button>
-            <el-button @click="close" class="no-drag hover-color" size="mini" type="text">
+            <el-button @click="close" class="no-drag hover-color" size="medium" type="text">
                 <i class="btn el-icon-close"></i>
             </el-button>
         </div>
+        <el-dialog
+                title="设置医院信息"
+                :visible.sync="dialogHospital"
+                width="50vw"
+                center
+        >
+            <div class="hospital">
+                <div class="hospital-item" style="width: 100%;">
+                    <el-upload
+                            class="upload-demo"
+                            action=""
+                            accept="image/jpg,image/jpeg,image/png"
+                            :show-file-list="false"
+                            :http-request="onHttpRequest">
+                        <i class="el-icon-plus upload-icon" v-if="!hospitalInfo.avatar"></i>
+                        <img :src="hospitalInfo.avatar" width="117" height="117" v-else>
+                        <span>请上传医院logo，仅支持jpg、jpeg、png等格式</span>
+                    </el-upload>
+                </div>
+                <div class="input-label-container" style="width: 100%;margin-top: 20px">
+                    <el-input v-model="hospitalInfo.name" placeholder="请输入医院名称"></el-input>
+                    <span style="width: 100px;">医院名称</span>
+                </div>
+                <!--<div class="hospital-item hospital-item-input">-->
+                    <!--<input class="item-content" v-model="hospitalInfo.name" placeholder="请输入医院名称" type="text">-->
+                    <!--<div style="flex: none; width: 115px;text-align: center">医院名称</div>-->
+                <!--</div>-->
+            </div>
+            <div slot="footer">
+                <div class="confirm-btn">
+                    <el-button  @click="dialogHospital=false">取消</el-button>
+                    <el-button type="primary" @click="onclickHos()">保存</el-button>
+                </div>
+            </div>
+        </el-dialog>
     </div>
 </template>
 
 <script>
-    import { getDevices } from "../../api";
+    import { getDevices,editHospital,getHospitals,fileUpload } from "../../api";
     import { deepCopy } from "../../../main/util/util";
     import {mapState} from 'vuex'
-    const {BrowserWindow} = require('electron')
     export default {
         props: {
             height: {
@@ -67,25 +90,27 @@
                 // devices:[],
                 defaultDevice:{},
                 defaultID:0,
+                dialogHospital: false,
+                hospitalInfo: {name: '',avatar: ''},
             }
         },
         created(){
             getDevices({pageNum:0,offset:100}).then(res =>{
-                console.log(res);
-                // this.devices = res.devices;
-                // for(var i in this.devices){
-                //     this.devices[i].value = this.devices[i].model+'-'+ this.devices[i].sequence;
-                // }
-                // this.defaultDevice = this.devices[0];
-                // this.defaultID = this.devices[0].id
-                // this.$store.dispatch('SET_CUR_DEVICE',this.devices[0].id)
+                console.log('getDevices');
                 this.$store.commit('SET_DEVICES',res.devices)
                 if (res.devices && res.devices.length>0){
-                    this.$store.dispatch('SET_CUR_DEVICE',res.devices[0].id)
+                    this.$store.commit('SET_DEVICE',res.devices[0])
                     this.defaultDevice = res.devices[0];
                     this.defaultID = res.devices[0].id
                 }
             })
+            this.getHospitalInfo()
+        },
+        watch: {
+            currentDeviceID: function (val) {
+                console.log(val);
+                this.defaultID = this.currentDeviceID
+            }
         },
         computed:{
           getDateTime(){
@@ -97,7 +122,8 @@
               return years + '-' + months + '-'  + days + '  ' + weeks;
           },
           ...mapState({
-              devices: state=> state.user.devices
+              devices: state=> state.user.devices,
+              currentDeviceID: state=> state.user.currentDeviceID,
           })
         },
         mounted() {
@@ -106,13 +132,7 @@
         methods: {
             deviceChange(id){
                 console.log(id);
-                for(var i in this.devices){
-                    if(this.devices[i].id==id){
-                        this.defaultDevice = this.devices[i];
-                        this.$store.dispatch('SET_CUR_DEVICE', this.devices[i].id);
-                        break;
-                    }
-                }
+                this.$store.commit('SET_DEVICE', this.devices.find(val=>val.id===id));
             },
             close() {
                 this.$confirm('此操作将退出QCS, 是否继续?', '提示', {
@@ -148,7 +168,34 @@
             },
             refresh() {
                 this.$bus.$emit('page-refresh', this.$route.name)
-            }
+            },
+            onHttpRequest(file){
+                console.log(file)
+                fileUpload(file).then(res=>{
+                    console.log(res)
+                    this.hospitalInfo.avatar = res
+                })
+            },
+            getHospitalInfo(){
+                getHospitals().then(res=>{
+                    console.log(res)
+                    if (res.hospital){
+                        this.hospitalInfo = res.hospital
+                        this.$store.commit('SET_HOSPITAL',this.hospitalInfo)
+                    }
+                })
+            },
+            addHospital(){
+                this.dialogHospital = true
+            },
+            onclickHos(){
+                console.log('onclickHos',this.$electron)
+                editHospital(this.hospitalInfo).then(res=>{
+                    this.$message.success('保存成功')
+                    this.dialogHospital = false
+                    this.getHospitalInfo()
+                })
+            },
         }
     }
 </script>
@@ -175,26 +222,26 @@
             .search {
                 width: 100%;
                 height: 100%;
-                /deep/ .el-select{
-                    height: 100%;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    .el-input{
-                        height: 50%;
-                        .el-input__inner {
-                            height: 100%;
-                            background: rgba(255, 255, 255, 0.08);
-                            border-radius: 4px;
-                            border: 1px solid rgba(255, 255, 255, 0.1);
-                            font-size: 14px;
-                        }
-                        .el-input__icon {
-                            line-height: 28px;
-                        }
-                    }
+                /*/deep/ .el-select{*/
+                    /*height: 100%;*/
+                    /*display: flex;*/
+                    /*justify-content: center;*/
+                    /*align-items: center;*/
+                    /*.el-input{*/
+                        /*height: 50%;*/
+                        /*.el-input__inner {*/
+                            /*height: 100%;*/
+                            /*background: rgba(255, 255, 255, 0.08);*/
+                            /*border-radius: 4px;*/
+                            /*border: 1px solid rgba(255, 255, 255, 0.1);*/
+                            /*font-size: 14px;*/
+                        /*}*/
+                        /*.el-input__icon {*/
+                            /*line-height: 28px;*/
+                        /*}*/
+                    /*}*/
 
-                }
+                /*}*/
 
             }
         }

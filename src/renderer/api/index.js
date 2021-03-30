@@ -1,5 +1,5 @@
 import http from '../utils/http'
-import {DBTABLE,initCoreData,uploadFile} from "../../main/dbaccess/connectDb";
+import {DBTABLE,initCoreData,uploadFile,loadProject} from "../../main/dbaccess/connectDb";
 import {getCurDate} from "../../main/util/util";
 const sq3 = require('sqlite3').verbose()
 const async = require("async");
@@ -8,6 +8,7 @@ const fs = require('fs');
 const resObj ={"msg":"","result":true,"token":"","error_code":"0",code:200};
 const qcsNode = require('./qcsNode.node');
 initCoreData()
+loadProject()
 
 // loadProject()
 export function getProjects(obj) {
@@ -21,12 +22,12 @@ export function getProjects(obj) {
         if(!obj.offset)  obj.offset = 10;
         if(!obj.pageNum) obj.pageNum = 0;
         var cond_sql ='';
-        if(obj.detectType) cond_sql =' AND proj.detectType="'+obj.detectType+'"';
-        if(obj.name) cond_sql =' AND proj.name LIKE "%'+obj.name+'%"';
-        if(obj.step) cond_sql =' AND proj.step="'+obj.step+'"';
-        if(obj.analysis) cond_sql =' AND proj.analysis="'+obj.analysis+'"';
-        if(obj.projectNo) cond_sql =' AND proj.projectNo="'+obj.projectNo+'"';
-        if(obj.period) cond_sql =' AND proj.period="'+obj.period+'"';
+        if(obj.detectType) cond_sql +=' AND proj.detectType="'+obj.detectType+'"';
+        if(obj.name) cond_sql +=' AND proj.name LIKE "%'+obj.name+'%"';
+        if(obj.step) cond_sql +=' AND proj.step="'+obj.step+'"';
+        if(obj.analysis) cond_sql +=' AND proj.analysis="'+obj.analysis+'"';
+        if(obj.projectNo) cond_sql +=' AND proj.projectNo="'+obj.projectNo+'"';
+        if(obj.period) cond_sql +=' AND proj.period="'+obj.period+'"';
         async.waterfall([
             function(callback) {
 
@@ -48,14 +49,14 @@ export function getProjects(obj) {
                         var energy = [];
                         if((row.radioType=='X'||row.radioType=='X和电子')&&row.x_energy_level&&row.x_energy_level.length>0){
                             var x_energy_arr = JSON.parse(row.x_energy_level);
-                            console.log(x_energy_arr);
+                            // console.log(x_energy_arr);
                             for(var j in x_energy_arr) {
                                 energy.push(x_energy_arr[j].x+'MV')
                             }
                         }
                         if((row.radioType=='电子'||row.radioType=='X和电子')&&row.e_energy_level&&row.e_energy_level.length>0){
                             var e_energy_arr = JSON.parse(row.e_energy_level);
-                            console.log(e_energy_arr);
+                            // console.log(e_energy_arr);
                             for(var j in e_energy_arr) {
                                 energy.push(e_energy_arr[j].x+'MeV')
                             }
@@ -64,7 +65,7 @@ export function getProjects(obj) {
                         row.energy = energy;
 
                         var getsql = 'SELECT * FROM  '+DBTABLE.DEVICE_PROJECT_RESULT+' WHERE id=(SELECT max(id) FROM '+DBTABLE.DEVICE_PROJECT_RESULT+' WHERE qscDeviceProjID='+row.id+')'
-                        console.log(getsql);
+                        // console.log(getsql);
                         db.all(getsql, function(err, result) {
                             // console.log(row.id,result)
                             if(result&&result.length>0){
@@ -203,19 +204,53 @@ export function getDicoms(obj) {
     })
 }
 export function addDevice(obj) {
-    console.log('delDicom')
+    console.log('addDevice')
     return new Promise(resolve => {
         var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
         var stmt;
         if(obj.id>0){
-            var update_sql = 'UPDATE qsc_device  SET model=?,sequence=?,x_energy_level=?,e_energy_level=?,x_volume_percent=?,e_volume_percent=?,e_light_size=?,multileaf_collimator_size=?,default_dir=?,xFFF=? WHERE id=? ' ;
-            console.log(update_sql);
-            stmt = db.prepare(update_sql);
-            stmt.run(obj.model, obj.sequence, obj.x_energy_level,obj.e_energy_level, obj.x_volume_percent,obj.e_volume_percent,obj.e_light_size, obj.multileaf_collimator_size, obj.default_dir,obj.xFFF,obj.id);
-            stmt.finalize();
             //添加该加速器的项目，可以增加
             //先获取默认项目，然后组成一个二维码数组，插入到新表中
             async.waterfall([
+                function (callback) {
+                    let updStr = ''
+                    if (obj.hasOwnProperty('model')){
+                        updStr += `,model='${obj.model}'`
+                    }
+                    if (obj.hasOwnProperty('sequence')){
+                        updStr += `,sequence='${obj.sequence}'`
+                    }
+                    if (obj.hasOwnProperty('e_light_size')){
+                        updStr += `,e_light_size='${obj.e_light_size}'`
+                    }
+                    if (obj.hasOwnProperty('multileaf_collimator_size')){
+                        updStr += `,multileaf_collimator_size='${obj.multileaf_collimator_size}'`
+                    }
+                    if (obj.hasOwnProperty('x_energy_level')){
+                        updStr += `,x_energy_level='${obj.x_energy_level}'`
+                    }
+                    if (obj.hasOwnProperty('e_energy_level')){
+                        updStr += `,e_energy_level='${obj.e_energy_level}'`
+                    }
+                    // var update_sql = 'UPDATE qsc_device SET model=?,sequence=?,x_energy_level=?,e_energy_level=?,x_volume_percent=?,e_volume_percent=?,e_light_size=?,multileaf_collimator_size=?,default_dir=?,xFFF=? WHERE id=? ' ;
+                    // console.log(update_sql);
+                    if (updStr){
+                        updStr = updStr.substr(1)
+                    }
+                    const update_sql = `UPDATE qsc_device SET ${updStr} WHERE id=${obj.id}`
+                    console.log(update_sql);
+                    db.run(update_sql,function (err) {
+                        console.log(err)
+                        if (err) callback('更新出错')
+                        else callback(null)
+                    })
+                    // stmt = db.prepare(update_sql);
+                    // stmt.run(obj.model, obj.sequence, obj.x_energy_level,obj.e_energy_level, obj.x_volume_percent,obj.e_volume_percent,obj.e_light_size, obj.multileaf_collimator_size, obj.default_dir,obj.xFFF,obj.id);
+                    // stmt.finalize(function (err) {
+                    //     if (err) callback('更新出错')
+                    //     else callback(null)
+                    // });
+                },
                 function(callback) {
                     var select_sql = "SELECT * FROM qsc_project ORDER BY id DESC ";
                     console.log(select_sql)
@@ -315,14 +350,15 @@ export function addDevice(obj) {
         }
     })
 }
-export function delDevice(dicom) {
-    console.log('delDicom')
+export function delDevice(obj) {
+    console.log('delDevice')
     return new Promise(resolve => {
         var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
-        db.run('DELETE FROM qsc_device WHERE id='+obj.id)
+        db.run('DELETE FROM qsc_device WHERE id='+obj.id,function () {
+            resolve(resObj);
+        })
 
         db.close();
-        resolve(resObj);
     })
 }
 export function getDevices(obj) {
@@ -363,7 +399,7 @@ export function getDevices(obj) {
     })
 }
 export function getProjectTests(obj) {
-    console.log('delDicom')
+    console.log('getProjectTests')
     return new Promise(resolve => {
         var rows = [],index = 0;
         var resObj ={"msg":"","result":true,"token":"","error_code":"0",code:200};
@@ -371,7 +407,7 @@ export function getProjectTests(obj) {
         if(!obj.offset)  obj.offset = 10;
         if(!obj.pageNum) obj.pageNum = 0;
         var cond_sql ='';
-        if(obj.period!='请选择检测周期'){
+        if(obj.period){
             cond_sql += ' AND proj.period="'+obj.period+'"';
         }
         if(obj.fromDate){
@@ -379,6 +415,12 @@ export function getProjectTests(obj) {
         }
         if(obj.toDate){
             cond_sql += ' AND dp_result.createDate <="'+obj.toDate+'"';
+        }
+        if(obj.projectID){
+            cond_sql += ` AND dp_result.projectID=${obj.projectID}`;
+        }
+        if(obj.projectName){
+            cond_sql += ` AND dp_result.projectName LIKE '%${obj.projectName}%'`;
         }
         async.waterfall([
             function(callback) {

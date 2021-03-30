@@ -8,50 +8,85 @@
                     <div class="setting-type-item right" :class="{active:typeName=='DICOM'}" @click="changeType('DICOM',2)">DICOM输出配置</div>
                 </div>
                 <div class="setting-upload" v-if="showTypeIndex==0">
-                    <el-button type="primary" class="active" @click="addHospital()">设置医院信息</el-button>
                     <el-button type="primary" class="active" @click="addAccelerate()">添加</el-button>
+                    <el-button type="primary" class="active" @click="addAccelerate(currentDeviceInfo)">编辑</el-button>
+                    <el-button type="primary" class="active" @click="onDelDevice()">删除</el-button>
                 </div>
                 <div class="setting-upload" v-if="showTypeIndex==2">
                     <el-button type="primary" class="active" @click="addDICOM()">添加</el-button>
                 </div>
                 <div class="setting-tab-content">
-                    <table class="table" border="0" cellspacing="0" v-if="showTypeIndex==0">
-                        <thead class="tab-header">
-                        <tr>
-                            <th>加速器型号</th>
-                            <th>加速器序号</th>
-                            <th>x射线能量档</th>
-                            <th>电子射线能量档</th>
-                            <th>x射线百分深度计量</th>
-                            <th>电子射线百分深度计量</th>
-                            <th>电子线线光筒</th>
-                            <th>多叶光栅对数</th>
-                            <th>操作</th>
-                        </tr>
-                        </thead>
-                        <tbody class="tab-lists">
-                        <tr v-for="(device,index) in devices" :key="index">
-                            <td>{{device.model}}</td>
-                            <td>{{device.sequence}}</td>
-                            <td>
-                                <div v-for="(v,index) in device.powerX" :key="index">{{v.x}}{{v.checked?' FFF模式':''}}</div>
-                            </td>
-                            <td>
-                                <div v-for="(v,index) in device.powerE" :key="index">{{v.x}}</div>
-                            </td>
-                            <td>{{device.x_volume_percent}}</td>
-                            <td>{{device.e_volume_percent}}</td>
-                            <td>{{device.e_light_size}}</td>
-                            <td>{{device.multileaf_collimator_size}}</td>
-                            <td class="">
-                                <div class="handle">
-                                    <div class="handle-item" @click="addAccelerate(device)">修改</div>
-                                    <div class="handle-item" @click="showDelete(device)">删除</div>
-                                </div>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
+                    <div v-if="showTypeIndex==0">
+                        <el-table :data="devicesData" border height="70vh" :span-method="objectSpanMethod">
+                            <el-table-column prop="name"></el-table-column>
+                            <el-table-column label="能量档" prop="power" width="220">
+                                <template slot-scope="scope">
+                                    <div style="display: flex;align-items: center">
+                                        <div class="input-label-container" style="display: inline-flex;margin-right: 5px">
+                                            <el-input v-model="scope.row.x" type="number" @blur="onblur"></el-input>
+                                            <span>MV</span>
+                                        </div>
+                                        <el-checkbox v-if="scope.row.name===lineXInit.name" style="flex: none;" v-model="scope.row.checked">FFF模式</el-checkbox>
+                                    </div>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="百分深度剂量" width="150" prop="deep">
+                                <template slot-scope="scope">
+                                    <div class="input-label-container">
+                                        <el-input v-model="scope.row.deep" type="number" @blur="onblur"></el-input>
+                                        <span>%</span>
+                                    </div>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="操作" prop="todo">
+                                <template slot-scope="scope">
+                                    <el-button type="text" v-if="devicesData.filter(value => value.name===scope.row.name).length>1" @click="onclickDeviceDel(scope)">删除</el-button>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="操作" prop="add">
+                                <template slot-scope="scope">
+                                    <el-button icon="el-icon-plus" @click="onclickDevice(scope.row)">添加</el-button>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </div>
+                    <!--<table class="table" border="0" cellspacing="0" v-if="showTypeIndex==0">-->
+                        <!--<thead class="tab-header">-->
+                        <!--<tr>-->
+                            <!--<th>加速器型号</th>-->
+                            <!--<th>加速器序号</th>-->
+                            <!--<th>x射线能量档</th>-->
+                            <!--<th>电子射线能量档</th>-->
+                            <!--<th>x射线百分深度计量</th>-->
+                            <!--<th>电子射线百分深度计量</th>-->
+                            <!--<th>电子线线光筒</th>-->
+                            <!--<th>多叶光栅对数</th>-->
+                            <!--<th>操作</th>-->
+                        <!--</tr>-->
+                        <!--</thead>-->
+                        <!--<tbody class="tab-lists">-->
+                        <!--<tr v-for="(device,index) in devices" :key="index">-->
+                            <!--<td>{{device.model}}</td>-->
+                            <!--<td>{{device.sequence}}</td>-->
+                            <!--<td>-->
+                                <!--<div v-for="(v,index) in device.powerX" :key="index">{{v.x}}{{v.checked?' FFF模式':''}}</div>-->
+                            <!--</td>-->
+                            <!--<td>-->
+                                <!--<div v-for="(v,index) in device.powerE" :key="index">{{v.x}}</div>-->
+                            <!--</td>-->
+                            <!--<td>{{device.x_volume_percent}}</td>-->
+                            <!--<td>{{device.e_volume_percent}}</td>-->
+                            <!--<td>{{device.e_light_size}}</td>-->
+                            <!--<td>{{device.multileaf_collimator_size}}</td>-->
+                            <!--<td class="">-->
+                                <!--<div class="handle">-->
+                                    <!--<div class="handle-item" @click="addAccelerate(device)">修改</div>-->
+                                    <!--<div class="handle-item" @click="showDelete(device)">删除</div>-->
+                                <!--</div>-->
+                            <!--</td>-->
+                        <!--</tr>-->
+                        <!--</tbody>-->
+                    <!--</table>-->
                     <table class="table" border="0" cellspacing="0" v-if="showTypeIndex==1">
                         <thead class="tab-header">
                         <tr>
@@ -111,21 +146,21 @@
 
                         </tbody>
                     </table>
-                    <div class="pagination clearfix" v-show="showTypeIndex==0">
-                        <el-pagination
-                                :background="true"
-                                layout="total, prev, pager, next,jumper"
-                                :page-size="10"
-                                :total="deviceInfo.count"
-                                prev-text="上一页"
-                                next-text="下一页"
-                                class="right"
-                                @current-change="handleCurrentChange"
-                                :current-page="deviceInfo.pageNum"
-                        >
-                        </el-pagination>
+                    <!--<div class="pagination clearfix" v-show="showTypeIndex==0">-->
+                        <!--<el-pagination-->
+                                <!--:background="true"-->
+                                <!--layout="total, prev, pager, next,jumper"-->
+                                <!--:page-size="10"-->
+                                <!--:total="deviceInfo.count"-->
+                                <!--prev-text="上一页"-->
+                                <!--next-text="下一页"-->
+                                <!--class="right"-->
+                                <!--@current-change="handleCurrentChange"-->
+                                <!--:current-page="deviceInfo.pageNum"-->
+                        <!--&gt;-->
+                        <!--</el-pagination>-->
 
-                    </div>
+                    <!--</div>-->
                     <div class="pagination clearfix" v-show="showTypeIndex==1">
                         <el-pagination
                                 :background="true"
@@ -174,72 +209,72 @@
                             <div class="item-name">加速器序号</div>
                         </div>
                     </div>
-                    <div class="project-change-lists">
+                    <!--<div class="project-change-lists">-->
 
-                        <div class="project-change-lists-item project-change-x-line required" :class="{'project-change-line': !device.powerX || device.powerX.length==0}">
-                            <div class="content">
-                                <input type="number" class="item-content" min="0" placeholder="请输入" style="width: 30%;" v-model="curX">
-                                <div class="item-name-short">x线/MV</div>
-                            </div>
-                            <!--<div class="item-name-short">-->
-                                <!--<input type="checkbox" placeholder="请输入" v-model="device.xFFF">FFF模式-->
+                        <!--<div class="project-change-lists-item project-change-x-line required" :class="{'project-change-line': !device.powerX || device.powerX.length==0}">-->
+                            <!--<div class="content">-->
+                                <!--<input type="number" class="item-content" min="0" placeholder="请输入" style="width: 30%;" v-model="curX">-->
+                                <!--<div class="item-name-short">x线/MV</div>-->
                             <!--</div>-->
-                            <!--<input type="checkbox" placeholder="请输入" v-model="device.xFFF">FFF模式-->
-                            <div class="project-change-checkbox">
-                                <el-checkbox v-model="curCheckedX">FFF模式</el-checkbox>
-                            </div>
-                        </div>
-                        <div class="project-change-lists-item project-change-x-line" :class="{'project-change-line': index === device.powerX.length-1}" v-for="(v,index) in device.powerX" :key="index">
-                            <div class="content">
-                                <input type="text" class="item-content" placeholder="请输入" style="width: 30%;" v-model="v.x" readonly>
-                                <div class="item-name-short">x线/MV</div>
-                                <img src="../../assets/images/del.png" class="content-del" @click="onPowerClickDel(index)">
-                            </div>
-                            <div class="project-change-checkbox">
-                                <el-checkbox v-model="v.checked" readonly>FFF模式</el-checkbox>
-                            </div>
-                        </div>
-                        <div class="project-change-lists-item project-change-power-add" @click="onPowerClickX">
-                            <!--<div class="item-content left">-->
-                                <!--能量档：<span v-for="(x,index) in xArr" :key="index">{{x}},</span>-->
+                            <!--&lt;!&ndash;<div class="item-name-short">&ndash;&gt;-->
+                                <!--&lt;!&ndash;<input type="checkbox" placeholder="请输入" v-model="device.xFFF">FFF模式&ndash;&gt;-->
+                            <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<input type="checkbox" placeholder="请输入" v-model="device.xFFF">FFF模式&ndash;&gt;-->
+                            <!--<div class="project-change-checkbox">-->
+                                <!--<el-checkbox v-model="curCheckedX">FFF模式</el-checkbox>-->
                             <!--</div>-->
-                            <!--<div class="item-name left" @click="addEnergyX()">-->
-                                <!--添加-->
+                        <!--</div>-->
+                        <!--<div class="project-change-lists-item project-change-x-line" :class="{'project-change-line': index === device.powerX.length-1}" v-for="(v,index) in device.powerX" :key="index">-->
+                            <!--<div class="content">-->
+                                <!--<input type="text" class="item-content" placeholder="请输入" style="width: 30%;" v-model="v.x" readonly>-->
+                                <!--<div class="item-name-short">x线/MV</div>-->
+                                <!--<img src="../../assets/images/del.png" class="content-del" @click="onPowerClickDel(index)">-->
                             <!--</div>-->
-                            <img src="../../assets/images/add.png" width="18" style="margin-right: 5px;vertical-align: middle">添加x线能量档
-                        </div>
-                    </div>
-                    <div class="project-change-lists">
-                        <div class="project-change-lists-item project-change-e" :class="{'project-change-line': !device.powerE || device.powerE.length==0}">
-                            <input type="number" min="0" class="item-content" placeholder="请输入" v-model="curE">
-                            <div class="item-name left">电子线/MeV</div>
-                        </div>
-                        <div class="project-change-lists-item project-change-e" :class="{'project-change-line': index === device.powerE.length-1}" v-for="(v,index) in device.powerE" :key="index">
-                            <input type="number" min="0" class="item-content" placeholder="请输入" v-model="v.x" readonly>
-                            <div class="item-name left">电子线/MeV</div>
-                            <img src="../../assets/images/del.png" class="content-del" @click="onPowerClickDelE(index)">
-                        </div>
-                        <div class="project-change-lists-item project-change-power-add" @click="onPowerClickE">
-                            <!--<div class="item-content">-->
-                                <!--能量档：<span v-for="(x,index) in eArr" :key="index">{{x}},</span>-->
+                            <!--<div class="project-change-checkbox">-->
+                                <!--<el-checkbox v-model="v.checked" readonly>FFF模式</el-checkbox>-->
                             <!--</div>-->
+                        <!--</div>-->
+                        <!--<div class="project-change-lists-item project-change-power-add" @click="onPowerClickX">-->
+                            <!--&lt;!&ndash;<div class="item-content left">&ndash;&gt;-->
+                                <!--&lt;!&ndash;能量档：<span v-for="(x,index) in xArr" :key="index">{{x}},</span>&ndash;&gt;-->
+                            <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<div class="item-name left" @click="addEnergyX()">&ndash;&gt;-->
+                                <!--&lt;!&ndash;添加&ndash;&gt;-->
+                            <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                            <!--<img src="../../assets/images/add.png" width="18" style="margin-right: 5px;vertical-align: middle">添加x线能量档-->
+                        <!--</div>-->
+                    <!--</div>-->
+                    <!--<div class="project-change-lists">-->
+                        <!--<div class="project-change-lists-item project-change-e" :class="{'project-change-line': !device.powerE || device.powerE.length==0}">-->
+                            <!--<input type="number" min="0" class="item-content" placeholder="请输入" v-model="curE">-->
+                            <!--<div class="item-name left">电子线/MeV</div>-->
+                        <!--</div>-->
+                        <!--<div class="project-change-lists-item project-change-e" :class="{'project-change-line': index === device.powerE.length-1}" v-for="(v,index) in device.powerE" :key="index">-->
+                            <!--<input type="number" min="0" class="item-content" placeholder="请输入" v-model="v.x" readonly>-->
+                            <!--<div class="item-name left">电子线/MeV</div>-->
+                            <!--<img src="../../assets/images/del.png" class="content-del" @click="onPowerClickDelE(index)">-->
+                        <!--</div>-->
+                        <!--<div class="project-change-lists-item project-change-power-add" @click="onPowerClickE">-->
+                            <!--&lt;!&ndash;<div class="item-content">&ndash;&gt;-->
+                                <!--&lt;!&ndash;能量档：<span v-for="(x,index) in eArr" :key="index">{{x}},</span>&ndash;&gt;-->
+                            <!--&lt;!&ndash;</div>&ndash;&gt;-->
 
-                            <!--<div class="item-name" @click="addEnergyE()">-->
-                                <!--添加-->
-                            <!--</div>-->
-                            <img src="../../assets/images/add.png" width="18" style="margin-right: 5px;vertical-align: middle">添加电子线能量档
-                        </div>
-                    </div>
-                    <div class="project-change-lists">
-                        <div class="project-change-lists-item required">
-                            <input type="number" class="item-content" min="0" placeholder="请输入" style="width: 20%;" v-model="device.x_volume_percent">
-                            <div class="item-name">x线深度百分剂量/%</div>
-                        </div>
-                        <div class="project-change-lists-item">
-                            <input type="number" class="item-content" min="0" placeholder="请输入" style="width: 20%;" v-model="device.e_volume_percent">
-                            <div class="item-name">电子线深度百分剂量/%</div>
-                        </div>
-                    </div>
+                            <!--&lt;!&ndash;<div class="item-name" @click="addEnergyE()">&ndash;&gt;-->
+                                <!--&lt;!&ndash;添加&ndash;&gt;-->
+                            <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                            <!--<img src="../../assets/images/add.png" width="18" style="margin-right: 5px;vertical-align: middle">添加电子线能量档-->
+                        <!--</div>-->
+                    <!--</div>-->
+                    <!--<div class="project-change-lists">-->
+                        <!--<div class="project-change-lists-item required">-->
+                            <!--<input type="number" class="item-content" min="0" placeholder="请输入" style="width: 20%;" v-model="device.x_volume_percent">-->
+                            <!--<div class="item-name">x线深度百分剂量/%</div>-->
+                        <!--</div>-->
+                        <!--<div class="project-change-lists-item">-->
+                            <!--<input type="number" class="item-content" min="0" placeholder="请输入" style="width: 20%;" v-model="device.e_volume_percent">-->
+                            <!--<div class="item-name">电子线深度百分剂量/%</div>-->
+                        <!--</div>-->
+                    <!--</div>-->
                     <div class="project-change-lists">
                         <div class="project-change-lists-item required">
                             <input type="number" class="item-content" min="0" placeholder="请输入" style="width: 20%;" v-model="device.e_light_size">
@@ -336,38 +371,6 @@
                         </div>
                     </div>
                 </el-dialog>
-
-                <el-dialog
-                        title="设置医院信息"
-                        :visible.sync="dialogHospital"
-                        width="50vw"
-                        center
-                >
-                    <div class="hospital">
-                        <div class="hospital-item">
-                            <el-upload
-                                    class="upload-demo"
-                                    action=""
-                                    accept="image/jpg,image/jpeg,image/png"
-                                    :show-file-list="false"
-                                    :http-request="onHttpRequest">
-                                <i class="el-icon-plus upload-icon" v-if="!hospitalInfo.avatar"></i>
-                                <img :src="hospitalInfo.avatar" width="117" height="117" v-else>
-                                <span>请上传医院logo，仅支持jpg、jpeg、png等格式</span>
-                            </el-upload>
-                        </div>
-                        <div class="hospital-item hospital-item-input">
-                            <input class="item-content" v-model="hospitalInfo.name" placeholder="请输入医院名称" type="text">
-                            <div style="flex: none; width: 115px;text-align: center">医院名称</div>
-                        </div>
-                    </div>
-                    <div slot="footer">
-                        <div class="confirm-btn">
-                            <el-button type="primary" class="" @click="dialogHospital=false">取消</el-button>
-                            <el-button type="primary" class="active" @click="onclickHos()">保存</el-button>
-                        </div>
-                    </div>
-                </el-dialog>
             </div>
         </div>
     </div>
@@ -417,7 +420,7 @@
                 curCheckedX: false,
                 deviceInfo: {
                     pageNum: 1,
-                    offset: 10,
+                    offset: 100,
                     count: 0
                 },
                 dicomsInfo: {
@@ -431,7 +434,8 @@
                     count: 0
                 },
                 dialogHospital: false,
-                hospitalInfo: {name: '',avatar: ''}
+                lineXInit: {name: 'X线',rowspan:1,x: undefined,deep: undefined,checked:false},
+                lineEleInit: {name: '电子线',rowspan:1,x: undefined,deep: undefined},
             }
         },
         mounted() {
@@ -439,14 +443,14 @@
         },
         computed: mapState({
             currentDeviceID: state => state.user.currentDeviceID,
+            currentDeviceInfo: state => state.user.currentDeviceInfo,
         }),
         beforeCreate(){
             console.log('beforeCreate')
         },
         created(){
             console.log('setting created')
-            console.log(this.currentDevice)
-            this.getDevicesData(1)
+            this.initDeviceData()
         },
         beforeMount(){
             console.log('beforeMount')
@@ -454,10 +458,32 @@
         watch: {
             currentDeviceID: function (val) {
                 console.log(val);
-                this.getProjectsData()
+                // this.getProjectsData()
+                this.changeType(this.typeName,this.showTypeIndex)
+                this.initDeviceData()
             }
         },
         methods: {
+            initDeviceData(){
+                console.log('initDeviceData')
+                let deviceInfo = this.currentDeviceInfo,data=[]
+                if (deviceInfo.x_energy_level || deviceInfo.e_energy_level){
+                    if (deviceInfo.x_energy_level){
+                        JSON.parse(deviceInfo.x_energy_level).forEach(val=>{
+                            data.push({name: this.lineXInit.name,rowspan:0,x: val.x,deep: val.deep,checked: val.checked})
+                        })
+                    }
+                    if (deviceInfo.e_energy_level){
+                        JSON.parse(deviceInfo.e_energy_level).forEach(val=>{
+                            data.push({name: this.lineEleInit.name,rowspan:0,x: val.x,deep: val.deep})
+                        })
+                    }
+                    this.devicesData = this.deviceDataTransfer(data)
+                }else {
+                    this.devicesData = [this.lineXInit,this.lineEleInit]
+                }
+                this.$forceUpdate()
+            },
             getProjectsData(state){
                 if (state) this.projectInfo.pageNum = 1
                 getProjects({deviceID:this.currentDeviceID,pageNum: this.projectInfo.pageNum-1,offset: this.projectInfo.offset}).then(res =>{
@@ -485,14 +511,15 @@
                 getDevices({pageNum: this.deviceInfo.pageNum-1,offset: this.deviceInfo.offset}).then(res =>{
                     console.log(res);
                     if (res.devices){
-                        res.devices.forEach(val=>{
-                            val.powerX = JSON.parse(val.x_energy_level)
-                            val.powerE = val.e_energy_level?JSON.parse(val.e_energy_level):[]
-                        })
+                        // res.devices.forEach(val=>{
+                            // val.powerX = JSON.parse(val.x_energy_level)
+                            // val.powerE = val.e_energy_level?JSON.parse(val.e_energy_level):[]
+                        // })
                     }
                     this.devices = res.devices;
                     this.deviceInfo.count = res.count;
                     this.$store.commit('SET_DEVICES',res.devices)
+                    this.$store.commit('SET_DEVICE',res.devices&&res.devices.length>0?res.devices[0]:null)
                 })
             },
             onPowerClickX(){
@@ -576,22 +603,24 @@
                     this.$message.error('请填写加速器序号')
                     return
                 }
-                if (!this.device.powerX || this.device.powerX.length===0){
-                    this.$message.error('请填写X线能量档')
-                    return
-                }
-                if (!this.device.x_volume_percent){
-                    this.$message.error('请填写x线深度百分剂量')
-                    return
-                }
+                // if (!this.device.powerX || this.device.powerX.length===0){
+                //     this.$message.error('请填写X线能量档')
+                //     return
+                // }
+                // if (!this.device.x_volume_percent){
+                //     this.$message.error('请填写x线深度百分剂量')
+                //     return
+                // }
                 if (!this.device.e_light_size){
                     this.$message.error('请填写电子限光筒')
                     return
                 }
+                this.device.x_energy_level = JSON.stringify([{x: 0,deep: 0,checked: false}]);
+                this.device.e_energy_level = JSON.stringify([{x: 0,deep: 0}]);
                 console.log(this.device);
-                this.device.x_energy_level = JSON.stringify(this.device.powerX);
-                if(this.device.powerE && this.device.powerE.length>0) this.device.e_energy_level = JSON.stringify(this.device.powerE);
-                console.log(this.device);
+                // this.device.x_energy_level = JSON.stringify(this.device.powerX);
+                // if(this.device.powerE && this.device.powerE.length>0) this.device.e_energy_level = JSON.stringify(this.device.powerE);
+                // console.log(this.device);
                 // return
                 addDevice(this.device).then(res =>{
                     console.log(res);
@@ -599,6 +628,27 @@
                     this.getDevicesData(1)
                 })
             },
+
+            onblur(){
+                let x_energy_level = [],e_energy_level=[]
+                this.devicesData.forEach(val=>{
+                    if (val.name === this.lineXInit.name){
+                        x_energy_level.push({x: val.x,deep: val.deep,checked: val.checked})
+                    } else {
+                        e_energy_level.push({x: val.x,deep: val.deep})
+                    }
+                })
+                let obj = {
+                    id: this.currentDeviceID,
+                    x_energy_level: JSON.stringify(x_energy_level),
+                    e_energy_level: JSON.stringify(e_energy_level),
+                }
+                console.log('onblur',obj)
+                addDevice(obj).then(res =>{
+                    this.getDevicesData(1)
+                })
+            },
+
             updateProject(){
                 console.log(this.project);
                 updateProject(this.project).then(res =>{
@@ -616,7 +666,8 @@
                this.showTypeIndex = index;
                 switch (index) {
                     case 0:
-                        this.getDevicesData()
+                        this.initDeviceData()
+                        // this.getDevicesData()
                         break;
                     case 1:
                         this.getProjectsData()
@@ -626,34 +677,18 @@
                         break;
                 }
             },
-            addHospital(){
-                this.dialogHospital = true
-                getHospitals().then(res=>{
-                    console.log(res)
-                    if (res.hospital){
-                        this.hospitalInfo = res.hospital
-                    }
-                })
-            },
-            onclickHos(){
-                console.log('onclickHos',this.$electron)
-                editHospital(this.hospitalInfo).then(res=>{
-                    this.$message.success('保存成功')
-                    this.dialogHospital = false
-                })
-            },
-            onHttpRequest(file){
-                console.log(file)
-                fileUpload(file).then(res=>{
-                    console.log(res)
-                    this.hospitalInfo.avatar = res
-                })
-            },
             addAccelerate(device){
                 if(device) {
                     this.device = JSON.parse(JSON.stringify(device));
                 } else this.device = {}
                 this.showAccelerate=true;
+            },
+            onDelDevice(){
+                this.$confirm('确认要删除该加速器吗？','提示',{type:'warning'}).then(()=>{
+                    delDevice({id: this.currentDeviceID}).then(res=>{
+                        this.getDevicesData(1)
+                    })
+                })
             },
             addDICOM(diCom){
                if(diCom) this.diCom = JSON.parse(JSON.stringify(diCom))
@@ -703,6 +738,43 @@
                     console.log('error')
                 };
                 this.isShowProjectChange=true;
+            },
+            objectSpanMethod({ row, column, rowIndex, columnIndex }) {
+                let rowAndSpan = {
+                    rowspan: 1,
+                    colspan: 1
+                }
+                if (columnIndex === 0 || columnIndex === 4){
+                    rowAndSpan.rowspan = row.rowspan
+                }
+                return rowAndSpan
+            },
+            deviceDataTransfer(data){
+                let lineX = [],lineEle = []
+                data.forEach(val=>{
+                    if (val.name === this.lineXInit.name){
+                        lineX.push(val)
+                    } else {
+                        lineEle.push(val)
+                    }
+                })
+                lineX[0].rowspan = lineX.length
+                lineEle[0].rowspan = lineEle.length
+                return [...lineX,...lineEle]
+            },
+            onclickDevice(row){
+                console.log(row)
+                this.devicesData.push({
+                    name: row.name,
+                    rowspan: 0,
+                })
+                this.devicesData = this.deviceDataTransfer(this.devicesData)
+                this.$forceUpdate()
+            },
+            onclickDeviceDel(scope){
+                this.devicesData.splice(scope.$index,1)
+                this.devicesData = this.deviceDataTransfer(this.devicesData)
+                this.$forceUpdate()
             }
         }
     }
@@ -798,7 +870,6 @@
                             font-weight: 400;
                             color: #2CCEAD;
                         }
-
                     }
                 }
                 .pagination{

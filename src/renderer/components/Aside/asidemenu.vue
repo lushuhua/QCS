@@ -1,5 +1,8 @@
 <template>
     <div class="aside-menu scroll-page">
+        <div style="text-align: center;margin: 50px 0;">
+            <img src="../../assets/images/logo.png" width="120" height="50" alt="">
+        </div>
         <div class="menu-lists">
             <div class="menu-list-content">
                 <div class="menu-list-item" :class="{active:menu =='project'}" @click="toNext('project')">项目总览</div>
@@ -77,7 +80,7 @@
     flex: 1;
     overflow: hidden;
     .menu-lists{
-        margin-top: 80%;
+        /*margin-top: 80%;*/
         border-top: 1px solid rgba(255,255,255,0.08);
         .menu-list-content{
             border-bottom: 1px solid rgba(255,255,255,0.08);

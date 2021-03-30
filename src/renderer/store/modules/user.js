@@ -7,7 +7,9 @@ export default {
         profile: locs.get('profile'),
         currentDeviceID:locs.get('deviceID'),
         isTemp:0,
-        devices: []
+        devices: [],
+        currentDeviceInfo: {},
+        hospital: {}
     },
     mutations: {
         SET_USER_DATA: (state, data) => {
@@ -17,11 +19,16 @@ export default {
         },
         SET_DEVICE: (state, data) => {
             console.log(data)
-            state.currentDeviceID = data;
+            state.currentDeviceInfo = data;
+            state.currentDeviceID = data?data.id:0;
         },
         SET_DEVICES: (state, data) => {
             console.log(data)
             state.devices = data;
+        },
+        SET_HOSPITAL: (state, data) => {
+            console.log(data)
+            state.hospital = data;
         },
     },
     actions: {

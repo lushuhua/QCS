@@ -54,7 +54,7 @@
                     <tr>
                         <th>项目号</th>
                         <th>项目名称</th>
-                        <!--<th>周期</th>-->
+                        <th>检测周期</th>
                         <th>检测值</th>
                         <th>阈值</th>
                         <th>检测日期</th>
@@ -64,7 +64,7 @@
                 <tr v-for="(project,index) in projects" :key="index">
                     <td>{{project.projectNo}}</td>
                     <td>{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td>
-                    <!--<td>{{project.period}}</td>-->
+                    <td>{{project.period}}</td>
                     <td>
                         <div v-if="project.detectType=='影像分析'">
                             <div v-for="v in project.testResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>
@@ -180,13 +180,18 @@
                 fromDate:'',
                 toDate:'',
                 value3:'',
-                period:'请选择检测周期',
+                period:'',
                 options:['1天','1周','1月','3月','6月','1年'],
                 currentPage:0,
                 projects:[],
                 offset: 10,
                 count:0,
                 hospitalInfo: undefined
+            }
+        },
+        watch: {
+            currentDeviceID:function () {
+                this.getTestData(1)
             }
         },
         computed: mapState({
@@ -196,7 +201,7 @@
 
         },
         created(){
-            this.getTestData()
+            this.getTestData(1)
         },
         methods: {
             handleClick() {
@@ -226,7 +231,7 @@
             reset(){
                 this.fromDate = '';
                 this.toDate = '';
-                this.period = '请选择检测周期';
+                this.period = '';
                 this.getTestData(1)
             },
             handleCurrentChange(val) {

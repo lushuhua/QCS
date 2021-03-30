@@ -37,6 +37,8 @@
                                action=""
                                :show-file-list="false"
                                :http-request="onHttpRequest"
+                               accept=".dcm"
+                               :limit="50"
                                multiple>
                         <el-button @click="onclickOpen">载入图片</el-button>
                     </el-upload>
@@ -49,6 +51,9 @@
                             :data="projectImage.data"
                             tooltip-effect="dark"
                             style="width: 100%"
+                            border
+                            highlight-current-row
+                            @current-change="handleCurrentChangeSelected"
                             @selection-change="handleSelectionChange">
                         <el-table-column
                                 type="selection"
@@ -68,16 +73,19 @@
                                 label="检测值">
                             <template slot-scope="scope">
                                 <div v-if="scope.row.tmpResult">
-                                    <div v-for="v in scope.row.tmpResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>
+                                    <div  class="test-tab-left-value" v-for="v in scope.row.tmpResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>
                                 </div>
                                 <div v-else>
-                                    <div v-for="v in scope.row.testResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>
+                                    <div class="test-tab-left-value" v-for="v in scope.row.testResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>
                                 </div>
                             </template>
                         </el-table-column>
                         <el-table-column
                                 label="阈值"
                                 prop="threshold"></el-table-column>
+                        <el-table-column
+                                label="检测周期"
+                                prop="period"></el-table-column>
                         <el-table-column
                                 label="上次检测时间"
                                 prop="createDate"></el-table-column>
@@ -94,7 +102,7 @@
                                 width="50">
                             <template slot-scope="scope">
                                 <div class="handle">
-                                    <div class="handle-item" :style="{color: scope.row.tmpResult&&scope.row.tmpResult.length>0?'#2CCEAD':'rgba(255, 255, 255, 0.8)'}" @click="saveProjectChangeImage(project)">保存</div>
+                                    <div class="handle-item" :style="{color: scope.row.tmpResult&&scope.row.tmpResult.length>0?'#2CCEAD':'rgba(255, 255, 255, 0.8)'}" @click="saveProjectChangeImage(scope.row)">保存</div>
                                 </div>
                             </template>
                         </el-table-column>
@@ -146,16 +154,17 @@
                         <th>项目号</th>
                         <th>项目名称</th>
                         <!--<th>辐射类型</th>-->
-                        <th>能量档</th>
-                        <th>检测值</th>
+                        <th>输入值</th>
+                        <th>计算值</th>
                         <th>阈值</th>
+                        <th>检测周期</th>
                         <th>上次检测时间</th>
                         <th>过期提醒</th>
                         <th>操作</th>
                     </tr>
                     </thead>
                     <tbody class="tab-lists">
-                    <tr v-for="(project,index) in projectNum.data" :key="index">
+                    <tr v-for="(project,index) in projectNum.data" :key="index" @click="handleCurrentChangeSelected(project)">
                         <td>{{project.projectNo}}</td>
                         <td class="table-project-name">{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td>
                         <!--<td>{{project.radioType}}</td>-->
@@ -205,6 +214,7 @@
                         </td>
                         <td>{{project.testResult?project.testResult.result:''}}</td>
                         <td>{{project.threshold}}</td>
+                        <td>{{project.period}}</td>
                         <td>{{project.createDate}}</td>
                         <td><div :style="{color: getOverDate(project).color}">{{getOverDate(project).name}}</div></td>
                         <td class="" style="width: 50px;">
@@ -250,11 +260,13 @@
                  <div class="test-tab-right-item">
                      WS674标准
                  </div>
-                <div class="test-tab-right-name">
-                    6.6.3 旋转运动标尺的零刻度位置
+                <div class="test-tab-right-name" v-if="currentRow && currentRow.id">
+                    <!--6.6.3 旋转运动标尺的零刻度位置-->
+                    {{currentRow.projectNo}} {{currentRow.name}}
                 </div>
-                <div class="test-tab-right-content">
-                    将慢感光胶片置于治疗床面，用建成材料覆盖其上。将70KG负载（成人）均匀分布在床面，中心作用在等中心上，照射野调至10cm*10cm，治疗床面调至近似于等中心高度时，对慢感光胶片进行照射。然后将床面将至20cm并在此照射，测出两个照射野中心的位移。
+                <div class="test-tab-right-content" v-if="currentRow && currentRow.id">
+                    <!--将慢感光胶片置于治疗床面，用建成材料覆盖其上。将70KG负载（成人）均匀分布在床面，中心作用在等中心上，照射野调至10cm*10cm，治疗床面调至近似于等中心高度时，对慢感光胶片进行照射。然后将床面将至20cm并在此照射，测出两个照射野中心的位移。-->
+                {{currentRow.detail}}
                 </div>
             </div>
         </div>
@@ -331,6 +343,7 @@
         <el-dialog
                 title="载入图片分析"
                 :visible.sync="showAnalyse"
+                :before-close="handleClose"
                 width="60vw"
                 center
         >
@@ -374,7 +387,7 @@
             </div>
             <div slot="footer">
                 <div class="add-image-btn">
-                    <el-button type="primary" class="" @click="toLastStpe()">上一步</el-button>
+                    <el-button type="primary" class="" @click="handleClose">取消</el-button>
                     <el-button type="primary" class="active" @click="onclickAna">确定</el-button>
                 </div>
             </div>
@@ -430,7 +443,8 @@
                     testValue: undefined
                 },
                 selectedVal : [],
-                selectedDicom: {}
+                selectedDicom: {},
+                currentRow: {}
             }
         },
         computed: mapState({
@@ -565,17 +579,28 @@
                 // console.log('onHttpRequest',library)
                 console.log('onHttpRequest',file)
                 const libraryData = await library.loadFile(file.file)
-                const testValue = await getTestValue({filePath: file.file.path})
+                let filePath = file.file.path
+                let testValue = await getTestValue({filePath: filePath})
+                testValue = testValue?testValue.toFixed(1): 0
                 console.log(libraryData)
                 console.log(`libraryData=${testValue}`)
                 let len = this.imageData.length
+                    ,refName = 'canvas'+ len
+                    ,refNameAna = 'canvasAna'+ len
                 this.imageData.push({
                     data: libraryData,
-                    refName: 'canvas'+ len,
-                    refNameAna: 'canvasAna'+ len,
-                    testValue: testValue?testValue.toFixed(1): 0
+                    refName: refName,
+                    refNameAna: refNameAna,
+                    testValue: testValue,
+                    filePath: filePath
                 })
-                this.showImage=true;
+                this.viewImageData.push({
+                    data: libraryData,
+                    refNameAna: refNameAna,
+                    testValue: testValue,
+                    filePath: filePath
+                })
+                this.showAnalyse=true;
                 console.log('onHttpRequest',this.imageData)
             },
             onclickOpen(file){
@@ -646,6 +671,10 @@
             },
             handleClose(){
                 console.log('handleClose2')
+                this.imageData = []
+                this.viewImageData = []
+                this.viewData = []
+                this.showAnalyse = false
             },
             switchProject(typeName,detectType){
                 this.typeName = typeName;
@@ -684,6 +713,7 @@
                 this.getProjectsFn(1)
             },
             saveProjectChangeImage(project){
+                console.log('saveProjectChangeImage',project)
                 if (!project.tmpResult || project.tmpResult.length===0) return
                 var result={
                     qscDeviceProjID: project.id,
@@ -808,12 +838,15 @@
                                 obj.tmpResult.push({
                                     power: val.power,
                                     size: val.size,
-                                    value: val.testValue
+                                    value: val.testValue,
+                                    filePath: val.filePath
                                 })
                             }
                         })
+                        console.log(obj)
                         this.projectImage.data.splice(index,1,obj)
                     }
+                    this.handleClose()
                     console.log(this.projectImage.data)
                 }
             },
@@ -864,17 +897,24 @@
             changeValue(dataFrom,dataTo){
                 if (!dataFrom.data) return
                 let itemFromData = dataFrom.data
-                let itemFromRef = dataFrom.refNameAna
-                let itemFromVal = dataFrom.testValue
+                    ,itemFromRef = dataFrom.refNameAna
+                    ,itemFromVal = dataFrom.testValue
+                    ,filePath = dataFrom.filePath
                 dataFrom.data = dataTo.data
                 dataFrom.refNameAna = dataTo.refNameAna
                 dataFrom.testValue = dataTo.testValue
+                dataFrom.filePath = dataTo.filePath
                 dataTo.data = itemFromData
                 dataTo.refNameAna = itemFromRef
                 dataTo.testValue = itemFromVal
+                dataTo.filePath = filePath
             },
             handleSelectionChange(val){
                 this.selectedVal = val
+            },
+            handleCurrentChangeSelected(val){
+                console.log(val)
+                this.currentRow = val
             },
             onclickSave(){
                 if (!this.selectedDicom.id){
@@ -1100,6 +1140,12 @@
                             font-weight: 400;
                             color: #2CCEAD;
                         }
+
+                    }
+                }
+                &-value{
+                    &:not(:last-of-type){
+                        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 
                     }
                 }
