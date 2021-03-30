@@ -1,6 +1,6 @@
 <template>
-    <div class="header-view no-drag" :style="{height: height}">
-        <div>
+    <div class="header-view" :style="{height: height}">
+        <div class="no-drag" style="flex: auto">
             <el-select class="left" v-model="defaultID" placeholder="请选择设备" @change="deviceChange">
                 <el-option
                         v-for="item in devices"
@@ -11,7 +11,7 @@
             </el-select>
         </div>
         <div>
-            <el-button @click="addHospital()">设置医院信息</el-button>
+            <el-button class="no-drag" @click="addHospital()">设置医院信息</el-button>
             <span style="margin: 0 10px;">{{getDateTime}}</span>
             <el-button @click="maximize" class="no-drag hover-color" size="medium" type="text" v-if="!isFullScreen">
                 <i class="btn el-icon-full-screen"></i>
@@ -181,7 +181,6 @@
                     console.log(res)
                     if (res.hospital){
                         this.hospitalInfo = res.hospital
-                        this.$store.commit('SET_HOSPITAL',this.hospitalInfo)
                     }
                 })
             },

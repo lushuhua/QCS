@@ -23,7 +23,7 @@
                         type="date"
                         value-format="yyyy-MM-dd"
                         format="yyyy-MM-dd"
-                        placeholder="请选择检测日期"
+                        placeholder="检测日期"
                         size="mini"
                         style="width: 100%"
                         align="center" @change="getProjectsData(1)"
@@ -36,7 +36,7 @@
                         type="date"
                         value-format="yyyy-MM-dd"
                         format="yyyy-MM-dd"
-                        placeholder="请选择合格有效期"
+                        placeholder="合格有效期"
                         size="mini"
                         style="width: 100%"
                         align="center" @change="getProjectsData(1)"
@@ -94,7 +94,7 @@
                     <td>{{project.detectType}}</td>
                     <td>{{project.period}}</td>
                     <td>{{project.createDate}}</td>
-                    <td> </td>
+                    <td>{{getValid(project)}} </td>
                     <td> <div :style="{color: getOverDate(project).color}">{{getOverDate(project).name}}</div></td>
                     <td> </td>
                     <td class="">
@@ -167,7 +167,7 @@
 <script>
     import { mapState } from 'vuex';
     import { getProjects,getProjectTests } from "../../api";
-    import {calcWarningTime} from "../../utils";
+    import {calcWarningTime,parseTime} from "../../utils";
 
     export default {
         components: {
@@ -204,7 +204,39 @@
                 return function (val) {
                     return calcWarningTime(val)
                 }
-            }
+            },
+            getValid(){
+                return function (val) {
+                    let value = '-'
+                    if (val.createDate){
+                        let createDate = new Date(val.createDate).getTime(),timestamp = 0
+                        switch (val.period) {
+                            case '一天':
+                                timestamp = 1
+                                break
+                            case '一周':
+                                timestamp = 7
+                                break
+                            case '一个月':
+                                timestamp = 30
+                                break
+                            case '三个月':
+                                timestamp = 90
+                                break
+                            case '六个月':
+                                timestamp = 180
+                                break
+                            case '一年':
+                                timestamp = 365
+                                break
+                        }
+                        timestamp = timestamp * 24 * 60 * 60 * 1000
+                        createDate += timestamp
+                        value = parseTime(createDate,'{y}-{m}-{d}')
+                    }
+                    return value
+                }
+            },
         }),
         watch: {
             currentDeviceID: function (val) {
@@ -286,8 +318,8 @@
             min-height: 80px;
             background: rgba(255,255,255,0.1);
             display: flex;
-            justify-content: center;
             align-items: center;
+            padding: 0 20px;
             .project-search-lists{
                 width: 15%;
                 height: 40%;
@@ -371,37 +403,37 @@
             }
             .pagination{
                 margin-top: 2%;
-                /deep/ .el-pagination{
-                     .btn-prev{
-                        background-color: #1C1C1C;
-                        border: 1px solid #464646;
-                        color: rgba(255,255,255,0.8);
-                    }
-                    :disabled{
-                        color: rgba(255,255,255,0.8);
-                    }
-                    .btn-next{
-                        background-color: #1C1C1C;
-                        border: 1px solid #464646;
-                        color: rgba(255,255,255,0.8);
-                    }
-                    .el-pager li{
-                        background: #1C1C1C;
-                        border: 1px solid #464646;
-                        color: rgba(255,255,255,0.8);
-                    }
-                    .el-pagination.is-background .el-pager li:not(.disabled).active{
-                        background-color: #3D3D3D!important;
-                    }
-                    .el-pagination__jump{
-                        color: rgba(255,255,255,0.8);
-                        .el-input__inner{
-                            background-color: #1C1C1C;
-                            border: 1px solid #464646;
-                            color: rgba(255,255,255,0.8);
-                        }
-                    }
-                }
+                /*/deep/ .el-pagination{*/
+                     /*.btn-prev{*/
+                        /*background-color: #1C1C1C;*/
+                        /*border: 1px solid #464646;*/
+                        /*color: rgba(255,255,255,0.8);*/
+                    /*}*/
+                    /*:disabled{*/
+                        /*color: rgba(255,255,255,0.8);*/
+                    /*}*/
+                    /*.btn-next{*/
+                        /*background-color: #1C1C1C;*/
+                        /*border: 1px solid #464646;*/
+                        /*color: rgba(255,255,255,0.8);*/
+                    /*}*/
+                    /*.el-pager li{*/
+                        /*background: #1C1C1C;*/
+                        /*border: 1px solid #464646;*/
+                        /*color: rgba(255,255,255,0.8);*/
+                    /*}*/
+                    /*.el-pagination.is-background .el-pager li:not(.disabled).active{*/
+                        /*background-color: #3D3D3D!important;*/
+                    /*}*/
+                    /*.el-pagination__jump{*/
+                        /*color: rgba(255,255,255,0.8);*/
+                        /*.el-input__inner{*/
+                            /*background-color: #1C1C1C;*/
+                            /*border: 1px solid #464646;*/
+                            /*color: rgba(255,255,255,0.8);*/
+                        /*}*/
+                    /*}*/
+                /*}*/
 
 
             }

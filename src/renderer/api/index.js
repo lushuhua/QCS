@@ -1,6 +1,6 @@
-import http from '../utils/http'
 import {DBTABLE,initCoreData,uploadFile,loadProject} from "../../main/dbaccess/connectDb";
 import {getCurDate} from "../../main/util/util";
+
 const sq3 = require('sqlite3').verbose()
 const async = require("async");
 const path = require('path');
@@ -8,7 +8,7 @@ const fs = require('fs');
 const resObj ={"msg":"","result":true,"token":"","error_code":"0",code:200};
 const qcsNode = require('./qcsNode.node');
 initCoreData()
-loadProject()
+// loadProject()
 
 // loadProject()
 export function getProjects(obj) {
@@ -21,30 +21,52 @@ export function getProjects(obj) {
         var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
         if(!obj.offset)  obj.offset = 10;
         if(!obj.pageNum) obj.pageNum = 0;
-        var cond_sql ='';
-        if(obj.detectType) cond_sql +=' AND proj.detectType="'+obj.detectType+'"';
-        if(obj.name) cond_sql +=' AND proj.name LIKE "%'+obj.name+'%"';
-        if(obj.step) cond_sql +=' AND proj.step="'+obj.step+'"';
-        if(obj.analysis) cond_sql +=' AND proj.analysis="'+obj.analysis+'"';
-        if(obj.projectNo) cond_sql +=' AND proj.projectNo="'+obj.projectNo+'"';
-        if(obj.period) cond_sql +=' AND proj.period="'+obj.period+'"';
+        let cond_sql ='',testTable = `(SELECT testResult,createDate,qscDeviceProjID FROM ${DBTABLE.DEVICE_PROJECT_RESULT} GROUP BY qscDeviceProjID ORDER BY id DESC)`;
+        if(obj.detectType) cond_sql +=' AND data.detectType="'+obj.detectType+'"';
+        if(obj.name) cond_sql +=' AND data.name LIKE "%'+obj.name+'%"';
+        if(obj.step) cond_sql +=' AND data.step="'+obj.step+'"';
+        if(obj.analysis) cond_sql +=' AND data.analysis="'+obj.analysis+'"';
+        if(obj.projectNo) cond_sql +=' AND data.projectNo="'+obj.projectNo+'"';
+        if(obj.period) cond_sql +=' AND data.period="'+obj.period+'"';
+        if (obj.testDate){
+            cond_sql += ` AND data.createDate BETWEEN '${obj.testDate}' AND '${obj.testDate} 23:59:59'`
+        }
+        if (obj.validDate){
+            cond_sql += ` AND data.validDate BETWEEN '${obj.validDate}' AND '${obj.validDate} 23:59:59' `
+        }
+        let sel_sql = `(SELECT proj.*,device.x_energy_level,device.e_energy_level 
+                ,IFNULL(dp.testPoint,proj.testPoint) AS testPoint
+                ,IFNULL(dp.numOfInput,proj.numOfInput) AS numOfInput
+                ,IFNULL(dp.period,proj.period) AS period
+                ,IFNULL(dp.threshold,proj.threshold) AS threshold
+                ,test.*,dp.id AS dpID,dp.projectID,dp.deviceID
+                ,IIF(test.createDate,DATE(test.createDate,CASE proj.period WHEN '一天' THEN '+1 day'
+                             WHEN '一周' THEN '+7 day'
+                             WHEN '一个月' THEN '+30 day'
+                             WHEN '三个月' THEN '+90 day'
+                             WHEN '六个月' THEN '+180 day'
+                             WHEN '一年' THEN '+365 day' END),null) AS validDate
+                FROM ${DBTABLE.DEVICE_PROJ} AS dp 
+                LEFT JOIN ${DBTABLE.PROJECT} AS proj ON dp.projectID=proj.id
+                LEFT JOIN ${DBTABLE.DEVICE} AS device ON dp.deviceID=device.id
+                LEFT JOIN ${testTable} AS test ON test.qscDeviceProjID=dp.id
+                WHERE dp.deviceID=${obj.deviceID}) AS data`
         async.waterfall([
             function(callback) {
-
-                var select_sql = "SELECT proj.*,device.x_energy_level,device.e_energy_level " +
-                    ",IFNULL(dp.testPoint,proj.testPoint) AS testPoint" +
-                    ", IFNULL(dp.numOfInput,proj.numOfInput) AS numOfInput " +
-                    ", IFNULL(dp.period,proj.period) AS period " +
-                    ", IFNULL(dp.threshold,proj.threshold) AS threshold,dp.id,dp.projectID,dp.deviceID  " +
-                    " FROM "+DBTABLE.DEVICE_PROJ+" AS dp " +
-                    " LEFT JOIN " +DBTABLE.PROJECT+' AS proj ON dp.projectID=proj.id'+
-                    " LEFT JOIN " +DBTABLE.DEVICE+' AS device ON dp.deviceID=device.id'+
-                    "  WHERE dp.deviceID="+obj.deviceID+cond_sql+" ORDER BY dp.id DESC limit "+obj.offset*obj.pageNum+','+obj.offset;
+                let select_sql = `SELECT * FROM ${sel_sql} WHERE 1 ${cond_sql} limit ${obj.offset*obj.pageNum},${obj.offset}`
+                // var select_sql = "SELECT proj.*,device.x_energy_level,device.e_energy_level " +
+                //     ",IFNULL(dp.testPoint,proj.testPoint) AS testPoint" +
+                //     ", IFNULL(dp.numOfInput,proj.numOfInput) AS numOfInput " +
+                //     ", IFNULL(dp.period,proj.period) AS period " +
+                //     ", IFNULL(dp.threshold,proj.threshold) AS threshold,dp.id,dp.projectID,dp.deviceID  " +
+                //     " FROM "+DBTABLE.DEVICE_PROJ+" AS dp " +
+                //     " LEFT JOIN " +DBTABLE.PROJECT+' AS proj ON dp.projectID=proj.id'+
+                //     " LEFT JOIN " +DBTABLE.DEVICE+' AS device ON dp.deviceID=device.id'+
+                //     "  WHERE dp.deviceID="+obj.deviceID+cond_sql+" ORDER BY dp.id DESC limit "+obj.offset*obj.pageNum+','+obj.offset;
                 console.log(select_sql)
                 db.all(select_sql, function(err, rows) {
                     console.log(err)
                     console.log('rows',rows)
-
                     async.forEachOf(rows, function (row, index, eachcallback) {
                         var energy = [];
                         if((row.radioType=='X'||row.radioType=='X和电子')&&row.x_energy_level&&row.x_energy_level.length>0){
@@ -63,20 +85,25 @@ export function getProjects(obj) {
                         }
                         if(energy.length==0) energy[0] = '-';
                         row.energy = energy;
-
-                        var getsql = 'SELECT * FROM  '+DBTABLE.DEVICE_PROJECT_RESULT+' WHERE id=(SELECT max(id) FROM '+DBTABLE.DEVICE_PROJECT_RESULT+' WHERE qscDeviceProjID='+row.id+')'
+                        row.testResult = row.testResult?JSON.parse(row.testResult):null
+                        // var getsql = 'SELECT * FROM  '+DBTABLE.DEVICE_PROJECT_RESULT+' WHERE id=(SELECT max(id) FROM '+DBTABLE.DEVICE_PROJECT_RESULT+' WHERE qscDeviceProjID='+row.id+')' +sqlStr
                         // console.log(getsql);
-                        db.all(getsql, function(err, result) {
-                            // console.log(row.id,result)
-                            if(result&&result.length>0){
-                                if(result[0].testResult) {
-                                    row.testResult = JSON.parse(result[0].testResult);
-                                    row.createDate = result[0].createDate;
-                                }
-                            }
-                            eachcallback(null);
-                        });
+                        // db.all(getsql, function(err, result) {
+                        //     console.log(row.id,result)
+                        //     if(result&&result.length>0){
+                                // if(result[0].testResult) {
+                                //     row.testResult = JSON.parse(result[0].testResult);
+                                //     row.createDate = result[0].createDate;
+                                // }
+                            //     projects.push(row)
+                            // }else {
+                            //     if (!obj.testDate && !obj.validDate){
+                            //         projects.push(row)
+                            //     }
+                            // }
+                        // });
 
+                        eachcallback(null);
                     }, function (err) {
                         if (err) callback(err);
                         else{
@@ -84,35 +111,14 @@ export function getProjects(obj) {
                             callback(null);
                         }
                     });
-
-
-                    // for(var i in rows){
-                    //     var energy = [];
-                    //     if((rows[i].radioType=='X'||rows[i].radioType=='X和电子')&&rows[i].x_energy_level&&rows[i].x_energy_level.length>0){
-                    //         var x_energy_arr = JSON.parse(rows[i].x_energy_level);
-                    //         console.log(x_energy_arr);
-                    //         for(var j in x_energy_arr) {
-                    //             energy.push(x_energy_arr[j]+'MV')
-                    //         }
-                    //     }
-                    //     if((rows[i].radioType=='电子'||rows[i].radioType=='X和电子')&&rows[i].e_energy_level&&rows[i].e_energy_level.length>0){
-                    //         var e_energy_arr = JSON.parse(rows[i].e_energy_level);
-                    //         console.log(e_energy_arr);
-                    //         for(var j in e_energy_arr) {
-                    //             energy.push(e_energy_arr[j]+'MeV')
-                    //         }
-                    //     }
-                    //     if(energy.length==0) energy[0] = '-';
-                    //     rows[i].energy = energy;
-                    //     // if(rows[i].testPoint==0) rows[i].testPoint=1;//还是需要设置为1，这样可以添加
-                    // }
-
                 });
             },
             function(callback) {
-                var select_all_sql = "SELECT COUNT(*) AS count FROM  "+DBTABLE.DEVICE_PROJ+" AS dp " +
-                    " LEFT JOIN " +DBTABLE.PROJECT+' AS proj ON dp.projectID=proj.id'+
-                    "  WHERE dp.deviceID="+obj.deviceID+cond_sql;
+                // let select_all_sql = `SELECT COUNT(*) AS count FROM ${DBTABLE.DEVICE_PROJ} AS dp
+                // LEFT JOIN ${DBTABLE.PROJECT} AS proj ON dp.projectID=proj.id
+                // LEFT JOIN ${testTable} AS test ON test.qscDeviceProjID=dp.id
+                // WHERE dp.deviceID=${obj.deviceID} ${cond_sql}`
+                let select_all_sql = `SELECT COUNT(*) AS count FROM ${sel_sql} WHERE 1 ${cond_sql}`
                 db.all(select_all_sql, function(err, row) {
                     // console.log(row)
                     resObj.count = row[0].count;
