@@ -69,7 +69,7 @@ input::-webkit-inner-spin-button {
 {
   width: 6px;
   height: 6px;
-  background-color: #c1c1c0;
+  background-color: rgba(0,0,0,0.3);
 }
 
 /*定义滚动条轨道 内阴影+圆角*/
@@ -77,7 +77,8 @@ input::-webkit-inner-spin-button {
 {
   -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
   border-radius: 10px;
-  background-color: #c1c1c0;
+  background-color: #555;
+  /*background-color: #c1c1c0;*/
 }
 
 /*定义滑块 内阴影+圆角*/
@@ -85,7 +86,7 @@ input::-webkit-inner-spin-button {
 {
   border-radius: 10px;
   -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
-  background-color: #555;
+  background-color: #c1c1c0;
 }
   .el-dialog{
     background: #262626;

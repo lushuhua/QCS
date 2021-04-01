@@ -45,109 +45,110 @@
                     <!--<el-button type="primary" class="active" @click="addImage">载入图片</el-button>-->
                     <el-button type="primary" class="active" @click="onclickDicom()">RT_Plan Dicom输出</el-button>
                 </div>
-                <div v-show="typeName=='image'">
-                    <el-table
-                            ref="multipleTable"
-                            :data="projectImage.data"
-                            tooltip-effect="dark"
-                            style="width: 100%"
-                            border
-                            highlight-current-row
-                            @current-change="handleCurrentChangeSelected"
-                            @selection-change="handleSelectionChange">
-                        <el-table-column
-                                type="selection"
-                                width="55"></el-table-column>
-                        <el-table-column
-                                label="项目号"
-                                prop="projectNo"
-                                width="80"></el-table-column>
-                        <el-table-column
-                                prop="name"
-                                label="项目名称"
-                                width="160">
-                            <template slot-scope="scope">{{ scope.row.name}}{{scope.row.subName?('('+scope.row.subName+')'):'' }}</template>
-                        </el-table-column>
-                        <el-table-column
-                                prop="test"
-                                label="检测值">
-                            <template slot-scope="scope">
-                                <div v-if="scope.row.tmpResult">
-                                    <div  class="test-tab-left-value" v-for="v in scope.row.tmpResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>
-                                </div>
-                                <div v-else>
-                                    <div class="test-tab-left-value" v-for="v in scope.row.testResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>
-                                </div>
-                            </template>
-                        </el-table-column>
-                        <el-table-column
-                                label="阈值"
-                                prop="threshold"></el-table-column>
-                        <el-table-column
-                                label="检测周期"
-                                prop="period"></el-table-column>
-                        <el-table-column
-                                label="上次检测时间"
-                                prop="createDate"></el-table-column>
-                        <el-table-column
-                                label="过期提醒"
-                                prop="overDate">
-                            <template slot-scope="scope">
-                                <div :style="{color: getOverDate(scope.row).color}">{{getOverDate(scope.row).name}}</div>
-                            </template>
-                        </el-table-column>
-                        <el-table-column
-                                label="操作"
-                                prop="toDo"
-                                width="50">
-                            <template slot-scope="scope">
-                                <div class="handle">
-                                    <div class="handle-item" :style="{color: scope.row.tmpResult&&scope.row.tmpResult.length>0?'#2CCEAD':'rgba(255, 255, 255, 0.8)'}" @click="saveProjectChangeImage(scope.row)">保存</div>
-                                </div>
-                            </template>
-                        </el-table-column>
-                    </el-table>
-                </div>
-                <!--<table class="table test-tab-content" border="0" cellspacing="0" v-if="typeName=='image'">-->
-                    <!--<thead class="tab-header">-->
-                    <!--<tr>-->
-                        <!--<th>全选</th>-->
-                        <!--<th>项目号</th>-->
-                        <!--<th>项目名称</th>-->
-                        <!--<th>检测值</th>-->
-                        <!--&lt;!&ndash;<th>辐射类型</th>&ndash;&gt;-->
-                        <!--<th>阈值</th>-->
-                        <!--<th>上次检测时间</th>-->
-                        <!--<th>过期提醒</th>-->
-                        <!--<th>操作</th>-->
-                    <!--</tr>-->
-                    <!--</thead>-->
-                    <!--<tbody class="tab-lists">-->
-                    <!--<tr v-for="(project,index) in projectImage.data" :key="index">-->
-                        <!--<td>-->
-                            <!--<input type="checkbox"/>-->
-                        <!--</td>-->
-                        <!--<td>{{project.projectNo}}</td>-->
-                        <!--<td class="table-project-name">{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td>-->
-                        <!--<td>-->
-                            <!--<div v-if="project.tmpResult">-->
-                                <!--<div v-for="v in project.tmpResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>-->
-                            <!--</div>-->
-                            <!--<div v-else>-->
-                                <!--<div v-for="v in project.testResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>-->
-                            <!--</div>-->
-                        <!--</td>-->
-                        <!--&lt;!&ndash;<td>{{project.radioType}}</td>&ndash;&gt;-->
-                        <!--<td>{{project.threshold}}</td>-->
-                        <!--<td>{{project.createDate}}</td>-->
-                        <!--<td><div :style="{color: getOverDate(project).color}">{{getOverDate(project).name}}</div></td>-->
-                        <!--<td style="width: 50px;"><div class="handle">-->
-                            <!--<div class="handle-item" :style="{color: project.tmpResult&&project.tmpResult.length>0?'#2CCEAD':'rgba(255, 255, 255, 1)'}" @click="saveProjectChangeImage(project)">保存</div>-->
-                        <!--</div></td>-->
-                    <!--</tr>-->
+                <!--<div v-show="typeName=='image'">-->
+                    <!--<el-table-->
+                            <!--ref="multipleTable"-->
+                            <!--:data="projectImage.data"-->
+                            <!--tooltip-effect="dark"-->
+                            <!--style="width: 100%"-->
+                            <!--border-->
+                            <!--highlight-current-row-->
+                            <!--@current-change="handleCurrentChangeSelected"-->
+                            <!--@selection-change="handleSelectionChange">-->
+                        <!--<el-table-column-->
+                                <!--type="selection"-->
+                                <!--width="55"></el-table-column>-->
+                        <!--<el-table-column-->
+                                <!--label="项目号"-->
+                                <!--prop="projectNo"-->
+                                <!--width="80"></el-table-column>-->
+                        <!--<el-table-column-->
+                                <!--prop="name"-->
+                                <!--label="项目名称"-->
+                                <!--width="160">-->
+                            <!--<template slot-scope="scope">{{ scope.row.name}}{{scope.row.subName?('('+scope.row.subName+')'):'' }}</template>-->
+                        <!--</el-table-column>-->
+                        <!--<el-table-column-->
+                                <!--prop="test"-->
+                                <!--label="检测值">-->
+                            <!--<template slot-scope="scope">-->
+                                <!--<div v-if="scope.row.tmpResult">-->
+                                    <!--<div  class="test-tab-left-value" v-for="v in scope.row.tmpResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>-->
+                                <!--</div>-->
+                                <!--<div v-else>-->
+                                    <!--<div class="test-tab-left-value" v-for="v in scope.row.testResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>-->
+                                <!--</div>-->
+                            <!--</template>-->
+                        <!--</el-table-column>-->
+                        <!--<el-table-column-->
+                                <!--label="阈值"-->
+                                <!--prop="threshold"></el-table-column>-->
+                        <!--<el-table-column-->
+                                <!--label="检测周期"-->
+                                <!--prop="period"></el-table-column>-->
+                        <!--<el-table-column-->
+                                <!--label="上次检测时间"-->
+                                <!--prop="createDate"></el-table-column>-->
+                        <!--<el-table-column-->
+                                <!--label="过期提醒"-->
+                                <!--prop="overDate">-->
+                            <!--<template slot-scope="scope">-->
+                                <!--<div :style="{color: getOverDate(scope.row).color}">{{getOverDate(scope.row).name}}</div>-->
+                            <!--</template>-->
+                        <!--</el-table-column>-->
+                        <!--<el-table-column-->
+                                <!--label="操作"-->
+                                <!--prop="toDo"-->
+                                <!--width="50">-->
+                            <!--<template slot-scope="scope">-->
+                                <!--<div class="handle">-->
+                                    <!--<div class="handle-item" :style="{color: scope.row.tmpResult&&scope.row.tmpResult.length>0?'#2CCEAD':'rgba(255, 255, 255, 0.8)'}" @click="saveProjectChangeImage(scope.row)">保存</div>-->
+                                <!--</div>-->
+                            <!--</template>-->
+                        <!--</el-table-column>-->
+                    <!--</el-table>-->
+                <!--</div>-->
+                <table class="table test-tab-content" border="0" cellspacing="0" v-if="typeName=='image'">
+                    <thead class="tab-header">
+                    <tr>
+                        <th>
+                            <el-checkbox v-model="checkedAll" @change="handleChangeAll"></el-checkbox></th>
+                        <th>项目号</th>
+                        <th>项目名称</th>
+                        <th>检测值</th>
+                        <!--<th>辐射类型</th>-->
+                        <th>阈值</th>
+                        <th>上次检测时间</th>
+                        <th>过期提醒</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody class="tab-lists">
+                    <tr v-for="(project,index) in projectImage.data" :key="index" @click="handleCurrentChangeSelected(project)">
+                        <td>
+                            <el-checkbox v-model="project.checked" @change="handleChangeSingle(project)"></el-checkbox>
+                        </td>
+                        <td>{{project.projectNo}}</td>
+                        <td class="table-project-name">{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td>
+                        <td>
+                            <div v-if="project.tmpResult">
+                                <div v-for="v in project.tmpResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>
+                            </div>
+                            <div v-else>
+                                <div v-for="v in project.testResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>
+                            </div>
+                        </td>
+                        <!--<td>{{project.radioType}}</td>-->
+                        <td>{{project.threshold}}</td>
+                        <td>{{project.createDate}}</td>
+                        <td><div :style="{color: getOverDate(project).color}">{{getOverDate(project).name}}</div></td>
+                        <td style="width: 50px;"><div class="handle">
+                            <div class="handle-item" :style="{color: project.tmpResult&&project.tmpResult.length>0?'#2CCEAD':'rgba(255, 255, 255, 1)'}" @click="saveProjectChangeImage(project)">保存</div>
+                        </div></td>
+                    </tr>
 
-                    <!--</tbody>-->
-                <!--</table>-->
+                    </tbody>
+                </table>
                 <table class="table test-tab-content" border="0" cellspacing="0" v-if="typeName=='number'" style="margin-top: 2%;">
                     <thead class="tab-header">
                     <tr>
@@ -378,6 +379,7 @@
                                 <div class="image-canvas-item" draggable="true" @dragstart="dragStart($event,index,1)" @drop="drop($event,index,viewImageData,viewData,1)" @dragover="allowDrop($event)">
                                     <canvas :ref="v.refNameAna" v-if="v.refNameAna" :name="getDataAna(index,v)"></canvas>
                                 </div>
+                                {{v.filePath}}
                             </div>
                         </div>
 
@@ -444,7 +446,8 @@
                 },
                 selectedVal : [],
                 selectedDicom: {},
-                currentRow: {}
+                currentRow: {},
+                checkedAll: false
             }
         },
         computed: mapState({
@@ -533,7 +536,8 @@
                     this.viewImageData.push({
                         data: val.data,
                         refNameAna: val.refNameAna,
-                        testValue: val.testValue
+                        testValue: val.testValue,
+                        filePath: val.filePath
                     })
                 })
             },
@@ -583,6 +587,7 @@
                 let testValue = await getTestValue({filePath: filePath})
                 testValue = testValue?testValue.toFixed(1): 0
                 console.log(libraryData)
+                console.log(`filePath=${filePath}`)
                 console.log(`libraryData=${testValue}`)
                 let len = this.imageData.length
                     ,refName = 'canvas'+ len
@@ -612,10 +617,12 @@
                 })
             },
             onclickDicom(){
+                this.selectedVal = this.projectImage.data.filter(val=>val.checked)
                 if (this.selectedVal.length==0){
                     this.$message.error('请选择项目')
                     return
                 }
+                console.log(this.selectedVal)
                 this.showDICOM = true
                 this.getDicomdData()
             },
@@ -825,6 +832,7 @@
             },
             onclickAna(){
                 if (this.projectsData && this.projectsData.length>0){
+                    console.log('onclickAna',this.activeProjectIndex)
                     let activeProject = this.projectsData[this.activeProjectIndex]
                     console.log(this.projectsData[this.activeProjectIndex])
                     this.showAnalyse = false;
@@ -873,7 +881,7 @@
                     // data[index].refNameAna = itemFromRef
                     this.changeValue(data[fromIndex],data[index])
                 }else {
-                    if (fromType==1){
+                    if (fromType==1){  /// 从右向左
                         // if (!fromData[fromIndex].data) return
                         // data[index] = Object.assign(data[index],fromData[fromIndex])
                         // fromData.splice(fromIndex,1,{})
@@ -915,6 +923,15 @@
             handleCurrentChangeSelected(val){
                 console.log(val)
                 this.currentRow = val
+            },
+            handleChangeAll(){
+                console.log(this.checkedAll)
+                this.projectImage.data.forEach(value => value.checked=this.checkedAll)
+            },
+            handleChangeSingle(val){
+                console.log(val.checked)
+                this.checkedAll = this.projectImage.data.filter(value => value.checked).length === this.projectImage.data.length
+                this.$forceUpdate()
             },
             onclickSave(){
                 if (!this.selectedDicom.id){

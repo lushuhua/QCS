@@ -129,21 +129,51 @@
                 width="60vw"
                 center
         >
-            <el-main>
-                <el-table
-                        ref="multipleTable"
-                        :data="test.data"
-                        tooltip-effect="dark">
-                    <el-table-column
-                            label="检测日期"
-                            prop="createDate"></el-table-column>
-                    <el-table-column
-                            label="检测值"
-                            prop="testResult.result"></el-table-column>
-                    <el-table-column
-                            label="阈值"
-                            prop="threshold"></el-table-column>
-                </el-table>
+            <el-main class="project-tab">
+                <table class="table project-tab-content" style="width: 100%;" border="0" cellspacing="0">
+                    <thead class="tab-header">
+                    <tr>
+                        <th>检测日期</th>
+                        <th>检测值</th>
+                        <th>阈值</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr style="text-align: center" v-for="project in test.data" :key="project.id">
+                        <td>{{project.createDate}}</td>
+                        <td>
+                            <div v-if="project.detectType=='影像分析'">
+                                <div v-for="v in project.testResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>
+                            </div>
+                            <div v-else-if="project.testResult">
+                                <div v-if="project.testResult.levelNum==1">{{project.testResult.result?project.testResult.result.toFixed(2):''}}</div>
+                                <div v-else>
+                                    <div v-for="(item,key) in project.testResult" :key="key">
+                                            <span v-if="key!='levelNum'">
+                                                {{key}} {{item.result}}
+                                            </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{project.threshold}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+                <!--<el-table-->
+                        <!--ref="multipleTable"-->
+                        <!--:data="test.data"-->
+                        <!--tooltip-effect="dark">-->
+                    <!--<el-table-column-->
+                            <!--label="检测日期"-->
+                            <!--prop="createDate"></el-table-column>-->
+                    <!--<el-table-column-->
+                            <!--label="检测值"-->
+                            <!--prop="testResult.result"></el-table-column>-->
+                    <!--<el-table-column-->
+                            <!--label="阈值"-->
+                            <!--prop="threshold"></el-table-column>-->
+                <!--</el-table>-->
             </el-main>
             <div slot="footer" class="dialog-footer">
                 <div class="pagination clearfix">

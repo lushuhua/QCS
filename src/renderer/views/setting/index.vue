@@ -49,6 +49,32 @@
                                 </template>
                             </el-table-column>
                         </el-table>
+                        <!--<table class="table" border="0" cellspacing="0">-->
+                            <!--<tr v-for="(v,index) in devicesData" :key="index">-->
+                                <!--<td :rowspan="v.rowspan">{{v.name}}</td>-->
+                                <!--<td :rowspan="v.rowspan">-->
+                                    <!--<div style="display: flex;align-items: center">-->
+                                        <!--<div class="input-label-container" style="display: inline-flex;margin-right: 5px">-->
+                                            <!--<el-input v-model="v.x" type="number" @blur="onblur"></el-input>-->
+                                            <!--<span>MV</span>-->
+                                        <!--</div>-->
+                                        <!--<el-checkbox v-if="v.name===lineXInit.name" style="flex: none;" v-model="v.checked">FFF模式</el-checkbox>-->
+                                    <!--</div>-->
+                                <!--</td>-->
+                                <!--<td :rowspan="v.rowspan">-->
+                                    <!--<div class="input-label-container">-->
+                                        <!--<el-input v-model="v.deep" type="number" @blur="onblur"></el-input>-->
+                                        <!--<span>%</span>-->
+                                    <!--</div>-->
+                                <!--</td>-->
+                                <!--<td :rowspan="v.rowspan">-->
+                                    <!--<el-button type="text" v-if="devicesData.filter(value => value.name===v.name).length>1" @click="onclickDeviceDel(v,index)">删除</el-button>-->
+                                <!--</td>-->
+                                <!--<td :rowspan="v.rowspan">-->
+                                    <!--<el-button icon="el-icon-plus" @click="onclickDevice(v)">添加</el-button>-->
+                                <!--</td>-->
+                            <!--</tr>-->
+                        <!--</table>-->
                     </div>
                     <!--<table class="table" border="0" cellspacing="0" v-if="showTypeIndex==0">-->
                         <!--<thead class="tab-header">-->
@@ -323,12 +349,25 @@
                 >
                     <div class="project-change-lists">
                          <div class="project-change-lists-item">
-                             <input class="item-content" type="text" v-model="project.period">
-                             <div class="item-name">检测周期</div>
+                             <!--<input class="item-content" type="text" v-model="project.period">-->
+                             <el-select v-model="project.period" placeholder="请选择检测周期" >
+                                 <el-option value="一天"></el-option>
+                                 <el-option value="一周"></el-option>
+                                 <el-option value="一个月"></el-option>
+                                 <el-option value="三个月"></el-option>
+                                 <el-option value="六个月"></el-option>
+                                 <el-option value="一年"></el-option>
+                             </el-select>
+                             <div class="item-name" style="width: 80px;flex: none;height: 100%;border-left: 1px solid rgba(255,255,255,0.08);line-height: 5.5vh">检测周期</div>
                          </div>
                         <div class="project-change-lists-item">
-                            <input type="text" class="item-content" v-model="project.threshold">
-                            <div class="item-name">阈值</div>
+                            <input type="text" class="item-content" style="width: 50px;" v-model="project.thresholdValue">
+                            <el-select v-model="project.thresholdUnit" placeholder="单位" >
+                                <el-option value="mm"></el-option>
+                                <el-option value="%"></el-option>
+                                <el-option value="°"></el-option>
+                            </el-select>
+                            <div class="item-name" style="width: 40px;flex: none;height: 100%;border-left: 1px solid rgba(255,255,255,0.08);line-height: 5.5vh">阈值</div>
                         </div>
                     </div>
                     <div slot="footer">
@@ -651,6 +690,15 @@
 
             updateProject(){
                 console.log(this.project);
+                if (!this.project.thresholdValue){
+                    this.$message.error('请填写阈值')
+                    return
+                }
+                if (!this.project.thresholdUnit){
+                    this.$message.error('请选择阈值单位')
+                    return
+                }
+                this.project.threshold = '≤'+ this.project.thresholdValue + this.project.thresholdUnit
                 updateProject(this.project).then(res =>{
                     this.isShowProjectChange = false;
                     this.getProjectsData()
@@ -733,7 +781,19 @@
 
             },
             showProjectChange(project){
-                if(project) this.project = project;
+                if(project) {
+                    this.project = {...project};
+                    if (this.project.threshold){
+                        let index = this.project.threshold.indexOf('mm')
+                        if (index>-1){
+                            this.project.thresholdValue = this.project.threshold.substring(1,index)
+                            this.project.thresholdUnit = 'mm'
+                        } else {
+                            this.project.thresholdValue = this.project.threshold.substr(1,this.project.threshold.length-1)
+                            this.project.thresholdUnit = this.project.threshold.substr(-1)
+                        }
+                    }
+                }
                 else {
                     console.log('error')
                 };
@@ -999,6 +1059,9 @@
                     align-items: center;
                 }
             }
+        }
+        /deep/ .el-table__body tr:hover > td{
+            background-color:#1A1A1A !important;
         }
     }
     .table-more{

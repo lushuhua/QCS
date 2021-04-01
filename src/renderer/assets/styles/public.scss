@@ -136,19 +136,6 @@ img {
 .table-list>tbody>tr:hover{
   background: #2C2C2C;
 }
-.el-table th,.el-table td{
-  background: #3C3C3C;
-  padding: 2% 0;
-  color: rgba(255,255,255,0.8);
-  border-color: rgba(255, 255, 255, 0.25)!important;
-  font-size: 13px!important;
-}
-.el-table tr:nth-child(odd) td{
-  background: #2C2C2C;
-}
-.el-table--enable-row-hover .el-table__body tr:hover > td {
-  background: #333333;
-}
 .table-list>thead>tr>th{
   padding: 2% 0;
   font-weight: 400;

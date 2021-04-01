@@ -110,69 +110,18 @@
                 center
                 ref="print"
         >
-            <div id="print-wrapper" style="margin: 20px 30px;overflow-y: auto;padding: 20px">
-                <div v-if="hospitalInfo">
-                    <img :src="hospitalInfo.avatar" width="50" height="50" style="border-radius: 50%;margin-right: 10px;vertical-align: middle" alt="">{{hospitalInfo.name}}
-                </div>
-                <div class="report-tab" style="font-size: 30px;margin-top: 20px;height: 60vh;overflow-y: auto">
-                    <table class="table report-tab-content" border="0" cellspacing="0">
-                        <thead class="tab-header">
-                        <tr>
-                            <th>项目名称</th>
-                            <!--<th>周期</th>-->
-                            <th>检测值</th>
-                            <!--<th>阈值</th>-->
-                            <th>检测时间</th>
-                        </tr>
-                        </thead>
-                        <tbody class="tab-lists">
-                        <tr v-for="(project,index) in projects" :key="index">
-                            <td>{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td>
-                            <!--<td>{{project.period}}</td>-->
-                            <td>
-                                <div v-if="project.detectType=='影像分析'">
-                                    <div v-for="v in project.testResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>
-                                </div>
-                                <div v-else>
-                                    <div v-if="project.testResult.levelNum==1">{{project.testResult.result?project.testResult.result.toFixed(2):''}}</div>
-                                    <div v-else>
-                                        <div v-for="(item,key) in project.testResult" :key="key">
-                                            <span v-if="key!='levelNum'">
-                                                {{key}} {{item.result}}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                            <!--<td v-if="project.testResult.levelNum==1">-->
-                                <!--<span>{{project.testResult.result?project.testResult.result.toFixed(2):''}}</span>-->
-                            <!--</td>-->
-                            <!--<td v-if="project.testResult.levelNum>1">-->
-                                <!--<div v-for="(item,key) in project.testResult" :key="key">-->
-                                    <!--<span v-if="key!='levelNum'">-->
-                                        <!--{{key}} {{item.result}}-->
-                                    <!--</span>-->
-                                <!--</div>-->
-                            <!--</td>-->
-                            <!--<td>{{project.threshold}}</td>-->
-                            <td>{{project.createDate}}</td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div slot="footer">
-                <el-button type="primary" class="active active-print" @click="onclickPrint">打印报表</el-button>
-            </div>
+            <Print :hospital-info="hospitalInfo" :projects="projects"></Print>
         </el-dialog>
     </div>
 </template>
 <script>
     import { mapState } from 'vuex';
-    import { getProjectTests,addTestResult,getHospitals } from "../../api";
+    import { getProjectTests,getHospitals } from "../../api";
+    import Print  from './print'
 
     export default {
         components: {
+            Print
         },
         data() {
             return {
@@ -220,9 +169,10 @@
                 })
             },
             onclickPrint(){
-                let iframeWindow = document.getElementById("iframePrint");
-                iframeWindow.contentWindow.document.body.innerHTML = document.getElementById("print-wrapper").innerHTML
-                iframeWindow.contentWindow.print();
+                // let iframeWindow = document.getElementById("iframePrint");
+                // iframeWindow.contentWindow.document.body.innerHTML = document.getElementById("print-wrapper").innerHTML
+                // iframeWindow.contentWindow.print();
+                console.log()
             },
             search(){
                 console.log(this.fromDate,this.toDate,this.period);
@@ -464,29 +414,6 @@
         }
         .dialog-footer{
 
-        }
-        #print-wrapper{
-            background: #ffffff;
-            color: #333;
-            table{
-                border: 1px solid #D2D2D2;
-            }
-            th{
-                color: #333;
-                border-color: #D2D2D2;
-                border-bottom: 1px solid #D2D2D2;
-            }
-            td{
-                background: #ffffff;
-                color: #333;
-                border-color: #D2D2D2;
-                border-bottom: 1px solid #D2D2D2;
-            }
-            tr:last-of-type{
-                td{
-                    border-bottom: none;
-                }
-            }
         }
     }
     .table-more{

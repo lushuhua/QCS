@@ -1,14 +1,14 @@
+
 import {DBTABLE,initCoreData,uploadFile,loadProject} from "../../main/dbaccess/connectDb";
 import {getCurDate} from "../../main/util/util";
 
 const sq3 = require('sqlite3').verbose()
 const async = require("async");
 const path = require('path');
-const fs = require('fs');
 const resObj ={"msg":"","result":true,"token":"","error_code":"0",code:200};
 const qcsNode = require('./qcsNode.node');
 initCoreData()
-// loadProject()
+loadProject()
 
 // loadProject()
 export function getProjects(obj) {
@@ -21,7 +21,7 @@ export function getProjects(obj) {
         var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
         if(!obj.offset)  obj.offset = 10;
         if(!obj.pageNum) obj.pageNum = 0;
-        let cond_sql ='',testTable = `(SELECT testResult,createDate,qscDeviceProjID FROM ${DBTABLE.DEVICE_PROJECT_RESULT} GROUP BY qscDeviceProjID ORDER BY id DESC)`;
+        let cond_sql ='',testTable = `(SELECT a.* FROM (SELECT id AS testID,testResult,createDate,qscDeviceProjID FROM ${DBTABLE.DEVICE_PROJECT_RESULT} ORDER BY testID DESC) a GROUP BY a.qscDeviceProjID ORDER BY a.testID DESC)`;
         if(obj.detectType) cond_sql +=' AND data.detectType="'+obj.detectType+'"';
         if(obj.name) cond_sql +=' AND data.name LIKE "%'+obj.name+'%"';
         if(obj.step) cond_sql +=' AND data.step="'+obj.step+'"';
@@ -34,12 +34,13 @@ export function getProjects(obj) {
         if (obj.validDate){
             cond_sql += ` AND data.validDate BETWEEN '${obj.validDate}' AND '${obj.validDate} 23:59:59' `
         }
-        let sel_sql = `(SELECT proj.*,device.x_energy_level,device.e_energy_level 
+        let sel_sql = `(SELECT proj.name,proj.radioType,proj.subName,proj.projectNo,proj.radioType,proj.dataRequire,proj.extraRequire,proj.analysis,proj.views,proj.type,proj.detectCondition,proj.step,proj.remark,proj.moduleRequire,proj.detectType,proj.detail
+                ,device.x_energy_level,device.e_energy_level 
                 ,IFNULL(dp.testPoint,proj.testPoint) AS testPoint
                 ,IFNULL(dp.numOfInput,proj.numOfInput) AS numOfInput
                 ,IFNULL(dp.period,proj.period) AS period
                 ,IFNULL(dp.threshold,proj.threshold) AS threshold
-                ,test.*,dp.id AS dpID,dp.projectID,dp.deviceID
+                ,test.*,dp.id,dp.projectID,dp.deviceID
                 ,IIF(test.createDate,DATE(test.createDate,CASE proj.period WHEN '一天' THEN '+1 day'
                              WHEN '一周' THEN '+7 day'
                              WHEN '一个月' THEN '+30 day'
@@ -480,23 +481,24 @@ export function getProjectTests(obj) {
     })
 }
 export function updateProject(obj) {
-    console.log('delDicom')
+    console.log('updateProject')
     return new Promise(resolve => {
         var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
         if(obj.id>0){
             var sql = 'UPDATE '+DBTABLE.DEVICE_PROJ+' SET period=?,threshold=? WHERE id=? ';
             console.log(sql);
             let stmt = db.prepare(sql);
-            stmt.run( obj.period, obj.threshold, obj.id);
+            stmt.run( obj.period, obj.threshold, obj.dpID,function () {
+                resolve(resObj);
+            });
             stmt.finalize();
+            db.close();
         }
-        db.close();
-        resolve(resObj);
 
     })
 }
 export function addTestResult(obj) {
-    console.log('addTestResult')
+    console.log('addTestResult',obj)
     return new Promise(resolve => {
         var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
         var sql = 'INSERT INTO '+DBTABLE.DEVICE_PROJECT_RESULT+' (qscDeviceProjID,projectID,deviceID,testResult,personName,createDate)VALUES(?,?,?,?,?,?)';
@@ -505,6 +507,18 @@ export function addTestResult(obj) {
         stmt.finalize(()=>{
             resolve(resObj);
         });
+        db.close();
+    })
+}
+export function getTestResult(obj) {
+    console.log('getTestResult')
+    return new Promise(resolve => {
+        var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
+        var sql = `SELECT * FROM ${DBTABLE.DEVICE_PROJECT_RESULT} ORDER BY id DESC LIMIT 0,10`
+        db.all(sql,function (err,result) {
+            resObj.test = result
+            resolve(resObj)
+        })
         db.close();
     })
 }
