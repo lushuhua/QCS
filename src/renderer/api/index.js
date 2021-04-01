@@ -591,6 +591,23 @@ export function getTestValue(obj) {
         }
     })
 }
+/// 传输dicom文件
+export function transferDicom(obj) {
+    console.log('transferDicom',obj)
+    return new Promise((resolve,reject) => {
+        // const value = path.join(__dirname,"./RI.1.3.46.423632.131000.1606838764.9.dcm")
+        // console.log('symmetry of this graph is:',qcsNode.get_symmetry(value));
+        try {
+            for (let file of obj.files){
+                qcsNode.get_scu('storescu.exe',obj.ip,obj.port,file)
+                console.log(file)
+            }
+            resolve(1)
+        }catch (e) {
+            console.log(e)
+        }
+    })
+}
 // export function album(obj) {
 //     console.log('delDicom')
 //     return new Promise(resolve => {

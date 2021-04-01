@@ -175,6 +175,9 @@
                                     :width="getWidth(project.numOfInput)"
                                     trigger="click"
                                     v-for="(item,index) in project.energy" :key="index"
+                                    @hide="hideInput"
+                                    class="test-popover"
+                                    @show="onShowInput(project,item,index)"
                             >
                                 <div class=test-item>
                                     <div class="test-result">
@@ -189,20 +192,20 @@
                                         <div class="test-number-lists clearfix">
                                             <div v-if="project.energyJson.levelNum==1" ><!--此处无能量档 无检测点 -->
                                                 <div class="test-number-lists-item left" v-for="(inputValue,inputIndex) in project.energyJson.inputData" :key="inputIndex" :style="{  width: (66/project.numOfInput)+'%'}" >
-                                                    <input type="text" v-model="project.energyJson.inputData[inputIndex]">
+                                                    <input type="text" v-model="project.energyJson.inputData[inputIndex]" @change="onchangeVal(project)">
                                                 </div>
                                             </div>
                                             <div v-if="project.energyJson.levelNum==2" v-for="(energy,energyIndex) in project.energyJson" :key="energyIndex"><!--此处有能量档 无检测点-->
                                                 <div class="left" style="margin: 2%;line-height: 30px" v-if="energyIndex!='levelNum'"> {{energyIndex}}</div>
                                                 <div class="test-number-lists-item left" v-if="energyIndex!='levelNum'" v-for="(inputValue,inputIndex) in energy.inputData" :key="inputIndex" :style="{  width: (66/project.numOfInput)+'%'}" >
-                                                    <input type="text" v-model="energy.inputData[inputIndex]">
+                                                    <input type="text" v-model="energy.inputData[inputIndex]" @change="onchangeVal(project)">
                                                 </div>
                                             </div>
                                             <div v-if="project.energyJson.levelNum==3" v-for="(energy,energyIndex) in project.energyJson" :key="energyIndex"><!--此处有能量档 有检测点-->
                                                 <div v-if="energyIndex!='levelNum'&&energyIndex==item"  v-for="(pointValues,pointIndex) in energy.points" :key="pointIndex">
                                                     <div class="left" style="margin: 2%;line-height: 30px" > {{pointIndex}}</div>
                                                     <div class="test-number-lists-item left" v-for="(pointValue,pointValueIndex) in pointValues" :key="pointValueIndex" :style="{  width: (66/project.numOfInput)+'%'}" >
-                                                        <input type="text" v-model="pointValues[pointValueIndex]">
+                                                        <input type="text" v-model="pointValues[pointValueIndex]" @change="onchangeVal(project)">
                                                     </div>
                                                 </div>
                                             </div>
@@ -210,17 +213,17 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div slot="reference">{{item}}</div>
+                                <div slot="reference" class="test-popover-item">{{item}}</div>
                             </el-popover>
                         </td>
-                        <td>{{project.testResult?project.testResult.result:''}}</td>
+                        <td><div v-if="project.testResult" v-for="te in project.testResult" class="test-result">{{te.val}}</div></td>
                         <td>{{project.threshold}}</td>
                         <td>{{project.period}}</td>
                         <td>{{project.createDate}}</td>
                         <td><div :style="{color: getOverDate(project).color}">{{getOverDate(project).name}}</div></td>
                         <td class="" style="width: 50px;">
                             <div class="handle">
-                                <div class="handle-item" @click="saveProjectChange(project)">保存</div>
+                                <div class="handle-item" :style="{color: project.changed?'#2CCEAD':'rgba(255, 255, 255, 1)'}" @click="saveProjectChange(project)">保存</div>
                             </div>
                         </td>
                     </tr>
@@ -401,7 +404,8 @@
     import '../../utils/main'
     import { deepCopy } from "../../../main/util/util";
     import { calcWarningTime } from "../../utils";
-    import { addDicom,getDicoms,delDicom,addDevice,getDevices,delDevice,getProjects,updateProject,addTestResult,getTestValue } from "../../api";
+    import { addDicom,getDicoms,delDicom,addDevice,getDevices,delDevice,getProjects,updateProject,addTestResult,getTestValue,transferDicom } from "../../api";
+    import * as cacTestVal from '../../utils/result'
     export default {
         components: {
         },
@@ -447,6 +451,9 @@
                 selectedVal : [],
                 selectedDicom: {},
                 currentRow: {},
+                selectedRow: {},
+                selectedEnergy: null,
+                selectedIndex: null,
                 checkedAll: false
             }
         },
@@ -736,6 +743,7 @@
                 })
             },
             saveProjectChange(project){
+                if (!project.changed) return
                 console.log(project)
                 //计算检测值
                 var calcValue = 0;
@@ -788,19 +796,88 @@
                     }
                 }
 
-                console.log(project.energyJson,project.result)
                 var result={
                     qscDeviceProjID:project.id,
                     projectID:project.projectID,
                     deviceID:project.deviceID,
-                    testResult:JSON.stringify(project.energyJson),
+                    testResult:JSON.stringify(project.testResult),
                     personName:'无'
                 };
+                console.log('saveProjectChange',project.energyJson,project.result)
+                // return
                 addTestResult(result).then(res =>{
                     console.log(res);
                     this.$message.success('保存成功');
                     this.getProjectsFn()
                 })
+            },
+            hideInput(){
+                console.log('hideInput')
+                console.log(111,this.selectedRow,this.selectedEnergy,this.selectedIndex)
+                if (!this.selectedRow.changed) return
+                let $val = this.selectedRow.name + (this.selectedRow.subName?('('+ this.selectedRow.subName +')'):''),result={key: this.selectedEnergy}
+                console.log($val,cacTestVal)
+                this.selectedRow.testResult = this.selectedRow.testResult || []
+                let args = []
+                switch (this.selectedRow.energyJson.levelNum) {
+                    case 1:
+                        args = this.selectedRow.energyJson.inputData
+                        break;
+                    case 2:
+                        args = this.selectedRow.energyJson[this.selectedEnergy].inputData
+                        break;
+                    case 3:
+                        args = Object.values(this.selectedRow.energyJson[this.selectedEnergy].points)[0]
+                        break;
+                }
+                switch ($val) {
+                    case '等中心的指示（激光灯）':
+                        result.val = cacTestVal.center(...args)
+                        break;
+                    case '重复性（剂量）':
+                        result.val = cacTestVal.getRepeat(...args)
+                        break;
+                    case '日稳定性（剂量）':
+                        console.log(args)
+                        result.val = cacTestVal.stableDay(...args)
+                        break;
+                    case '线性(剂量)':
+                        console.log(args)
+                        let reargs = args.map(val=>({u: this.selectedRow.energyJson.levelNum,d: +val}))
+                        console.log(args,reargs)
+                        result.val = cacTestVal.getLd(reargs)
+                        break;
+                    case '线性(剂量率)':
+                        reargs = args.map(val=>({u: this.selectedRow.energyJson.levelNum,d: +val}))
+                        result.val = cacTestVal.getLdr(reargs)
+                        break;
+                    case '随机架旋转的变化（剂量）(X)':
+                        reargs = args.map(val=>({xDose: this.selectedRow.energyJson.levelNum,xValue: +val}))
+                        console.log(args,reargs)
+                        result.val = cacTestVal.XRay(reargs)
+                        break;
+                    case '随机架旋转的变化（剂量）(电子)':
+                        reargs = args.map(val=>({xDose: this.selectedRow.energyJson.levelNum,xValue: +val}))
+                        result.val = cacTestVal.eleRay(reargs)
+                        break;
+                    default:
+                        result.val = args[this.selectedIndex]
+                        break
+                }
+                this.selectedRow.testResult[this.selectedIndex] = result
+                console.log('result=',result)
+                this.$forceUpdate()
+            },
+            onchangeVal(val){
+                console.log('onchangeVal')
+                this.selectedRow.changed = true
+                this.$forceUpdate()
+            },
+            onShowInput(val,item,index){
+                console.log('onShowInput')
+                this.selectedRow = val
+                this.selectedEnergy = item
+                this.selectedIndex = index
             },
             getWidth(num){
                 var width='240';
@@ -872,31 +949,13 @@
                 let fromIndex = $event.dataTransfer.getData("imageIndex");
                 let fromType = $event.dataTransfer.getData("type");
                 if (fromType == type) {  /// 同一区域内拖拽
-                    // let itemFrom = data[fromIndex]
-                    // let itemFromData = itemFrom.data
-                    // let itemFromRef = itemFrom.refNameAna
-                    // data[fromIndex].data = data[index].data
-                    // data[fromIndex].refNameAna = data[index].refNameAna
-                    // data[index].data = itemFromData
-                    // data[index].refNameAna = itemFromRef
                     this.changeValue(data[fromIndex],data[index])
                 }else {
                     if (fromType==1){  /// 从右向左
-                        // if (!fromData[fromIndex].data) return
-                        // data[index] = Object.assign(data[index],fromData[fromIndex])
-                        // fromData.splice(fromIndex,1,{})
                         this.changeValue(fromData[fromIndex],data[index])
                     } else {
                         console.log('right')
                         this.changeValue(fromData[fromIndex],data[index])
-                        let imageData = fromData[fromIndex].data
-                        if (imageData){
-                            // data[index].data = imageData
-                            // data[index].refNameAna = fromData[fromIndex].refNameAna
-                            // delete fromData[fromIndex].data
-                            // delete fromData[fromIndex].refNameAna
-                            // this.changeValue(fromData[fromIndex],data[index])
-                        }
                     }
                 }
                 console.log('drop',data,fromData,fromIndex,index)
@@ -938,7 +997,30 @@
                     this.$message.error('请选择DICOM输出配置')
                     return
                 }
+                let files = []
+                this.selectedVal.forEach(val=>{
+                    if ( val.testResult&&val.testResult.length>0){
+                        files.push(val.testResult.map(value => (value.filePath)))
+                    }
+                })
+                files = files.flat()
+                if (files.length===0) {
+                    this.$message.error('所选中的项目未包含dicom文件')
+                    return
+                }
                 console.log(this.selectedDicom,this.selectedVal)
+                transferDicom({
+                    deviceID: this.currentDeviceID,
+                    dicomID: this.selectedDicom.id,
+                    ip: this.selectedDicom.ip,
+                    port: this.selectedDicom.port,
+                    aeTitle: this.selectedDicom.aeTitle,
+                    customer: this.selectedDicom.customer,
+                    files: files
+                }).then(res=>{
+                    this.showDICOM = false
+                    this.$message.success('dicom文件已传输')
+                })
             }
         }
     }
@@ -947,6 +1029,27 @@
     .test-page {
         width: 100%;
        padding:25px 26px 44px;
+
+        .test-popover{
+            &-item{
+                background: rgba(255, 255, 255, 0.08);
+                border-radius: 4px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                line-height: 21px;
+                width: 77px;
+            }
+        }
+        .test-popover:not(:last-of-type){
+            .test-popover-item{
+                margin-bottom: 5px;
+            }
+        }
+        .test-result{
+            line-height: 21px;
+        }
+        .test-result:not(:last-of-type){
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
         .pagination{
             margin-top: 2%;
             /deep/ .el-pagination{
@@ -1079,7 +1182,6 @@
                     }
                 }
             }
-
         }
         .test-tab{
             height: 84%;
