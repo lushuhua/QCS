@@ -180,4 +180,18 @@ input::-webkit-inner-spin-button {
       background: rgba(255, 255, 255, 0.08);
     }
   }
+.el-button{
+     background: rgba(255,255,255,0.08);
+     border-color: rgba(255,255,255,0.08);
+     &:hover{
+       border-color: #2CCEAD;
+     }
+  &--text{
+    background: transparent;
+    border-color: transparent;
+    &:hover{
+      border-color: transparent;
+    }
+  }
+   }
 </style>
