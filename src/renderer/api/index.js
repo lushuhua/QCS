@@ -488,14 +488,14 @@ export function getProjectTests(obj) {
     })
 }
 export function updateProject(obj) {
-    console.log('updateProject')
+    console.log('updateProject',obj)
     return new Promise(resolve => {
         var db = new sq3.Database(sqlDir);
         if(obj.id>0){
             var sql = 'UPDATE '+DBTABLE.DEVICE_PROJ+' SET period=?,threshold=? WHERE id=? ';
             console.log(sql);
             let stmt = db.prepare(sql);
-            stmt.run( obj.period, obj.threshold, obj.dpID,function () {
+            stmt.run( obj.period, obj.threshold, obj.id,function () {
                 resolve(resObj);
             });
             stmt.finalize();

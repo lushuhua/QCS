@@ -112,7 +112,8 @@
                     <thead class="tab-header">
                     <tr>
                         <th>
-                            <el-checkbox v-model="checkedAll" @change="handleChangeAll"></el-checkbox></th>
+                            <!--<el-checkbox v-model="checkedAll" @change="handleChangeAll"></el-checkbox>-->
+                        </th>
                         <th>项目号</th>
                         <th>项目名称</th>
                         <th>检测值</th>
@@ -126,7 +127,7 @@
                     <tbody class="tab-lists">
                     <tr v-for="(project,index) in projectImage.data" :key="index" @click="handleCurrentChangeSelected(project)">
                         <td>
-                            <el-checkbox v-model="project.checked" @change="handleChangeSingle(project)"></el-checkbox>
+                            <el-checkbox v-model="project.checked" v-if="isDicom(project)" @change="handleChangeSingle(project)"></el-checkbox>
                         </td>
                         <td>{{project.projectNo}}</td>
                         <td class="table-project-name">{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td>
@@ -503,6 +504,11 @@
             getOverDate(){
                 return function (val) {
                     return calcWarningTime(val)
+                }
+            },
+            isDicom(){
+                return function (val) {
+                    return [18,19,20,21,22,23,24,25,26,27].includes(val.projectID)
                 }
             }
         }),

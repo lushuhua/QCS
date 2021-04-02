@@ -455,7 +455,11 @@
                 currentPage:0,
                 devices:[],
                 projects:[],
-                project:{},
+                project:{
+                    period: null,
+                    thresholdUnit: null,
+                    thresholdValue: null
+                },
                 curCheckedX: false,
                 deviceInfo: {
                     pageNum: 1,
@@ -782,7 +786,10 @@
             },
             showProjectChange(project){
                 if(project) {
-                    this.project = {...project};
+                    this.project.period = project.period;
+                    this.project.threshold = project.threshold;
+                    this.project.dpID = project.dpID
+                    this.project.id = project.id
                     if (this.project.threshold){
                         let index = this.project.threshold.indexOf('mm')
                         if (index>-1){
