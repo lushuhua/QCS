@@ -382,7 +382,6 @@
                                 <div class="image-canvas-item" draggable="true" @dragstart="dragStart($event,index,1)" @drop="drop($event,index,viewImageData,viewData,1)" @dragover="allowDrop($event)">
                                     <canvas :ref="v.refNameAna" v-if="v.refNameAna" :name="getDataAna(index,v)"></canvas>
                                 </div>
-                                {{v.filePath}}
                             </div>
                         </div>
 
@@ -459,6 +458,7 @@
         },
         computed: mapState({
             currentDeviceID: state => state.user.currentDeviceID,
+            currentDeviceInfo: state => state.user.currentDeviceInfo,
             getData(){
                 return function (index,val) {
                     // console.log(1111)
@@ -648,18 +648,18 @@
             },
             handleClick() {},
             makeupJson(data){
-                for(var i in data){
-                    var project = data[i];
+                for(let i in data){
+                    let project = data[i];
                     //
-                    var energy = data[i].energy;
-                    var energyJson = {};
+                    let energy = data[i].energy;
+                    let energyJson = {};
                     if(energy.length==0||(energy.length==1&&energy[0]=='-')){
                         //只需要处理输入值
                         energyJson.levelNum = 1;
                         energyJson.inputData = new Array(project.numOfInput).fill(0);
                     }
                     else{
-                        for(var j in energy){
+                        for(let j in energy){
                             if(project.testPoint==0){
                                 //只需要处理输入值
                                 energyJson.levelNum = 2;
@@ -669,10 +669,10 @@
                             }
                             else{
                                 energyJson.levelNum = 3;
-                                for(var n=0;n<project.testPoint;n++){
-                                    energyJson[energy[j]]= {};
-                                    energyJson[energy[j]]['points'] = {};
-                                    energyJson[energy[j]]['points'][(project.testPoint)*2+'MU']=new Array(project.numOfInput).fill(0);
+                                energyJson[energy[j]]= {};
+                                energyJson[energy[j]]['points'] = {};
+                                for(let n=0;n<project.testPoint;n++){
+                                    energyJson[energy[j]]['points'][(n+1)*2+'MU']=new Array(project.numOfInput).fill(0);
                                 }
                             }
                         }
@@ -680,7 +680,7 @@
 
                     data[i].energyJson = energyJson;
                 }
-                console.log(data);
+                console.log('makeupJson',data);
                 return data
             },
             handleClose(){
@@ -812,7 +812,7 @@
                 })
             },
             hideInput(){
-                console.log('hideInput')
+                console.log('hideInput',this.currentDeviceInfo)
                 console.log(111,this.selectedRow,this.selectedEnergy,this.selectedIndex)
                 if (!this.selectedRow.changed) return
                 let $val = this.selectedRow.name + (this.selectedRow.subName?('('+ this.selectedRow.subName +')'):''),result={key: this.selectedEnergy}
@@ -827,7 +827,7 @@
                         args = this.selectedRow.energyJson[this.selectedEnergy].inputData
                         break;
                     case 3:
-                        args = Object.values(this.selectedRow.energyJson[this.selectedEnergy].points)[0]
+                        args = Object.values(this.selectedRow.energyJson[this.selectedEnergy].points)
                         break;
                 }
                 switch ($val) {
@@ -843,21 +843,50 @@
                         break;
                     case '线性(剂量)':
                         console.log(args)
-                        let reargs = args.map(val=>({u: this.selectedRow.energyJson.levelNum,d: +val}))
+                        let reargs = args.map((val,index)=>{
+                            let total = val.reduce((accumulator, currentValue)=>{
+                                accumulator += Number.isNaN(currentValue)?0:+(currentValue)
+                                return accumulator
+                            },0)
+                            return {u: 0.2*(index+1),d: total/val.length}
+                        })
                         console.log(args,reargs)
                         result.val = cacTestVal.getLd(reargs)
                         break;
                     case '线性(剂量率)':
-                        reargs = args.map(val=>({u: this.selectedRow.energyJson.levelNum,d: +val}))
+                        reargs = args.map((val,index)=>{
+                            let total = val.reduce((accumulator, currentValue)=>{
+                                accumulator += Number.isNaN(currentValue)?0:+(currentValue)
+                                return accumulator
+                            },0)
+                            return {u: 0.2*(index+1),d: total/val.length}
+                        })
+                        console.log(args,reargs)
                         result.val = cacTestVal.getLdr(reargs)
                         break;
+                    case '随设备角度位置的变化（剂量）':
+                        reargs = args.map(val=>this.getAverage(val))
+                        console.log(args,reargs)
+                        result.val = cacTestVal.angle(...reargs)
+                        break;
                     case '随机架旋转的变化（剂量）(X)':
-                        reargs = args.map(val=>({xDose: this.selectedRow.energyJson.levelNum,xValue: +val}))
+                        reargs = args.map(val=>this.getAverage(val))
+                        console.log(args,reargs)
+                        result.val = cacTestVal.angle(...reargs)
+                        break;
+                    case '随机架旋转的变化（剂量）(电子)':
+                        reargs = args.map(val=>this.getAverage(val))
+                        console.log(args,reargs)
+                        result.val = cacTestVal.angle(...reargs)
+                        break;
+                    case 'X射线深度吸收剂量特性':
+                        reargs = args.map(val=>({xDose: this.getDeepCal(this.currentRow.radioType,this.selectedEnergy), xValue: +val}))
                         console.log(args,reargs)
                         result.val = cacTestVal.XRay(reargs)
                         break;
-                    case '随机架旋转的变化（剂量）(电子)':
-                        reargs = args.map(val=>({xDose: this.selectedRow.energyJson.levelNum,xValue: +val}))
+                    case '电子射线深度吸收剂量特性':
+                        reargs = args.map(val=>({xDose: this.getDeepCal(this.currentRow.radioType,this.selectedEnergy), xValue: +val}))
+                        console.log(args,reargs)
                         result.val = cacTestVal.eleRay(reargs)
                         break;
                     default:
@@ -867,6 +896,25 @@
                 this.selectedRow.testResult[this.selectedIndex] = result
                 console.log('result=',result)
                 this.$forceUpdate()
+            },
+            /// 获取一组数字的平均值
+            getAverage(data){
+                let total = data.reduce((accumulator, currentValue)=>{
+                    accumulator += Number.isNaN(currentValue)?0:+(currentValue)
+                    return accumulator
+                },0)
+                return total/data.length
+            },
+            getDeepCal(radioType,energy){
+                energy = +(energy.substring(0,energy.length-2))
+                console.log('getDeepCal',radioType,energy)
+                let val = 0,energy_level = radioType === 'X'?JSON.parse(this.currentDeviceInfo.x_energy_level):JSON.parse(this.currentDeviceInfo.e_energy_level)
+                if (energy_level){
+                    let obj = energy_level.find(val=>val.x == energy)
+                    if (obj) val=obj.deep
+                }
+                console.log('getDeepCalval',val)
+                return val/100
             },
             onchangeVal(val){
                 console.log('onchangeVal')

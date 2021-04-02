@@ -185,6 +185,7 @@ input::-webkit-inner-spin-button {
      border-color: rgba(255,255,255,0.08);
      &:hover{
        border-color: #2CCEAD;
+       color: #ffffff;
      }
   &--text{
     background: transparent;
@@ -192,6 +193,10 @@ input::-webkit-inner-spin-button {
     &:hover{
       border-color: transparent;
     }
+  }
+  &--primary{
+    background-color: #2CCEAD;
+    color: #fff
   }
    }
 </style>

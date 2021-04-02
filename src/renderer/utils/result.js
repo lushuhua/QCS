@@ -47,9 +47,9 @@ function stableDay(X1=0,X2=0,X3=0,X4=0,X5=0,X6=0) {
     return resultStableDay+'%';
 }
 
-//6.1.4随设备角度位置的变化
-function jiaodu() {
-    const values = Array.from(arguments);
+//6.1.4随设备角度位置的变化 6.1.5 随机架旋转的变化（剂量 X） 6.1.5 随机架旋转的变化（剂量 电子）
+function angle() {
+    let values = Array.from(arguments);
     let sum = 0;
     values.forEach(item => {
         sum += item;
@@ -58,35 +58,29 @@ function jiaodu() {
     let dMax = Math.max(...values);
     let dMin = Math.min(...values);
     let Da = (dMax-dMin)/avg * 100;
-    return Da+'%';
+    return Da.toFixed(2)+'%';
 }
 
 // 6.1.3.2 线性（剂量）
 
 // 计算Ld
 function getLd(data) {
-    const { Dc, U } = getMax(data);
-    const dList = data.map(item => item.d);
-    const dAverage = getAverage(...dList);
-    const Ld = (dAverage - Dc) / U;
+    const Ld = getMax(data);
+    console.log(Ld)
     return (Ld *100).toFixed(2) + "%";
 };
-// 找出Di平均值减去Dc最大值那一项,返回对应的Dc和U
+
 function getMax(list) {
     // 利用最小二乘法求出直线函数的斜率k和截距b
     const { k, b } = getKB(list);
-    const DcList = [];
-    // 循环list,计算出Dc
+    let Dcmax=[];
     list.forEach(item => {
         let Dc = getDc(k, item.u, b);
         DcList.push(Dc);
+        Dcmax.push((item.d-Dc)/item.u);
     })
-    // Di-Dc的最大值，也就是找出Dc的最小值
-    let DcMin = Math.min(...DcList);
-    let index = DcList.indexOf(DcMin);
-    let Dc = DcMin;
-    let U = list[index].u;
-    return { Dc, U };
+    let LDMax=Math.max(...Dcmax);
+    return LDMax;
 };
 
 // 计算Dc
@@ -112,7 +106,7 @@ function getKB(list) {
     return { k, b };
 };
 
-// 获取平均值
+// // 获取平均值
 function getAverage() {
     const values = Array.from(arguments);
     let sum = 0;
@@ -131,7 +125,6 @@ function getLdr(data) {
     const Ldr = (dAverage - Dc)/U;
     return ((Ldr*100).toFixed(2)+'%');
 }
-
 // 6.2.1 X射线深度吸收剂量特性
 function XRay(list) {
     let xDose = list.map(item => {
@@ -160,5 +153,5 @@ function eleRay(list) {
 }
 
 export {
-    eleRay,XRay,getLdr,getLd,stableDay,getRepeat,center
+    eleRay,XRay,getLdr,getLd,stableDay,getRepeat,center,angle
 }

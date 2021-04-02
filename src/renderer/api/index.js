@@ -6,10 +6,17 @@ const sq3 = require('sqlite3').verbose()
 const async = require("async");
 const path = require('path');
 const resObj ={"msg":"","result":true,"token":"","error_code":"0",code:200};
-const qcsNode = require('./qcsNode.node');
 initCoreData()
 loadProject()
 
+let sqlDir = path.join(process.resourcesPath, 'extraResources','medical.db'),
+    qcsNodeUrl = path.resolve(process.resourcesPath, 'extraResources','qcsNode.node')
+if (process.env.NODE_ENV === 'development'){
+    sqlDir = path.join(__dirname, '../../extraResources/medical.db')
+    qcsNodeUrl = path.resolve(__dirname, '../../extraResources/qcsNode.node')
+}
+console.log('qcsNodeUrl',qcsNodeUrl)
+const qcsNode = require(`../../extraResources/qcsNode.node`);
 // loadProject()
 export function getProjects(obj) {
     console.log('getProjects')
@@ -18,7 +25,7 @@ export function getProjects(obj) {
         console.log(obj);
         console.log('/medical/getDevices');
         var rows = [],index = 0;
-        var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
+        var db = new sq3.Database(sqlDir);
         if(!obj.offset)  obj.offset = 10;
         if(!obj.pageNum) obj.pageNum = 0;
         let cond_sql ='',testTable = `(SELECT a.* FROM (SELECT id AS testID,testResult,createDate,qscDeviceProjID FROM ${DBTABLE.DEVICE_PROJECT_RESULT} ORDER BY testID DESC) a GROUP BY a.qscDeviceProjID ORDER BY a.testID DESC)`;
@@ -141,7 +148,7 @@ export function getProjects(obj) {
 export function addDicom(obj) {
     console.log('addDicom')
     return new Promise(resolve => {
-        var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
+        var db = new sq3.Database(sqlDir);
         var sql = 'INSERT INTO qsc_dicom (customer,aeTitle,ip,port,deviceID)VALUES(?,?,?,?,?)';
         if(obj.id>0){
             sql = 'UPDATE qsc_dicom SET customer=?,aeTitle=?,ip=?,port=? WHERE id=? ';
@@ -165,7 +172,7 @@ export function addDicom(obj) {
 export function delDicom(obj) {
     console.log('delDicom')
     return new Promise(resolve => {
-        var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
+        var db = new sq3.Database(sqlDir);
         db.run('DELETE FROM qsc_dicom WHERE id='+obj.id,()=>{
             resolve(resObj);
         })
@@ -178,7 +185,7 @@ export function getDicoms(obj) {
     return new Promise(resolve => {
         var rows = [],index = 0;
         var resObj ={"msg":"","result":true,"token":"","templates":"","error_code":"0",code:200};
-        var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
+        var db = new sq3.Database(sqlDir);
         if(!obj.offset)  obj.offset = 10;
         if(!obj.pageNum) obj.pageNum = 0;
         async.waterfall([
@@ -213,7 +220,7 @@ export function getDicoms(obj) {
 export function addDevice(obj) {
     console.log('addDevice')
     return new Promise(resolve => {
-        var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
+        var db = new sq3.Database(sqlDir);
         var stmt;
         if(obj.id>0){
             //添加该加速器的项目，可以增加
@@ -360,7 +367,7 @@ export function addDevice(obj) {
 export function delDevice(obj) {
     console.log('delDevice')
     return new Promise(resolve => {
-        var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
+        var db = new sq3.Database(sqlDir);
         db.run('DELETE FROM qsc_device WHERE id='+obj.id,function () {
             resolve(resObj);
         })
@@ -373,7 +380,7 @@ export function getDevices(obj) {
     return new Promise(resolve => {
         var rows = [],index = 0;
         var resObj ={"msg":"","result":true,"token":"","error_code":"0",code:200};
-        var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
+        var db = new sq3.Database(sqlDir);
         if(!obj.offset)  obj.offset = 10;
         if(!obj.pageNum) obj.pageNum = 0;
         async.waterfall([
@@ -410,7 +417,7 @@ export function getProjectTests(obj) {
     return new Promise(resolve => {
         var rows = [],index = 0;
         var resObj ={"msg":"","result":true,"token":"","error_code":"0",code:200};
-        var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
+        var db = new sq3.Database(sqlDir);
         if(!obj.offset)  obj.offset = 10;
         if(!obj.pageNum) obj.pageNum = 0;
         var cond_sql ='';
@@ -483,7 +490,7 @@ export function getProjectTests(obj) {
 export function updateProject(obj) {
     console.log('updateProject')
     return new Promise(resolve => {
-        var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
+        var db = new sq3.Database(sqlDir);
         if(obj.id>0){
             var sql = 'UPDATE '+DBTABLE.DEVICE_PROJ+' SET period=?,threshold=? WHERE id=? ';
             console.log(sql);
@@ -500,7 +507,7 @@ export function updateProject(obj) {
 export function addTestResult(obj) {
     console.log('addTestResult',obj)
     return new Promise(resolve => {
-        var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
+        var db = new sq3.Database(sqlDir);
         var sql = 'INSERT INTO '+DBTABLE.DEVICE_PROJECT_RESULT+' (qscDeviceProjID,projectID,deviceID,testResult,personName,createDate)VALUES(?,?,?,?,?,?)';
         let stmt = db.prepare(sql);
         stmt.run(obj.qscDeviceProjID, obj.projectID, obj.deviceID,obj.testResult,obj.personName,getCurDate());
@@ -513,7 +520,7 @@ export function addTestResult(obj) {
 export function getTestResult(obj) {
     console.log('getTestResult')
     return new Promise(resolve => {
-        var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
+        var db = new sq3.Database(sqlDir);
         var sql = `SELECT * FROM ${DBTABLE.DEVICE_PROJECT_RESULT} ORDER BY id DESC LIMIT 0,10`
         db.all(sql,function (err,result) {
             resObj.test = result
@@ -525,7 +532,7 @@ export function getTestResult(obj) {
 export function editHospital(obj) {
     console.log('addHospital')
     return new Promise(resolve => {
-        var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
+        var db = new sq3.Database(sqlDir);
         let sql
         if (obj.id){
             sql = 'UPDATE '+DBTABLE.HOSPITALS+' SET name=?,avatar=? WHERE id=?';
@@ -550,7 +557,7 @@ export function getHospitals(obj) {
     console.log('delDicom')
     return new Promise(resolve => {
         var resObj ={"msg":"","result":true,"token":"","error_code":"0",code:200};
-        var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));
+        var db = new sq3.Database(sqlDir);
         var select_sql = "SELECT * FROM "+ DBTABLE.HOSPITALS
         console.log(select_sql)
         db.all(select_sql, function(err, rows) {

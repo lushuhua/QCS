@@ -21,14 +21,7 @@
                                 <div v-for="v in project.testResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>
                             </div>
                             <div v-else>
-                                <div v-if="project.testResult.levelNum==1">{{project.testResult.result?project.testResult.result.toFixed(2):''}}</div>
-                                <div v-else>
-                                    <div v-for="(item,key) in project.testResult" :key="key">
-                                            <span v-if="key!='levelNum'">
-                                                {{key}} {{item.result}}
-                                            </span>
-                                    </div>
-                                </div>
+                                <div v-if="project.testResult" v-for="te in project.testResult" class="test-result">{{te.val}}</div>
                             </div>
                         </td>
                         <td>{{project.createDate}}</td>

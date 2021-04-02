@@ -77,17 +77,10 @@
                     <!--<td>{{project.radioType}}</td>-->
                     <td>
                         <div v-if="project.detectType=='影像分析'">
-                            <div v-for="v in project.testResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>
+                            <div v-for="(v,vIndex) in project.testResult" :key="vIndex">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>
                         </div>
-                        <div v-else-if="project.testResult">
-                            <div v-if="project.testResult.levelNum==1">{{project.testResult.result?project.testResult.result.toFixed(2):''}}</div>
-                            <div v-else>
-                                <div v-for="(item,key) in project.testResult" :key="key">
-                                            <span v-if="key!='levelNum'">
-                                                {{key}} {{item.result}}
-                                            </span>
-                                </div>
-                            </div>
+                        <div v-else>
+                            <div v-if="project.testResult" v-for="(te,teIndex) in project.testResult" :key="teIndex" class="test-result">{{te.val}}</div>
                         </div>
                     </td>
                     <td>{{project.threshold}}</td>
@@ -139,21 +132,14 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr style="text-align: center" v-for="project in test.data" :key="project.id">
+                    <tr style="text-align: center" v-for="(project,index) in test.data" :key="index">
                         <td>{{project.createDate}}</td>
                         <td>
                             <div v-if="project.detectType=='影像分析'">
                                 <div v-for="v in project.testResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>
                             </div>
-                            <div v-else-if="project.testResult">
-                                <div v-if="project.testResult.levelNum==1">{{project.testResult.result?project.testResult.result.toFixed(2):''}}</div>
-                                <div v-else>
-                                    <div v-for="(item,key) in project.testResult" :key="key">
-                                            <span v-if="key!='levelNum'">
-                                                {{key}} {{item.result}}
-                                            </span>
-                                    </div>
-                                </div>
+                            <div v-else>
+                                <div v-if="project.testResult" v-for="(te,teIndex) in project.testResult" :key="teIndex" class="test-result">{{te.val}}</div>
                             </div>
                         </td>
                         <td>{{project.threshold}}</td>

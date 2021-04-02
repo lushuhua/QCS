@@ -8,6 +8,15 @@ const S3 = require('aws-sdk/clients/s3')
 const path = require('path');
 const os = require('os');
 const ejsExcel = require('ejsexcel');
+let projectDir = path.join(process.resourcesPath,'extraResources/qcs项目目录.xlsx')
+    ,sqlDir = path.join(process.resourcesPath, 'extraResources','medical.db')
+    ,uploadDir = path.join(process.resourcesPath, 'extraResources/images')
+if (process.env.NODE_ENV === 'development'){
+    projectDir = path.join(__dirname,'../../extraResources/qcs项目目录.xlsx')
+    sqlDir = path.join(__dirname, '../../extraResources/medical.db')
+    uploadDir = path.join(__dirname, '../../extraResources/images')
+}
+console.log('process.env',process.env.NODE_ENV,__dirname)
 
 // var db = new sq3.Database(path.join('sqlite3db','medical.db'));
 exports.DBTABLE =
@@ -25,8 +34,9 @@ exports.DBTABLE =
 //表的创建 加速器配置  项目配置 dicom输出配置
 var i=3;
 exports.initCoreData = function() {
-    let templateFilePath = path.join(process.resourcesPath, 'extraResources','medical.db')
-    console.log('templateFilePath',templateFilePath)
+    // let templateFilePath =  process.env.NODE_ENV === 'development'?path.join(__dirname, '../../extraResources','medical.db'):path.join(process.resourcesPath, 'extraResources','medical.db')
+    // let templateFilePath = path.join(process.resourcesPath, 'extraResources','medical.db')
+    // console.log('templateFilePath',templateFilePath)
     // if (fs.existsSync(path.join(process.resourcesPath, 'extraResources'))) {
     //     console.log('The path exists.');
     // }
@@ -36,7 +46,7 @@ exports.initCoreData = function() {
         // fs.mkdirSync(path.join(process.resourcesPath, 'extraResources'));
         // console.log(path.join(__dirname, 'extraResources','medical.db'));
         // console.log(path.join(process.resourcesPath, 'extraResources','medical.db'));
-        var db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));//如果不存在，则会自动创建一个文件
+        var db = new sq3.Database(sqlDir);//如果不存在，则会自动创建一个文件
         console.log('initCoreData')
         db.serialize(function() {
             // db.run("DROP TABLE qsc_dicom");
@@ -237,13 +247,13 @@ function  drop(db) {
 exports.loadProject = function() {
     console.log('loadProject')
     try {
-        let exBuf = fs.readFileSync(path.join(__dirname,'../../extraResources/qcs项目目录.xlsx')),options_arr=[]
+        let exBuf = fs.readFileSync(projectDir),options_arr=[]
         ejsExcel.getExcelArr(exBuf).then(function(exlJson) {
             console.log("************  read success:getExcelArr");
             let workBook = exlJson;
             let workSheets = workBook[0];
             // return
-            const db = new sq3.Database(path.join(process.resourcesPath, 'extraResources','medical.db'));//如果不存在，则会自动创建一个文件
+            const db = new sq3.Database(sqlDir);//如果不存在，则会自动创建一个文件
             db.serialize(function() {
                 let insert_sql = 'INSERT OR REPLACE INTO qsc_project (id,name,radioType,subName,projectNo,testPoint,numOfInput,dataRequire,extraRequire,analysis,views,type,detectCondition,period,threshold,step,remark,moduleRequire,detectType,detail) ' +
                     'VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
@@ -266,8 +276,8 @@ exports.loadProject = function() {
 exports.uploadFile = function(data,callback) {
     console.log('loadProject')
     try {
-        let file = data.file,toPath = path.join(__dirname,'../upload/images/'+ Date.now() +'.png')
-        console.log('loadProject',file.path)
+        let file = data.file,toPath = path.join(uploadDir,file.name)
+        console.log('loadProject',file)
         let fileBuffer = fs.readFileSync(file.path);
         fs.writeFileSync(toPath,fileBuffer)
         callback(null,toPath)
