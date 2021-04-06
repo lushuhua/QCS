@@ -341,9 +341,9 @@
                 height: 40%;
                 margin-right: 1%;
                 color: #fff;
+                font-size: 12px;
                 /deep/ .el-input{
                     height: 100%;
-                    font-size: 1.1vw;
                     .el-input__inner{
                         color: #FFF;
                         height: 100%;
@@ -359,7 +359,6 @@
                         background: rgba(255, 255, 255, 0.08);
                         border-radius: 4px;
                         border: 1px solid rgba(255, 255, 255, 0.1);
-                        font-size: 1.1vw;
                         letter-spacing: 0px;
                     }
                     .el-input__icon {

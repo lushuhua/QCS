@@ -16,7 +16,7 @@ if (process.env.NODE_ENV === 'development'){
     qcsNodeUrl = path.resolve(__dirname, '../../extraResources/qcsNode.node')
 }
 console.log('qcsNodeUrl',qcsNodeUrl)
-const qcsNode = require(`../../extraResources/qcsNode.node`);
+const qcsNode = require(`qcs`);
 // loadProject()
 export function getProjects(obj) {
     console.log('getProjects')

@@ -71,6 +71,7 @@
     "big-integer": "^1.6.34",
     "child_process": "^1.0.2",
     "element-ui": "^2.4.4",
+    "qcs": "^1.0.3",
     "request": "^2.88.0",
     "sqlite3": "^5.0.2",
     "url-parse": "^1.4.3",
@@ -102,9 +103,11 @@
     "devtron": "^1.4.0",
     "ejsexcel": "^3.6.1",
     "electron": "^8.2.5",
+    "electron-builder": "^22.9.1",
     "electron-debug": "^1.4.0",
     "electron-devtools-installer": "^2.2.0",
     "electron-rebuild": "^2.3.4",
+    "electron-squirrel-startup": "^1.0.0",
     "extract-text-webpack-plugin": "^3.0.0",
     "file-loader": "^0.11.2",
     "html-webpack-plugin": "^2.30.1",
@@ -120,9 +123,7 @@
     "vue-template-compiler": "^2.4.2",
     "webpack": "^3.5.2",
     "webpack-dev-server": "^2.7.1",
-    "webpack-hot-middleware": "^2.18.2",
-    "electron-builder": "^22.9.1",
-    "electron-squirrel-startup": "^1.0.0"
+    "webpack-hot-middleware": "^2.18.2"
   },
   "config": {
     "forge": {

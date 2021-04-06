@@ -23,7 +23,7 @@
                                 <template slot-scope="scope">
                                     <div style="display: flex;align-items: center">
                                         <div class="input-label-container" style="display: inline-flex;margin-right: 5px">
-                                            <el-input v-model="scope.row.x" type="number" @blur="onblur"></el-input>
+                                            <el-input v-model="scope.row.x" type="number" @change="onblur"></el-input>
                                             <span>MV</span>
                                         </div>
                                         <el-checkbox v-if="scope.row.name===lineXInit.name" style="flex: none;" v-model="scope.row.checked">FFF模式</el-checkbox>
@@ -33,7 +33,7 @@
                             <el-table-column label="百分深度剂量" width="150" prop="deep">
                                 <template slot-scope="scope">
                                     <div class="input-label-container">
-                                        <el-input v-model="scope.row.deep" type="number" @blur="onblur"></el-input>
+                                        <el-input v-model="scope.row.deep" type="number" @change="onblur"></el-input>
                                         <span>%</span>
                                     </div>
                                 </template>
@@ -549,7 +549,7 @@
                     this.dicomsInfo.count = res.count;
                 })
             },
-            getDevicesData(state){
+            getDevicesData(state,type){
                 if (state) this.deviceInfo.pageNum = 1
                 getDevices({pageNum: this.deviceInfo.pageNum-1,offset: this.deviceInfo.offset}).then(res =>{
                     console.log(res);
@@ -562,7 +562,9 @@
                     this.devices = res.devices;
                     this.deviceInfo.count = res.count;
                     this.$store.commit('SET_DEVICES',res.devices)
-                    this.$store.commit('SET_DEVICE',res.devices&&res.devices.length>0?res.devices[0]:null)
+                    if (!type){
+                        this.$store.commit('SET_DEVICE',res.devices&&res.devices.length>0?res.devices[0]:null)
+                    }
                 })
             },
             onPowerClickX(){
@@ -688,7 +690,7 @@
                 }
                 console.log('onblur',obj)
                 addDevice(obj).then(res =>{
-                    this.getDevicesData(1)
+                    this.getDevicesData(1,1)
                 })
             },
 
