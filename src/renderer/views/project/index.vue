@@ -258,6 +258,9 @@
             currentDeviceID: function (val) {
                 console.log(val);
                 this.getProjectsData(1)
+            },
+            $route: function () {
+                this.getProjectsData()
             }
         },
         mounted() {

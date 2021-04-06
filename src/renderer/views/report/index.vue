@@ -128,11 +128,14 @@
                 projects:[],
                 offset: 10,
                 count:0,
-                hospitalInfo: undefined
+                hospitalInfo: {}
             }
         },
         watch: {
             currentDeviceID:function () {
+                this.getTestData(1)
+            },
+            $route: function () {
                 this.getTestData(1)
             }
         },

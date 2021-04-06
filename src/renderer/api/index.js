@@ -48,12 +48,20 @@ export function getProjects(obj) {
                 ,IFNULL(dp.period,proj.period) AS period
                 ,IFNULL(dp.threshold,proj.threshold) AS threshold
                 ,test.*,dp.id,dp.projectID,dp.deviceID
-                ,IIF(test.createDate,DATE(test.createDate,CASE proj.period WHEN '一天' THEN '+1 day'
-                             WHEN '一周' THEN '+7 day'
-                             WHEN '一个月' THEN '+30 day'
-                             WHEN '三个月' THEN '+90 day'
-                             WHEN '六个月' THEN '+180 day'
-                             WHEN '一年' THEN '+365 day' END),null) AS validDate
+                ,IIF(test.createDate,DATE(test.createDate,CASE proj.period 
+                 WHEN '一天' THEN '+1 day'
+                 WHEN '一周' THEN '+7 day'
+                 WHEN '一个月' THEN '+30 day'
+                 WHEN '三个月' THEN '+90 day'
+                 WHEN '六个月' THEN '+180 day'
+                 WHEN '一年' THEN '+365 day' END),null) AS validDate
+                ,DATE(IIF(test.createDate,test.createDate,'now'),CASE proj.period 
+                 WHEN '一天' THEN '+1 day'
+                 WHEN '一周' THEN '+7 day'
+                 WHEN '一个月' THEN '+30 day'
+                 WHEN '三个月' THEN '+90 day'
+                 WHEN '六个月' THEN '+180 day'
+                 WHEN '一年' THEN '+365 day' END) AS expiredDate
                 FROM ${DBTABLE.DEVICE_PROJ} AS dp 
                 LEFT JOIN ${DBTABLE.PROJECT} AS proj ON dp.projectID=proj.id
                 LEFT JOIN ${DBTABLE.DEVICE} AS device ON dp.deviceID=device.id
@@ -61,7 +69,7 @@ export function getProjects(obj) {
                 WHERE dp.deviceID=${obj.deviceID}) AS data`
         async.waterfall([
             function(callback) {
-                let select_sql = `SELECT * FROM ${sel_sql} WHERE 1 ${cond_sql} limit ${obj.offset*obj.pageNum},${obj.offset}`
+                let select_sql = `SELECT * FROM ${sel_sql} WHERE 1 ${cond_sql} ORDER BY expiredDate DESC,validDate LIMIT ${obj.offset*obj.pageNum},${obj.offset}`
                 // var select_sql = "SELECT proj.*,device.x_energy_level,device.e_energy_level " +
                 //     ",IFNULL(dp.testPoint,proj.testPoint) AS testPoint" +
                 //     ", IFNULL(dp.numOfInput,proj.numOfInput) AS numOfInput " +
@@ -447,7 +455,7 @@ export function getProjectTests(obj) {
                     ",IFNULL(dp.testPoint,proj.testPoint) AS testPoint" +
                     ", IFNULL(dp.numOfInput,proj.numOfInput) AS numOfInput " +
                     ", IFNULL(dp.period,proj.period) AS period " +
-                    ", IFNULL(dp.threshold,proj.threshold) AS threshold,dp.id,dp.projectID,dp.deviceID,dp_result.testResult,dp_result.createDate  " +
+                    ", IFNULL(dp.threshold,proj.threshold) AS threshold,dp.id AS dpID,dp.projectID,dp.deviceID,dp_result.testResult,dp_result.createDate,dp_result.id  " +
                     " FROM "+DBTABLE.DEVICE_PROJECT_RESULT+' AS dp_result ' +
                     ' LEFT JOIN '+DBTABLE.DEVICE_PROJ+" AS dp ON dp_result.qscDeviceProjID=dp.id " +
                     " LEFT JOIN " +DBTABLE.PROJECT+' AS proj ON dp.projectID=proj.id'+
