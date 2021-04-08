@@ -1625,6 +1625,7 @@
         .table-out{
             width: 100%;
             table{
+                width: 100%;
                 margin-bottom: 20px;
                 thead tr {
                     background: transparent;

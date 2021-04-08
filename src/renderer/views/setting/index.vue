@@ -222,7 +222,7 @@
                 <el-dialog
                         title="添加加速器"
                         :visible.sync="showAccelerate"
-                        width="60%"
+                        width="610px"
                         center
                 >
                     <div class="project-change-lists">
@@ -320,7 +320,7 @@
                     </div>
                     <div slot="footer">
                         <div class="confirm-btn">
-                            <el-button type="primary" class="" @click="cancel">取消</el-button>
+                            <el-button type="primary" class="" style="margin-right: 45px" @click="cancel">取消</el-button>
                             <el-button type="primary" class="active" @click="saveDevice">保存</el-button>
                         </div>
                     </div>
@@ -344,7 +344,7 @@
                 <el-dialog
                         title="修改项目配置"
                         :visible.sync="isShowProjectChange"
-                        width="50%"
+                        width="610px"
                         center
                 >
                     <div class="project-change-lists">
@@ -372,7 +372,7 @@
                     </div>
                     <div slot="footer">
                         <div class="confirm-btn">
-                            <el-button type="primary" class="" @click="cancel">取消</el-button>
+                            <el-button type="primary" class="" style="margin-right: 45px" @click="cancel">取消</el-button>
                             <el-button type="primary" class="active" @click="updateProject">保存</el-button>
                         </div>
                     </div>
@@ -380,7 +380,7 @@
                 <el-dialog
                         title="添加DICOM输出配置"
                         :visible.sync="isShowDICOM"
-                        width="55%"
+                        width="610px"
                         center
                 >
                     <div class="project-change-lists">
@@ -405,7 +405,7 @@
                     </div>
                     <div slot="footer">
                         <div class="confirm-btn">
-                            <el-button type="primary" class="" @click="cancel()">取消</el-button>
+                            <el-button type="primary" class="" style="margin-right: 45px" @click="cancel()">取消</el-button>
                             <el-button type="primary" class="active" @click="saveDicom()">保存</el-button>
                         </div>
                     </div>
@@ -1034,7 +1034,7 @@
                 padding:8px 0;
                 .el-dialog__title{
                     color: rgba(255,255,255,0.8);
-                    font-size: 14px;
+                    font-size: 16px;
 
                 }
                 .el-dialog__headerbtn{
@@ -1181,8 +1181,8 @@
             width: 40%;
             border: 1px solid #464646;
             background-color: #2C2C2C;
-            font-size: 12px;
-            height: 5.5vh;
+            font-size: 15px;
+            height: 45px;
             display: flex;
             align-items: center;
             position: relative;
