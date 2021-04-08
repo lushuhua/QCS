@@ -140,14 +140,14 @@
                                                     </div>
                                                 </div>
                                                 <div v-if="project.energyJson.levelNum==2" v-for="(energy,energyIndex) in project.energyJson" :key="energyIndex"><!--此处有能量档 无检测点-->
-                                                    <div class="left" style="margin: 2%;line-height: 30px" v-if="energyIndex!='levelNum'"> {{energyIndex}}</div>
+                                                    <div class="left" style="width: 50px;line-height: 30px;margin: 2% 0;" v-if="energyIndex!='levelNum'"> {{energyIndex}}</div>
                                                     <div class="test-number-lists-item left" v-if="energyIndex!='levelNum'" v-for="(inputValue,inputIndex) in energy.inputData" :key="inputIndex" :style="{  width: (66/project.numOfInput)+'%'}" >
                                                         <input type="text" placeholder="请输入" v-model="energy.inputData[inputIndex]" @change="onchangeVal(project)">
                                                     </div>
                                                 </div>
                                                 <div v-if="project.energyJson.levelNum==3" v-for="(energy,energyIndex) in project.energyJson" :key="energyIndex"><!--此处有能量档 有检测点-->
                                                     <div v-if="energyIndex!='levelNum'&&energyIndex==item"  v-for="(pointValues,pointIndex) in energy.points" :key="pointIndex">
-                                                        <div class="left" style="margin: 2%;line-height: 30px" > {{pointIndex}}</div>
+                                                        <div class="left" style="width: 50px;line-height: 30px;margin: 2% 0;" > {{pointIndex}}</div>
                                                         <div class="test-number-lists-item left" v-for="(pointValue,pointValueIndex) in pointValues" :key="pointValueIndex" :style="{  width: (66/project.numOfInput)+'%'}" >
                                                             <input type="text" placeholder="请输入" v-model="pointValues[pointValueIndex]" @change="onchangeVal(project)">
                                                         </div>

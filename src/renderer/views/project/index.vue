@@ -484,7 +484,6 @@
             }
         }
         .el-dialog-project{
-            margin-top: 25px;
             background: rgba(38, 38, 38, 1);
             &-content{
                 border: 1px solid rgba(255, 255, 255, 0.08);
