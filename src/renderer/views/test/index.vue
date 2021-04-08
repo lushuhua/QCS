@@ -27,237 +27,186 @@
             </div>
         </div>
         <div class="test-tab clearfix">
-            <div class="test-tab-left left" style="overflow-y: auto;">
-                <div class="test-type clearfix">
-                    <div class="test-type-item left" :class="{active:typeName=='image'}"   @click="switchProject('image','影像分析')">图像分析</div>
-                    <div class="test-type-item right" :class="{active:typeName=='number'}" @click="switchProject('number','数值分析')">数值分析</div>
-                </div>
-                <div class="test-upload" v-if="typeName=='image'">
-                    <el-upload class="upload-demo"
-                               action=""
-                               :show-file-list="false"
-                               :http-request="onHttpRequest"
-                               accept=".dcm"
-                               :limit="50"
-                               multiple>
-                        <el-button @click="onclickOpen">载入图片</el-button>
-                    </el-upload>
-                    <!--<el-button type="primary" class="active" @click="addImage">载入图片</el-button>-->
-                    <el-button type="primary" class="active" @click="onclickDicom()">RT_Plan Dicom输出</el-button>
-                </div>
-                <!--<div v-show="typeName=='image'">-->
-                    <!--<el-table-->
-                            <!--ref="multipleTable"-->
-                            <!--:data="projectImage.data"-->
-                            <!--tooltip-effect="dark"-->
-                            <!--style="width: 100%"-->
-                            <!--border-->
-                            <!--highlight-current-row-->
-                            <!--@current-change="handleCurrentChangeSelected"-->
-                            <!--@selection-change="handleSelectionChange">-->
-                        <!--<el-table-column-->
-                                <!--type="selection"-->
-                                <!--width="55"></el-table-column>-->
-                        <!--<el-table-column-->
-                                <!--label="项目号"-->
-                                <!--prop="projectNo"-->
-                                <!--width="80"></el-table-column>-->
-                        <!--<el-table-column-->
-                                <!--prop="name"-->
-                                <!--label="项目名称"-->
-                                <!--width="160">-->
-                            <!--<template slot-scope="scope">{{ scope.row.name}}{{scope.row.subName?('('+scope.row.subName+')'):'' }}</template>-->
-                        <!--</el-table-column>-->
-                        <!--<el-table-column-->
-                                <!--prop="test"-->
-                                <!--label="检测值">-->
-                            <!--<template slot-scope="scope">-->
-                                <!--<div v-if="scope.row.tmpResult">-->
-                                    <!--<div  class="test-tab-left-value" v-for="v in scope.row.tmpResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>-->
-                                <!--</div>-->
-                                <!--<div v-else>-->
-                                    <!--<div class="test-tab-left-value" v-for="v in scope.row.testResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>-->
-                                <!--</div>-->
-                            <!--</template>-->
-                        <!--</el-table-column>-->
-                        <!--<el-table-column-->
-                                <!--label="阈值"-->
-                                <!--prop="threshold"></el-table-column>-->
-                        <!--<el-table-column-->
-                                <!--label="检测周期"-->
-                                <!--prop="period"></el-table-column>-->
-                        <!--<el-table-column-->
-                                <!--label="上次检测时间"-->
-                                <!--prop="createDate"></el-table-column>-->
-                        <!--<el-table-column-->
-                                <!--label="过期提醒"-->
-                                <!--prop="overDate">-->
-                            <!--<template slot-scope="scope">-->
-                                <!--<div :style="{color: getOverDate(scope.row).color}">{{getOverDate(scope.row).name}}</div>-->
-                            <!--</template>-->
-                        <!--</el-table-column>-->
-                        <!--<el-table-column-->
-                                <!--label="操作"-->
-                                <!--prop="toDo"-->
-                                <!--width="50">-->
-                            <!--<template slot-scope="scope">-->
-                                <!--<div class="handle">-->
-                                    <!--<div class="handle-item" :style="{color: scope.row.tmpResult&&scope.row.tmpResult.length>0?'#2CCEAD':'rgba(255, 255, 255, 0.8)'}" @click="saveProjectChangeImage(scope.row)">保存</div>-->
-                                <!--</div>-->
-                            <!--</template>-->
-                        <!--</el-table-column>-->
-                    <!--</el-table>-->
-                <!--</div>-->
-                <table class="table test-tab-content" border="0" cellspacing="0" v-if="typeName=='image'">
-                    <thead class="tab-header">
-                    <tr>
-                        <th>
-                            <!--<el-checkbox v-model="checkedAll" @change="handleChangeAll"></el-checkbox>-->
-                        </th>
-                        <th>项目号</th>
-                        <th>项目名称</th>
-                        <th>检测值</th>
-                        <!--<th>辐射类型</th>-->
-                        <th>阈值</th>
-                        <th>上次检测时间</th>
-                        <th>过期提醒</th>
-                        <th>操作</th>
-                    </tr>
-                    </thead>
-                    <tbody class="tab-lists">
-                    <tr v-for="(project,index) in projectImage.data" :key="index" @click="handleCurrentChangeSelected(project)">
-                        <td>
-                            <el-checkbox v-model="project.checked" v-if="isDicom(project)" @change="handleChangeSingle(project)"></el-checkbox>
-                        </td>
-                        <td>{{project.projectNo}}</td>
-                        <td class="table-project-name">{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td>
-                        <td>
-                            <div v-if="project.tmpResult">
-                                <div v-for="v in project.tmpResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>
-                            </div>
-                            <div v-else>
-                                <div v-for="v in project.testResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>
-                            </div>
-                        </td>
-                        <!--<td>{{project.radioType}}</td>-->
-                        <td>{{project.threshold}}</td>
-                        <td>{{project.createDate}}</td>
-                        <td><div :style="{color: getOverDate(project).color}">{{getOverDate(project).name}}</div></td>
-                        <td style="width: 50px;"><div class="handle">
-                            <div class="handle-item" :style="{color: project.tmpResult&&project.tmpResult.length>0?'#2CCEAD':'rgba(255, 255, 255, 1)'}" @click="saveProjectChangeImage(project)">保存</div>
-                        </div></td>
-                    </tr>
+            <div class="test-tab-left left" style="overflow-y: auto;position: relative;display: flex;background: #000000">
+                <div style="flex: auto;">
+                    <div class="test-type clearfix">
+                        <div class="test-type-item left" :class="{active:typeName=='image'}"   @click="switchProject('image','影像分析')">图像分析</div>
+                        <div class="test-type-item right" :class="{active:typeName=='number'}" @click="switchProject('number','数值分析')">数值分析</div>
+                    </div>
+                    <div class="test-upload" v-if="typeName=='image'">
+                        <el-upload class="upload-demo"
+                                   action=""
+                                   :show-file-list="false"
+                                   :http-request="onHttpRequest"
+                                   accept=".dcm"
+                                   :limit="50"
+                                   multiple>
+                            <el-button @click="onclickOpen">载入图片</el-button>
+                        </el-upload>
+                        <!--<el-button type="primary" class="active" @click="addImage">载入图片</el-button>-->
+                        <el-button type="primary" class="active" @click="onclickDicom()">RT_Plan Dicom输出</el-button>
+                    </div>
+                    <table class="table test-tab-content" border="0" cellspacing="0" v-if="typeName=='image'">
+                        <thead class="tab-header">
+                        <tr>
+                            <th>
+                                <!--<el-checkbox v-model="checkedAll" @change="handleChangeAll"></el-checkbox>-->
+                            </th>
+                            <th>项目号</th>
+                            <th>项目名称</th>
+                            <th>检测值</th>
+                            <!--<th>辐射类型</th>-->
+                            <th>阈值</th>
+                            <th>上次检测时间</th>
+                            <th>过期提醒</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody class="tab-lists">
+                        <tr :class="{'table-current-row': currentRowIndex==index && index%2!==0,'table-current-row-odd': currentRowIndex==index && index%2===0}" v-for="(project,index) in projectImage.data" :key="index" @click="handleCurrentChangeSelected(project,index)">
+                            <td>
+                                <el-checkbox v-model="project.checked" v-if="isDicom(project)" @change="handleChangeSingle(project)"></el-checkbox>
+                            </td>
+                            <td>{{project.projectNo}}</td>
+                            <td class="table-project-name">{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td>
+                            <td>
+                                <div v-if="project.tmpResult">
+                                    <div v-for="v in project.tmpResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>
+                                </div>
+                                <div v-else>
+                                    <div v-for="v in project.testResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>
+                                </div>
+                            </td>
+                            <!--<td>{{project.radioType}}</td>-->
+                            <td>{{project.threshold}}</td>
+                            <td>{{project.createDate}}</td>
+                            <td><div :style="{color: getOverDate(project).color}">{{getOverDate(project).name}}</div></td>
+                            <td style="width: 50px;">
+                                <div class="handle">
+                                    <div class="handle-item" :style="{color: project.tmpResult&&project.tmpResult.length>0?'#2CCEAD':'rgba(255, 255, 255, 1)'}" @click="saveProjectChangeImage(project)">保存</div>
+                                </div>
+                            </td>
+                        </tr>
 
-                    </tbody>
-                </table>
-                <table class="table test-tab-content" border="0" cellspacing="0" v-if="typeName=='number'" style="margin-top: 2%;">
-                    <thead class="tab-header">
-                    <tr>
-                        <th>项目号</th>
-                        <th>项目名称</th>
-                        <!--<th>辐射类型</th>-->
-                        <th>输入值</th>
-                        <th>计算值</th>
-                        <th>阈值</th>
-                        <th>检测周期</th>
-                        <th>上次检测时间</th>
-                        <th>过期提醒</th>
-                        <th>操作</th>
-                    </tr>
-                    </thead>
-                    <tbody class="tab-lists">
-                    <tr v-for="(project,index) in projectNum.data" :key="index" @click="handleCurrentChangeSelected(project)">
-                        <td>{{project.projectNo}}</td>
-                        <td class="table-project-name">{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td>
-                        <!--<td>{{project.radioType}}</td>-->
-                        <td>
-                            <el-popover
-                                    placement="bottom"
-                                    :width="getWidth(project.numOfInput)"
-                                    trigger="click"
-                                    v-for="(item,index) in project.energy" :key="index"
-                                    @hide="hideInput"
-                                    class="test-popover"
-                                    @show="onShowInput(project,item,index)"
-                            >
-                                <div class=test-item>
-                                    <div class="test-result">
-                                        <div class="test-result-title">{{item}}的检测值</div>
-                                        <div class="test-result-item clearfix">
-                                            <div class="item-number left"><span>{{project.energyJson.levelNum}}</span></div>
-                                            <div class="item-unit left">mm</div>
+                        </tbody>
+                    </table>
+                    <table class="table test-tab-content" border="0" cellspacing="0" v-if="typeName=='number'" style="margin-top: 2%;">
+                        <thead class="tab-header">
+                        <tr>
+                            <th>项目号</th>
+                            <th>项目名称</th>
+                            <!--<th>辐射类型</th>-->
+                            <th>输入值</th>
+                            <th>计算值</th>
+                            <th>阈值</th>
+                            <th>检测周期</th>
+                            <th>上次检测时间</th>
+                            <th>过期提醒</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody class="tab-lists">
+                        <tr :class="{'table-current-row': currentRowIndexNum==index && index%2!==0,'table-current-row-odd': currentRowIndexNum==index && index%2===0}" v-for="(project,index) in projectNum.data" :key="index" @click="handleCurrentChangeSelected(project,index,1)">
+                            <td>{{project.projectNo}}</td>
+                            <td class="table-project-name">{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td>
+                            <!--<td>{{project.radioType}}</td>-->
+                            <td>
+                                <el-popover
+                                        placement="bottom"
+                                        :width="getWidth(project.numOfInput)"
+                                        trigger="click"
+                                        v-for="(item,index) in project.energy" :key="index"
+                                        class="test-popover"
+                                        @show="onShowInput(project,item,index)"
+                                >
+                                    <div class=test-item>
+                                        <div class="test-result">
+                                            <div class="test-result-title"><span v-if="item!='-'">{{item}}的</span>检测值</div>
+                                            <div class="test-result-item clearfix">
+                                                <!--<div class="item-number left"><span>{{project.energyJson.levelNum}}</span></div>-->
+                                                <!--<div class="item-unit left">mm</div>-->
+                                                <div class="item-number left">
+                                                    <span>{{getTestResultCalc(project,item)}}</span>
+                                                    <img v-if="project.testResult" :class="{'item-number-min': compareCal(getTestResultCalc(project,item),project.threshold)}" src="../../assets/images/arrow.png"/>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="test-number">
-                                        <div class="test-number-title">输入值</div>
-                                        <div class="test-number-lists clearfix">
-                                            <div v-if="project.energyJson.levelNum==1" ><!--此处无能量档 无检测点 -->
-                                                <div class="test-number-lists-item left" v-for="(inputValue,inputIndex) in project.energyJson.inputData" :key="inputIndex" :style="{  width: (66/project.numOfInput)+'%'}" >
-                                                    <input type="text" v-model="project.energyJson.inputData[inputIndex]" @change="onchangeVal(project)">
-                                                </div>
-                                            </div>
-                                            <div v-if="project.energyJson.levelNum==2" v-for="(energy,energyIndex) in project.energyJson" :key="energyIndex"><!--此处有能量档 无检测点-->
-                                                <div class="left" style="margin: 2%;line-height: 30px" v-if="energyIndex!='levelNum'"> {{energyIndex}}</div>
-                                                <div class="test-number-lists-item left" v-if="energyIndex!='levelNum'" v-for="(inputValue,inputIndex) in energy.inputData" :key="inputIndex" :style="{  width: (66/project.numOfInput)+'%'}" >
-                                                    <input type="text" v-model="energy.inputData[inputIndex]" @change="onchangeVal(project)">
-                                                </div>
-                                            </div>
-                                            <div v-if="project.energyJson.levelNum==3" v-for="(energy,energyIndex) in project.energyJson" :key="energyIndex"><!--此处有能量档 有检测点-->
-                                                <div v-if="energyIndex!='levelNum'&&energyIndex==item"  v-for="(pointValues,pointIndex) in energy.points" :key="pointIndex">
-                                                    <div class="left" style="margin: 2%;line-height: 30px" > {{pointIndex}}</div>
-                                                    <div class="test-number-lists-item left" v-for="(pointValue,pointValueIndex) in pointValues" :key="pointValueIndex" :style="{  width: (66/project.numOfInput)+'%'}" >
-                                                        <input type="text" v-model="pointValues[pointValueIndex]" @change="onchangeVal(project)">
+                                        <div class="test-number">
+                                            <!--<div class="test-number-title">输入值</div>-->
+                                            <div class="test-number-lists clearfix">
+                                                <div v-if="project.energyJson.levelNum==1" ><!--此处无能量档 无检测点 -->
+                                                    <div class="test-number-lists-item left" v-for="(inputValue,inputIndex) in project.energyJson.inputData" :key="inputIndex" :style="{  width: (66/project.numOfInput)+'%'}" >
+                                                        <input type="text" placeholder="请输入" v-model="project.energyJson.inputData[inputIndex]" @change="onchangeVal(project)">
                                                     </div>
                                                 </div>
-                                            </div>
+                                                <div v-if="project.energyJson.levelNum==2" v-for="(energy,energyIndex) in project.energyJson" :key="energyIndex"><!--此处有能量档 无检测点-->
+                                                    <div class="left" style="margin: 2%;line-height: 30px" v-if="energyIndex!='levelNum'"> {{energyIndex}}</div>
+                                                    <div class="test-number-lists-item left" v-if="energyIndex!='levelNum'" v-for="(inputValue,inputIndex) in energy.inputData" :key="inputIndex" :style="{  width: (66/project.numOfInput)+'%'}" >
+                                                        <input type="text" placeholder="请输入" v-model="energy.inputData[inputIndex]" @change="onchangeVal(project)">
+                                                    </div>
+                                                </div>
+                                                <div v-if="project.energyJson.levelNum==3" v-for="(energy,energyIndex) in project.energyJson" :key="energyIndex"><!--此处有能量档 有检测点-->
+                                                    <div v-if="energyIndex!='levelNum'&&energyIndex==item"  v-for="(pointValues,pointIndex) in energy.points" :key="pointIndex">
+                                                        <div class="left" style="margin: 2%;line-height: 30px" > {{pointIndex}}</div>
+                                                        <div class="test-number-lists-item left" v-for="(pointValue,pointValueIndex) in pointValues" :key="pointValueIndex" :style="{  width: (66/project.numOfInput)+'%'}" >
+                                                            <input type="text" placeholder="请输入" v-model="pointValues[pointValueIndex]" @change="onchangeVal(project)">
+                                                        </div>
+                                                    </div>
+                                                </div>
 
+                                            </div>
                                         </div>
                                     </div>
+                                    <div slot="reference" class="test-popover-item">{{item}}</div>
+                                </el-popover>
+                            </td>
+                            <td>
+                                <test-result :project="project"></test-result>
+                            </td>
+                            <td>{{project.threshold}}</td>
+                            <td>{{project.period}}</td>
+                            <td>{{project.createDate}}</td>
+                            <td><div :style="{color: getOverDate(project).color}">{{getOverDate(project).name}}</div></td>
+                            <td class="" style="width: 50px;">
+                                <div class="handle">
+                                    <div class="handle-item" :style="{color: project.changed?'#2CCEAD':'rgba(255, 255, 255, 1)'}" @click="saveProjectChange(project)">保存</div>
                                 </div>
-                                <div slot="reference" class="test-popover-item">{{item}}</div>
-                            </el-popover>
-                        </td>
-                        <td><div v-if="project.testResult" v-for="te in project.testResult" class="test-result">{{te.val}}</div></td>
-                        <td>{{project.threshold}}</td>
-                        <td>{{project.period}}</td>
-                        <td>{{project.createDate}}</td>
-                        <td><div :style="{color: getOverDate(project).color}">{{getOverDate(project).name}}</div></td>
-                        <td class="" style="width: 50px;">
-                            <div class="handle">
-                                <div class="handle-item" :style="{color: project.changed?'#2CCEAD':'rgba(255, 255, 255, 1)'}" @click="saveProjectChange(project)">保存</div>
-                            </div>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-                <div class="pagination clearfix" v-if="typeName=='image'">
-                    <el-pagination
-                            :background="true"
-                            layout="total, prev, pager, next,jumper"
-                            :page-size="projectImage.offset"
-                            :total="projectImage.count"
-                            prev-text="上一页"
-                            next-text="下一页"
-                            class="right"
-                            @current-change="handleCurrentChangeImage"
-                            :current-page="projectImage.pageNum"
-                    >
-                    </el-pagination>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div class="pagination clearfix" v-if="typeName=='image'">
+                        <el-pagination
+                                :background="true"
+                                layout="total, prev, pager, next,jumper"
+                                :page-size="projectImage.offset"
+                                :total="projectImage.count"
+                                prev-text="上一页"
+                                next-text="下一页"
+                                class="right"
+                                @current-change="handleCurrentChangeImage"
+                                :current-page="projectImage.pageNum"
+                        >
+                        </el-pagination>
 
+                    </div>
+                    <div class="pagination clearfix" v-if="typeName=='number'">
+                        <el-pagination
+                                :background="true"
+                                layout="total, prev, pager, next,jumper"
+                                :page-size="projectNum.offset"
+                                :total="projectNum.count"
+                                prev-text="上一页"
+                                next-text="下一页"
+                                class="right"
+                                @current-change="handleCurrentChange"
+                                :current-page="projectNum.pageNum"
+                        >
+                        </el-pagination>
+
+                    </div>
                 </div>
-                <div class="pagination clearfix" v-if="typeName=='number'">
-                    <el-pagination
-                            :background="true"
-                            layout="total, prev, pager, next,jumper"
-                            :page-size="projectNum.offset"
-                            :total="projectNum.count"
-                            prev-text="上一页"
-                            next-text="下一页"
-                            class="right"
-                            @current-change="handleCurrentChange"
-                            :current-page="projectNum.pageNum"
-                    >
-                    </el-pagination>
+                <div style="width:30px;">
 
                 </div>
             </div>
@@ -272,6 +221,8 @@
                 <div class="test-tab-right-content" v-if="currentRow && currentRow.id">
                     <!--将慢感光胶片置于治疗床面，用建成材料覆盖其上。将70KG负载（成人）均匀分布在床面，中心作用在等中心上，照射野调至10cm*10cm，治疗床面调至近似于等中心高度时，对慢感光胶片进行照射。然后将床面将至20cm并在此照射，测出两个照射野中心的位移。-->
                 {{currentRow.detail}}
+                    <br>
+                    <img v-if="currentRow.detailUrl" :src="currentRow.detailUrl" style="max-width: 100%;max-height: 100%" alt="">
                 </div>
             </div>
         </div>
@@ -281,8 +232,8 @@
                 width="40%"
                 center
         >
-            <div>
-                <table class="table test-tab-content" border="0" cellspacing="0" style="margin-top: 2%;">
+            <el-main class="table-out">
+                <table class="table test-tab-content " border="0" cellspacing="0">
                     <thead class="tab-header">
                     <tr>
                         <th></th>
@@ -319,9 +270,9 @@
                     >
                     </el-pagination>
                 </div>
-            </div>
+            </el-main>
             <div slot="footer">
-                <div class="add-image-btn" style="margin-top: 20px">
+                <div class="add-image-btn" >
                     <el-button type="primary" @click="showDICOM=false">取消</el-button>
                     <el-button type="primary" class="active" @click="onclickSave()">保存</el-button>
                 </div>
@@ -406,8 +357,10 @@
     import { calcWarningTime } from "../../utils";
     import { addDicom,getDicoms,delDicom,addDevice,getDevices,delDevice,getProjects,updateProject,addTestResult,getTestValue,transferDicom } from "../../api";
     import * as cacTestVal from '../../utils/result'
+    import TestResult from '../../components/testResult'
     export default {
         components: {
+            TestResult
         },
         data() {
             return {
@@ -454,7 +407,9 @@
                 selectedRow: {},
                 selectedEnergy: null,
                 selectedIndex: null,
-                checkedAll: false
+                checkedAll: false,
+                currentRowIndex: null,
+                currentRowIndexNum: null,
             }
         },
         computed: mapState({
@@ -509,6 +464,35 @@
             isDicom(){
                 return function (val) {
                     return [18,19,20,21,22,23,24,25,26,27].includes(val.projectID)
+                }
+            },
+            getTestResultCalc(){
+                return function (project,item) {
+                    console.log(item)
+                    let val = null
+                    if (project.testResult) {
+                        let obj = project.testResult.find(val=>val.key == item)
+                        if (obj) {
+                            val = obj.val
+                        }else {
+                            val = project.testResult[0].val
+                        }
+                    }
+                    return val
+                }
+            },
+            compareCal(){
+                return function (val,data) {
+                    if (!data) return
+                    let index = data.indexOf('mm')
+                    if (index>-1){
+                        data = data.substring(1,index)
+                    } else {
+                        data = data.substring(1,data.length-1)
+                    }
+                    val = val?(val.includes('%')?val.replace('%','')/100:val):0
+                    console.log('compareCal',val,data)
+                    return (val - data) <0
                 }
             }
         }),
@@ -662,7 +646,7 @@
                     if(energy.length==0||(energy.length==1&&energy[0]=='-')){
                         //只需要处理输入值
                         energyJson.levelNum = 1;
-                        energyJson.inputData = new Array(project.numOfInput).fill(0);
+                        energyJson.inputData = new Array(project.numOfInput).fill(null);
                     }
                     else{
                         for(let j in energy){
@@ -670,7 +654,7 @@
                                 //只需要处理输入值
                                 energyJson.levelNum = 2;
                                 energyJson[energy[j]]= {};
-                                energyJson[energy[j]]['inputData'] = new Array(project.numOfInput).fill(0);
+                                energyJson[energy[j]]['inputData'] = new Array(project.numOfInput).fill(null);
                                 energyJson[energy[j]]['result'] = 0;//默认值
                             }
                             else{
@@ -678,7 +662,7 @@
                                 energyJson[energy[j]]= {};
                                 energyJson[energy[j]]['points'] = {};
                                 for(let n=0;n<project.testPoint;n++){
-                                    energyJson[energy[j]]['points'][(n+1)*2+'MU']=new Array(project.numOfInput).fill(0);
+                                    energyJson[energy[j]]['points'][(n+1)*2+'MU']=new Array(project.numOfInput).fill(null);
                                 }
                             }
                         }
@@ -845,11 +829,12 @@
                         break;
                     case '日稳定性（剂量）':
                         console.log(args)
-                        result.val = cacTestVal.stableDay(...args)
+                        let reargs = args.flat().map(val=>+val)
+                        result.val = cacTestVal.stableDay(...reargs)
                         break;
                     case '线性(剂量)':
                         console.log(args)
-                        let reargs = args.map((val,index)=>{
+                        reargs = args.map((val,index)=>{
                             let total = val.reduce((accumulator, currentValue)=>{
                                 accumulator += Number.isNaN(currentValue)?0:+(currentValue)
                                 return accumulator
@@ -899,7 +884,8 @@
                         result.val = args[this.selectedIndex]
                         break
                 }
-                this.selectedRow.testResult[this.selectedIndex] = result
+                // this.selectedRow.testResult[this.selectedIndex] = result
+                this.selectedRow.testResult.splice(this.selectedIndex,1,result)
                 console.log('result=',result)
                 this.$forceUpdate()
             },
@@ -925,10 +911,11 @@
             onchangeVal(val){
                 console.log('onchangeVal')
                 this.selectedRow.changed = true
+                this.hideInput()
                 this.$forceUpdate()
             },
             onShowInput(val,item,index){
-                console.log('onShowInput')
+                console.log('onShowInput',val)
                 this.selectedRow = val
                 this.selectedEnergy = item
                 this.selectedIndex = index
@@ -1033,9 +1020,14 @@
             handleSelectionChange(val){
                 this.selectedVal = val
             },
-            handleCurrentChangeSelected(val){
+            handleCurrentChangeSelected(val,index,type){
                 console.log(val)
                 this.currentRow = val
+                if (type){
+                    this.currentRowIndexNum = index
+                } else {
+                    this.currentRowIndex = index
+                }
             },
             handleChangeAll(){
                 console.log(this.checkedAll)
@@ -1051,17 +1043,18 @@
                     this.$message.error('请选择DICOM输出配置')
                     return
                 }
-                let files = []
+                let files = [],projectIDs = []
                 this.selectedVal.forEach(val=>{
                     if ( val.testResult&&val.testResult.length>0){
                         files.push(val.testResult.map(value => (value.filePath)))
                     }
+                    projectIDs.push(val.id)
                 })
                 files = files.flat()
-                if (files.length===0) {
-                    this.$message.error('所选中的项目未包含dicom文件')
-                    return
-                }
+                // if (files.length===0) {
+                //     this.$message.error('所选中的项目未包含dicom文件')
+                //     return
+                // }
                 console.log(this.selectedDicom,this.selectedVal)
                 transferDicom({
                     deviceID: this.currentDeviceID,
@@ -1070,10 +1063,12 @@
                     port: this.selectedDicom.port,
                     aeTitle: this.selectedDicom.aeTitle,
                     customer: this.selectedDicom.customer,
-                    files: files
+                    files: files,
+                    projectIDs: projectIDs
                 }).then(res=>{
-                    this.showDICOM = false
                     this.$message.success('dicom文件已传输')
+                }).finally(res=>{
+                    this.showDICOM = false
                 })
             }
         }
@@ -1098,45 +1093,37 @@
                 margin-bottom: 5px;
             }
         }
-        .test-result{
-            line-height: 21px;
-        }
-        .test-result:not(:last-of-type){
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        }
         .pagination{
             margin-top: 2%;
-            /deep/ .el-pagination{
-                .btn-prev{
-                    background-color: #1C1C1C;
-                    border: 1px solid #464646;
-                    color: rgba(255,255,255,0.8);
-                }
-                :disabled{
-                    color: rgba(255,255,255,0.8);
-                }
-                .btn-next{
-                    background-color: #1C1C1C;
-                    border: 1px solid #464646;
-                    color: rgba(255,255,255,0.8);
-                }
-                .el-pager li{
-                    background: #1C1C1C;
-                    border: 1px solid #464646;
-                    color: rgba(255,255,255,0.8);
-                }
-                .el-pagination.is-background .el-pager li:not(.disabled).active{
-                    background-color: #3D3D3D!important;
-                }
-                .el-pagination__jump{
-                    color: rgba(255,255,255,0.8);
-                    .el-input__inner{
-                        background-color: #1C1C1C;
-                        border: 1px solid #464646;
-                        color: rgba(255,255,255,0.8);
-                    }
-                }
-            }
+            /*/deep/ .el-pagination{*/
+                /*.btn-prev{*/
+                    /*border: 1px solid #464646;*/
+                    /*color: rgba(255,255,255,0.8);*/
+                /*}*/
+                /*:disabled{*/
+                    /*color: rgba(255,255,255,0.8);*/
+                /*}*/
+                /*.btn-next{*/
+                    /*border: 1px solid #464646;*/
+                    /*color: rgba(255,255,255,0.8);*/
+                /*}*/
+                /*.el-pager li{*/
+                    /*background: #1C1C1C;*/
+                    /*border: 1px solid #464646;*/
+                    /*color: rgba(255,255,255,0.8);*/
+                /*}*/
+                /*.el-pagination.is-background .el-pager li:not(.disabled).active{*/
+                    /*background-color: #3D3D3D!important;*/
+                /*}*/
+                /*.el-pagination__jump{*/
+                    /*color: rgba(255,255,255,0.8);*/
+                    /*.el-input__inner{*/
+                        /*background-color: #1C1C1C;*/
+                        /*border: 1px solid #464646;*/
+                        /*color: rgba(255,255,255,0.8);*/
+                    /*}*/
+                /*}*/
+            /*}*/
 
 
         }
@@ -1241,7 +1228,7 @@
             height: 84%;
             margin-top: 25px;
             .test-tab-left{
-                width: 82%;
+                width: 84%;
                 height: 100%;
                 background: rgba(255,255,255,0.1);
                 .test-type{
@@ -1587,6 +1574,16 @@
                 .item-number{
                     text-align: center;
                     width: 55%;
+                    white-space: nowrap;
+                    img{
+                        width: 7px;
+                        height: 13px;
+                        position: relative;
+                        top: -1px;
+                    }
+                    &-min{
+                        transform: rotate(180deg);
+                    }
                 }
                 .item-unit{
                     width: 40%;
@@ -1597,7 +1594,7 @@
         }
         .test-number{
             background-color: #2C2C2C;
-            margin-top: 8%;
+            margin-top: 13px;
             .test-number-title{
                 padding: 3% 0;
                 margin-left: 10%;
@@ -1615,9 +1612,39 @@
                         line-height: 30px;
                         background-color: #3C3C3C;
                         color: rgba(255,255,255,0.8);
+                        text-align: center;
                     }
                 }
             }
         }
     }
+    tr td{
+        border: 1px solid transparent;
+    }
+    .el-dialog__body{
+        .table-out{
+            width: 100%;
+            table{
+                margin-bottom: 20px;
+                thead tr {
+                    background: transparent;
+                    th{
+                        background: transparent;
+                        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+                        border-right: none;
+                    }
+                }
+                tbody tr{
+                    background: transparent;
+                    td{
+                        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+                        border-right: none;
+                        background: transparent;
+                    }
+                }
+            }
+
+        }
+    }
+
 </style>

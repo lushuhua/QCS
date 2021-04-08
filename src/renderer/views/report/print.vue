@@ -104,6 +104,7 @@
             color: #333;
             border-color: #D2D2D2;
             border-bottom: 1px solid #D2D2D2;
+            background: #ffffff;
         }
         td{
             background: #ffffff;

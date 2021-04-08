@@ -30,7 +30,7 @@
                 >
                 </el-date-picker>
             </div>
-            <div class="project-search-lists" style="width: 120px">
+            <div class="project-search-lists" style="width: 130px">
                 <el-date-picker
                         v-model="searchObj.validDate"
                         type="date"
@@ -76,12 +76,14 @@
                     <!--<td>{{project.subName}}</td>-->
                     <!--<td>{{project.radioType}}</td>-->
                     <td>
-                        <div v-if="project.detectType=='影像分析'">
-                            <div v-for="(v,vIndex) in project.testResult" :key="vIndex">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>
-                        </div>
-                        <div v-else>
-                            <div v-if="project.testResult" v-for="(te,teIndex) in project.testResult" :key="teIndex" class="test-result">{{te.val}}</div>
-                        </div>
+                        <!--<div v-if="project.detectType=='影像分析'">-->
+                            <!--<div v-for="(v,vIndex) in project.testResult" :key="vIndex">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>-->
+                        <!--</div>-->
+                        <!--<div v-else>-->
+                            <!--<div v-if="project.testResult" v-for="(te,teIndex) in project.testResult" :key="teIndex" class="test-result">{{te.val}}-->
+                                <!--<img :class="{'test-result-min': compare(te.val,project.threshold)}" src="../../assets/images/arrow.png"></div>-->
+                        <!--</div>-->
+                        <test-result :project="project"></test-result>
                     </td>
                     <td>{{project.threshold}}</td>
                     <td>{{project.detectType}}</td>
@@ -119,11 +121,11 @@
         <el-dialog
                 :title="test.title"
                 :visible.sync="test.visible"
-                width="60vw"
+                width="35vw"
                 center
         >
-            <el-main class="project-tab">
-                <table class="table project-tab-content" style="width: 100%;" border="0" cellspacing="0">
+            <el-main class="el-dialog-project">
+                <table class="el-dialog-project-content" style="width: 100%;" border="0" cellspacing="0">
                     <thead class="tab-header">
                     <tr>
                         <th>检测日期</th>
@@ -135,12 +137,7 @@
                     <tr style="text-align: center" v-for="(project,index) in test.data" :key="index">
                         <td>{{project.createDate}}</td>
                         <td>
-                            <div v-if="project.detectType=='影像分析'">
-                                <div v-for="v in project.testResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>
-                            </div>
-                            <div v-else>
-                                <div v-if="project.testResult" v-for="(te,teIndex) in project.testResult" :key="teIndex" class="test-result">{{te.val}}</div>
-                            </div>
+                            <test-result :project="project"></test-result>
                         </td>
                         <td>{{project.threshold}}</td>
                     </tr>
@@ -184,9 +181,11 @@
     import { mapState } from 'vuex';
     import { getProjects,getProjectTests } from "../../api";
     import {calcWarningTime,parseTime} from "../../utils";
+    import TestResult from '../../components/testResult'
 
     export default {
         components: {
+            TestResult
         },
         data() {
             return {
@@ -300,9 +299,10 @@
                 this.getProjectsData()
             },
             showHistory(val){
+                console.log(val)
                 this.test.visible = true
                 this.test.title = `项目 ${val.projectNo} 检测历史记录`
-                this.test.projectID = val.projectID
+                this.test.projectID = val.id
                 this.getTestData()
             },
             handleCurrentChangeTest(val){
@@ -383,7 +383,6 @@
                     border: 1px solid rgba(44, 206, 173, 0.5);
                     color: #2CCEAD;
                     padding: 0;
-                    font-size: 1.1vw;
                 }
                 .active{
                     background: #2CCEAD;
@@ -469,7 +468,7 @@
                 padding:8px 0;
                 .el-dialog__title{
                     color: rgba(255,255,255,0.8);
-                    font-size: 1.2vw;
+                    font-size: 15px;
 
                 }
                 .el-dialog__headerbtn{
@@ -477,13 +476,34 @@
                 }
             }
             .el-dialog__body{
-                background-color: #2C2C2C;
                 color: rgba(255,255,255,0.8);
                 padding: 0 2%;
             }
             .el-dialog__footer{
-                background-color: #2C2C2C;
                 color: rgba(255,255,255,0.8);
+            }
+        }
+        .el-dialog-project{
+            margin-top: 25px;
+            background: rgba(38, 38, 38, 1);
+            &-content{
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                tr td{
+                    border-top: 1px solid rgba(255, 255, 255, 0.08);
+                }
+                thead>tr>th{
+                    padding: 2vh 0.8vw;
+                    font-weight: 400;
+                    border-right: 1px solid #464646;
+                    font-size: 14px;
+                }
+                tbody>tr>td{
+                    padding: 1.5vh 0.8vw;
+                    font-weight: 400;
+                    border-right: 1px solid #464646;
+                    font-size: 13px;
+                    background: rgba(38, 38, 38, 1);
+                }
             }
         }
         .table-list{

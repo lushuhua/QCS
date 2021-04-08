@@ -57,12 +57,21 @@ input::-webkit-inner-spin-button {
   color: #2CCEAD;
 }
 .el-pagination .el-pager li.active{
-  background: #2CCEAD !important;
+  background: rgba(115, 107, 107, 0.8) !important;
+  color: #ffffff!important;
+  border-color: transparent!important;
 }
 .el-pagination__sizes .el-input__inner{
   background: #1C1C1C;
   border-color: #464646;
   color: rgba(255,255,255,0.8);
+}
+.el-pagination .btn-next,.el-pagination .btn-prev{
+  padding: 0 6px!important;
+}
+.el-pagination .el-pager .number{
+  background: rgba(38, 38, 38, 0.6)!important;
+  border: 1px solid rgba(255,255,255,0.3)!important;
 }
 /*定义滚动条高宽及背景 高宽分别对应横竖滚动条的尺寸*/
 ::-webkit-scrollbar
@@ -70,6 +79,7 @@ input::-webkit-inner-spin-button {
   width: 6px;
   height: 6px;
   background-color: rgba(0,0,0,0.3);
+  display: none;
 }
 
 /*定义滚动条轨道 内阴影+圆角*/
@@ -199,4 +209,56 @@ input::-webkit-inner-spin-button {
     color: #fff
   }
    }
+  .el-input__inner::-webkit-input-placeholder{
+    font-size: 13px ;
+  }
+  .table-current-row{
+    td{
+      border-top: 1px solid rgba(255, 255, 255, 0.25)!important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.25)!important;
+      &:first-of-type{
+        border-left: 1px solid rgba(255, 255, 255, 0.25)!important;
+      }
+      &:last-of-type{
+        position: relative;
+        &::after{
+          display: block;
+          content: '';
+          background: url("assets/images/arrow_tb.png") no-repeat;
+          background-size: 100% 100%;
+          width: 28px;
+          height: 100%;
+          position: absolute;
+          left: 100%;
+          top: 0;
+          /*transform: rotate(48deg);*/
+        }
+      }
+    }
+  }
+.table-current-row-odd{
+  td{
+    /*background: rgba(255, 255, 255, 0.1);*/
+    border-top: 1px solid rgba(255, 255, 255, 0.25)!important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.25)!important;
+    &:first-of-type{
+      border-left: 1px solid rgba(255, 255, 255, 0.25)!important;
+    }
+    &:last-of-type{
+      position: relative;
+      &::after{
+        display: block;
+        content: '';
+        background: url("assets/images/arrow_black.png") no-repeat;
+        background-size: 100% 100%;
+        width: 28px;
+        height: 100%;
+        position: absolute;
+        left: 100%;
+        top: 0;
+        /*transform: rotate(48deg);*/
+      }
+    }
+  }
+}
 </style>

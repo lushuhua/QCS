@@ -41,7 +41,7 @@ export function getProjects(obj) {
         if (obj.validDate){
             cond_sql += ` AND data.validDate BETWEEN '${obj.validDate}' AND '${obj.validDate} 23:59:59' `
         }
-        let sel_sql = `(SELECT proj.name,proj.radioType,proj.subName,proj.projectNo,proj.radioType,proj.dataRequire,proj.extraRequire,proj.analysis,proj.views,proj.type,proj.detectCondition,proj.step,proj.remark,proj.moduleRequire,proj.detectType,proj.detail
+        let sel_sql = `(SELECT proj.name,proj.radioType,proj.subName,proj.projectNo,proj.radioType,proj.dataRequire,proj.extraRequire,proj.analysis,proj.views,proj.type,proj.detectCondition,proj.step,proj.remark,proj.moduleRequire,proj.detectType,proj.detail,proj.detailUrl
                 ,device.x_energy_level,device.e_energy_level 
                 ,IFNULL(dp.testPoint,proj.testPoint) AS testPoint
                 ,IFNULL(dp.numOfInput,proj.numOfInput) AS numOfInput
@@ -69,7 +69,7 @@ export function getProjects(obj) {
                 WHERE dp.deviceID=${obj.deviceID}) AS data`
         async.waterfall([
             function(callback) {
-                let select_sql = `SELECT * FROM ${sel_sql} WHERE 1 ${cond_sql} ORDER BY expiredDate DESC,validDate LIMIT ${obj.offset*obj.pageNum},${obj.offset}`
+                let select_sql = `SELECT * FROM ${sel_sql} WHERE 1 ${cond_sql} ORDER BY validDate LIMIT ${obj.offset*obj.pageNum},${obj.offset}`
                 // var select_sql = "SELECT proj.*,device.x_energy_level,device.e_energy_level " +
                 //     ",IFNULL(dp.testPoint,proj.testPoint) AS testPoint" +
                 //     ", IFNULL(dp.numOfInput,proj.numOfInput) AS numOfInput " +
@@ -151,6 +151,26 @@ export function getProjects(obj) {
         });
     })
 }
+
+/// 删除项目
+export function delDeviceProject(obj) {
+    console.log('delDeviceProject',obj)
+    return new Promise((resolve,reject) => {
+        var db = new sq3.Database(sqlDir);
+        if (obj.id){
+            db.run(`DELETE FROM ${DBTABLE.DEVICE_PROJ} WHERE id=${obj.id}`,function (err) {
+                if (err) throw err
+                else {
+                    db.close();
+                    resolve(1)
+                }
+            })
+        } else {
+            reject('参数错误')
+        }
+    })
+}
+
 
 //手机登录
 export function addDicom(obj) {
@@ -421,7 +441,7 @@ export function getDevices(obj) {
     })
 }
 export function getProjectTests(obj) {
-    console.log('getProjectTests')
+    console.log('getProjectTests',obj)
     return new Promise(resolve => {
         var rows = [],index = 0;
         var resObj ={"msg":"","result":true,"token":"","error_code":"0",code:200};
@@ -439,7 +459,7 @@ export function getProjectTests(obj) {
             cond_sql += ' AND dp_result.createDate <="'+obj.toDate+'"';
         }
         if(obj.projectID){
-            cond_sql += ` AND dp_result.projectID=${obj.projectID}`;
+            cond_sql += ` AND dp_result.qscDeviceProjID=${obj.projectID}`;
         }
         if(obj.projectName){
             cond_sql += ` AND dp_result.projectName LIKE '%${obj.projectName}%'`;
@@ -613,10 +633,10 @@ export function transferDicom(obj) {
         // const value = path.join(__dirname,"./RI.1.3.46.423632.131000.1606838764.9.dcm")
         // console.log('symmetry of this graph is:',qcsNode.get_symmetry(value));
         try {
-            for (let file of obj.files){
-                qcsNode.get_scu('storescu.exe',obj.ip,obj.port,file)
-                console.log(file)
-            }
+            // for (let file of obj.files){
+            //     qcsNode.get_scu('storescu.exe',obj.ip,obj.port,file)
+            //     console.log(file)
+            // }
             resolve(1)
         }catch (e) {
             console.log(e)

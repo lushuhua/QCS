@@ -113,7 +113,7 @@
                         <!--</tr>-->
                         <!--</tbody>-->
                     <!--</table>-->
-                    <table class="table" border="0" cellspacing="0" v-if="showTypeIndex==1">
+                    <table class="table" border="0" style="margin-top: 20px" cellspacing="0" v-if="showTypeIndex==1">
                         <thead class="tab-header">
                         <tr>
                             <th>项目号</th>
@@ -138,7 +138,7 @@
                             <td class="">
                                 <div class="handle">
                                     <div class="handle-item" @click="showProjectChange(project)">修改</div>
-                                    <div class="handle-item" @click="showDelete()">删除</div>
+                                    <div class="handle-item" @click="showDelete(project)">删除</div>
                                 </div>
                             </td>
                         </tr>
@@ -416,7 +416,7 @@
 </template>
 <script>
     import { mapState } from 'vuex';
-    import { addDicom,getDicoms,delDicom,addDevice,getDevices,delDevice,getProjects,updateProject,getHospitals,editHospital,fileUpload } from "../../api";
+    import { addDicom,getDicoms,delDicom,addDevice,getDevices,delDevice,getProjects,updateProject,delDeviceProject } from "../../api";
     export default {
         components: {
         },
@@ -448,6 +448,7 @@
                     powerX: [], //当前x的能量档
                     powerE: []  //当前y的能量档
                 },
+                currentProject: null,
                 curX: undefined,//能量档
                 curE: undefined,//能量档
                 dicoms:[],
@@ -760,30 +761,43 @@
                 }
             },
             delConfirm(){
-                if(this.showTypeIndex==2)
-                {
-                    delDicom(this.diCom).then(res =>{
-                        console.log(res);
-                        this.isShowDelete = false;
-                        this.getDicomsData(1)
-                    })
+                switch (this.showTypeIndex) {
+                    case 0:
+                        delDicom(this.diCom).then(res =>{
+                            console.log(res);
+                            this.isShowDelete = false;
+                            this.getDicomsData(1)
+                        })
+                        break
+                    case 1:
+                        delDeviceProject({id: this.currentProject.id}).then(res=>{
+                            this.isShowDelete = false
+                            this.getProjectsData(1)
+                        })
+                        break
+                    case 2:
+                        delDevice(this.device).then(res =>{
+                            console.log(res);
+                            this.isShowDelete = false;
+                            this.getDevicesData(1)
+                        })
+                        break
                 }
-                else if(this.showTypeIndex==0)
-                {
-                    delDevice(this.device).then(res =>{
-                        console.log(res);
-                        this.isShowDelete = false;
-                       this.getDevicesData(1)
-                    })
-                }
-
             },
             showDelete(obj){
+                console.log(obj)
                 this.isShowDelete=true;
-                if(this.showTypeIndex==2)
-                    this.diCom=obj;
-                else if(this.showTypeIndex==0)
-                    this.device=obj;
+                switch (this.showTypeIndex) {
+                    case 0:
+                        this.device=obj;
+                        break
+                    case 1:
+                        this.currentProject=obj;
+                        break
+                    case 2:
+                        this.diCom=obj;
+                        break
+                }
 
             },
             showProjectChange(project){

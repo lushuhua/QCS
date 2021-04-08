@@ -99,7 +99,7 @@
         <el-dialog
                 title="报表打印预览"
                 :visible.sync="dialogVisible"
-                width="70vw"
+                width="40vw"
                 center
                 ref="print"
         >
