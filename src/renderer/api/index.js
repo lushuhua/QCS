@@ -83,50 +83,55 @@ export function getProjects(obj) {
                 db.all(select_sql, function(err, rows) {
                     console.log(err)
                     console.log('rows',rows)
-                    async.forEachOf(rows, function (row, index, eachcallback) {
-                        var energy = [];
-                        if((row.radioType=='X'||row.radioType=='X和电子')&&row.x_energy_level&&row.x_energy_level.length>0){
-                            var x_energy_arr = JSON.parse(row.x_energy_level);
-                            // console.log(x_energy_arr);
-                            for(var j in x_energy_arr) {
-                                energy.push(x_energy_arr[j].x+'MV')
+                    if (err){
+                        callback(err)
+                    } else {
+                        async.forEachOf(rows, function (row, index, eachcallback) {
+                            var energy = [];
+                            if((row.radioType=='X'||row.radioType=='X和电子')&&row.x_energy_level&&row.x_energy_level.length>0){
+                                var x_energy_arr = JSON.parse(row.x_energy_level);
+                                // console.log(x_energy_arr);
+                                for(var j in x_energy_arr) {
+                                    energy.push(x_energy_arr[j].x+'MV')
+                                }
                             }
-                        }
-                        if((row.radioType=='电子'||row.radioType=='X和电子')&&row.e_energy_level&&row.e_energy_level.length>0){
-                            var e_energy_arr = JSON.parse(row.e_energy_level);
-                            // console.log(e_energy_arr);
-                            for(var j in e_energy_arr) {
-                                energy.push(e_energy_arr[j].x+'MeV')
+                            if((row.radioType=='电子'||row.radioType=='X和电子')&&row.e_energy_level&&row.e_energy_level.length>0){
+                                var e_energy_arr = JSON.parse(row.e_energy_level);
+                                // console.log(e_energy_arr);
+                                for(var j in e_energy_arr) {
+                                    energy.push(e_energy_arr[j].x+'MeV')
+                                }
                             }
-                        }
-                        if(energy.length==0) energy[0] = '-';
-                        row.energy = energy;
-                        row.testResult = row.testResult?JSON.parse(row.testResult):null
-                        // var getsql = 'SELECT * FROM  '+DBTABLE.DEVICE_PROJECT_RESULT+' WHERE id=(SELECT max(id) FROM '+DBTABLE.DEVICE_PROJECT_RESULT+' WHERE qscDeviceProjID='+row.id+')' +sqlStr
-                        // console.log(getsql);
-                        // db.all(getsql, function(err, result) {
-                        //     console.log(row.id,result)
-                        //     if(result&&result.length>0){
-                                // if(result[0].testResult) {
-                                //     row.testResult = JSON.parse(result[0].testResult);
-                                //     row.createDate = result[0].createDate;
-                                // }
+                            if(energy.length==0) energy[0] = '-';
+                            row.energy = energy;
+                            row.testResult = row.testResult?JSON.parse(row.testResult):null
+                            // var getsql = 'SELECT * FROM  '+DBTABLE.DEVICE_PROJECT_RESULT+' WHERE id=(SELECT max(id) FROM '+DBTABLE.DEVICE_PROJECT_RESULT+' WHERE qscDeviceProjID='+row.id+')' +sqlStr
+                            // console.log(getsql);
+                            // db.all(getsql, function(err, result) {
+                            //     console.log(row.id,result)
+                            //     if(result&&result.length>0){
+                            // if(result[0].testResult) {
+                            //     row.testResult = JSON.parse(result[0].testResult);
+                            //     row.createDate = result[0].createDate;
+                            // }
                             //     projects.push(row)
                             // }else {
                             //     if (!obj.testDate && !obj.validDate){
                             //         projects.push(row)
                             //     }
                             // }
-                        // });
+                            // });
 
-                        eachcallback(null);
-                    }, function (err) {
-                        if (err) callback(err);
-                        else{
-                            resObj.projects = rows;
-                            callback(null);
-                        }
-                    });
+                            eachcallback(null);
+                        }, function (err) {
+                            if (err) callback(err);
+                            else{
+                                resObj.projects = rows;
+                                callback(null);
+                            }
+                        });
+                    }
+
                 });
             },
             function(callback) {
