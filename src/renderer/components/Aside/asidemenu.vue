@@ -95,7 +95,7 @@
                 font-size: 17px;
                 font-family: PingFangSC-Regular, PingFang SC;
                 font-weight: 400;
-                color: #FFFFFF;
+                color: rgba(255, 255, 255, 0.7);
                 /*line-height: 45px;*/
                 text-align: center;
                 padding: 5% 0;
@@ -103,7 +103,8 @@
             .active{
                 background: #2CCEAD;
                 border-radius: 4px;
-                border: 1px solid rgba(255, 255, 255, 0.15);
+                color: #ffffff;
+                font-size: 17px;
             }
         }
     }
