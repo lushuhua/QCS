@@ -4,7 +4,9 @@
             <div v-for="(v,vIndex) in project.testResult" :key="vIndex">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>
         </div>
         <div v-else>
-            <div v-if="project.testResult" v-for="(te,teIndex) in project.testResult" :key="teIndex" class="test-result">{{te.val}}
+            <div v-if="project.testResult" v-for="(te,teIndex) in project.testResult" :key="teIndex" class="test-result">
+                <span v-if="showPower && te.key && te.key!='-'">{{te.key}} -</span>
+                {{te.val}}
                 <!--<img :class="{'test-result-min': compare(te.val,project.threshold)}" src="../assets/images/arrow.png">-->
                 <img v-if="!compare(te.val,project.threshold)" src="../assets/images/arrow.png">
             </div>
@@ -19,6 +21,10 @@
             project: {
                 default: {},
                 type: Object
+            },
+            showPower:{
+                default: false,
+                type: Boolean
             }
         },
         computed:{

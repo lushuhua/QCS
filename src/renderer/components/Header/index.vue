@@ -12,15 +12,15 @@
         </div>
         <div>
             <el-button class="no-drag header-view-btn" @click="addHospital()">设置医院信息</el-button>
-            <span style="margin: 0 10px;">{{getDateTime}}</span>
-            <el-button @click="maximize" class="no-drag hover-color" size="medium" type="text" v-if="!isFullScreen">
-                <i class="btn el-icon-full-screen"></i>
+            <span style="margin: 0 30px;font-size: 17px;position: relative;top: -1px;">{{getDateTime}}</span>
+            <el-button @click="maximize" class="no-drag hover-color" size="medium" type="text">
+                <i class="btn  btn-sys" :class="{'el-icon-full-screen':!isFullScreen,'el-icon-copy-document':isFullScreen}"></i>
             </el-button>
             <el-button @click="minimize" class="no-drag btn" size="medium" type="text">
-                <i class="btn el-icon-minus"></i>
+                <i class="btn el-icon-minus btn-sys" ></i>
             </el-button>
             <el-button @click="close" class="no-drag hover-color" size="medium" type="text">
-                <i class="btn el-icon-close"></i>
+                <i class="btn el-icon-close btn-sys"></i>
             </el-button>
         </div>
         <el-dialog
@@ -150,17 +150,15 @@
                 })
             },
             minimize() {
-                if (this.isFullScreen){
-                    this.$electron.ipcRenderer.send('unmaximize')
-                    this.isFullScreen=false;
-                }else{
-                    this.$electron.ipcRenderer.send('minimize')
-
-                }
+                this.$electron.ipcRenderer.send('minimize')
             },
             maximize(){
-                this.isFullScreen = true;
-                this.$electron.ipcRenderer.send('maximize')
+                if (this.isFullScreen){
+                    this.$electron.ipcRenderer.send('unmaximize')
+                }else{
+                    this.$electron.ipcRenderer.send('maximize')
+                }
+                this.isFullScreen = !this.isFullScreen;
             },
             back() {
                 if (this.$route.name !== 'music') {
@@ -253,6 +251,10 @@
                 /*}*/
 
             }
+        }
+        .btn-sys{
+            font-size: 22px;
+            color: #ffffff;
         }
         .header-right {
             display: flex;

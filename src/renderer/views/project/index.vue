@@ -79,7 +79,7 @@
                             <!--<div v-if="project.testResult" v-for="(te,teIndex) in project.testResult" :key="teIndex" class="test-result">{{te.val}}-->
                                 <!--<img :class="{'test-result-min': compare(te.val,project.threshold)}" src="../../assets/images/arrow.png"></div>-->
                         <!--</div>-->
-                        <test-result :project="project"></test-result>
+                        <test-result :project="project" :showPower="true"></test-result>
                     </td>
                     <td class="word-break-not">{{project.threshold}}</td>
                     <td class="word-break-not">{{project.detectType}}</td>
