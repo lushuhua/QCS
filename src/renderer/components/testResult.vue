@@ -1,7 +1,7 @@
 <template>
     <div>
         <div v-if="project.detectType=='影像分析'">
-            <div v-for="(v,vIndex) in project.testResult" :key="vIndex">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>
+            <div v-for="(v,vIndex) in project.testResult" :key="vIndex" class="test-result">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>
         </div>
         <div v-else>
             <div v-if="project.testResult" v-for="(te,teIndex) in project.testResult" :key="teIndex" class="test-result">

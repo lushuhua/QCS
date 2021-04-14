@@ -60,12 +60,13 @@
                     <td class="project-name">{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td>
                     <td>{{project.period}}</td>
                     <td>
-                        <div v-if="project.detectType=='影像分析'">
-                            <div v-for="v in project.testResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>
-                        </div>
-                        <div v-else>
-                            <div v-if="project.testResult" v-for="te in project.testResult" class="test-result">{{te.val}}</div>
-                        </div>
+                        <test-result :project="project" :show-power="true"></test-result>
+                        <!--<div v-if="project.detectType=='影像分析'">-->
+                            <!--<div v-for="v in project.testResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>-->
+                        <!--</div>-->
+                        <!--<div v-else>-->
+                            <!--<div v-if="project.testResult" v-for="te in project.testResult" class="test-result">{{te.val}}</div>-->
+                        <!--</div>-->
                     </td>
                     <td>{{project.threshold}}</td>
                     <td>{{project.createDate}}</td>
@@ -105,10 +106,12 @@
     import { mapState } from 'vuex';
     import { getProjectTests,getHospitals } from "../../api";
     import Print  from './print'
+    import TestResult  from '../../components/testResult'
 
     export default {
         components: {
-            Print
+            Print,
+            TestResult
         },
         data() {
             return {

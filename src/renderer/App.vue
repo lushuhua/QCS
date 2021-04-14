@@ -261,6 +261,7 @@ input::-webkit-inner-spin-button {
                     line-height: 21px;
                     padding: 20px 6px;
                     border-right: 1px solid #464646;
+                    border-bottom: 1px solid #2C2C2C;
                 }
             }
         }
