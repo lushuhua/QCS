@@ -244,7 +244,7 @@ input::-webkit-inner-spin-button {
                 th{
                     font-size: 16px;
                     font-weight: 400;
-                    color: #FFFFFF;
+                    color: #E5E5E5;
                     line-height: 22px;
                     border-right: 1px solid #464646;
                     padding: 28px 6px;
@@ -336,5 +336,8 @@ input::-webkit-inner-spin-button {
             background: #ffffff;
         }
     }
+  .el-select{
+    width: 100%;
+  }
 }
 </style>

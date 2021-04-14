@@ -79,7 +79,7 @@
                             <td><div :style="{color: getOverDate(project).color}">{{getOverDate(project).name}}</div></td>
                             <td style="width: 50px;">
                                 <div class="handle">
-                                    <div class="handle-item" :style="{color: project.tmpResult&&project.tmpResult.length>0?'#2CCEAD':'rgba(255, 255, 255, 1)'}" @click="saveProjectChangeImage(project)">保存</div>
+                                    <div class="handle-item" :style="{color: project.tmpResult&&project.tmpResult.length>0?'#2CCEAD':'rgba(255, 255, 255, 0.4)'}" @click="saveProjectChangeImage(project)">保存</div>
                                 </div>
                             </td>
                         </tr>
@@ -165,7 +165,7 @@
                             <td><div :style="{color: getOverDate(project).color}">{{getOverDate(project).name}}</div></td>
                             <td class="" style="width: 40px;">
                                 <div class="handle">
-                                    <div class="handle-item" :style="{color: project.changed?'#2CCEAD':'rgba(255, 255, 255, 1)'}" @click="saveProjectChange(project)">保存</div>
+                                    <div class="handle-item" :style="{color: project.changed?'#2CCEAD':'rgba(255, 255, 255, 0.4)'}" @click="saveProjectChange(project)">保存</div>
                                 </div>
                             </td>
                         </tr>
@@ -1247,7 +1247,7 @@
                         color: rgba(255,255,255,0.8);
                         text-align: center;
                         padding: 17px 0;
-                        font-size: 14px;
+                        font-size: 18px;
                         border-bottom: 6px solid #2C2C2C;
                     }
                     .active{
@@ -1306,7 +1306,7 @@
                     background: #2C2C2C;
                     padding: 20px 0;
                     text-align: center;
-                    font-size: 14px;
+                    font-size: 16px;
                     border-left: 6px solid #2CCEAD;
                     color: rgba(255,255,255,0.8);
                 }

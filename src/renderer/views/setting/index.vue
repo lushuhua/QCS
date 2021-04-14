@@ -907,7 +907,7 @@
                         color: rgba(255,255,255,0.8);
                         text-align: center;
                         padding: 1% 0;
-                        font-size: 14px;
+                        font-size: 18px;
                         border-bottom: 6px solid #2C2C2C;
                     }
                     .active{
@@ -1025,10 +1025,18 @@
                     th{
                         height: 77px;
                         background: rgba(255, 255, 255, 0.15);
+                        color: #E5E5E5;
+                        font-size: 16px;
+                        font-weight: normal;
                     }
                 }
             }
             &__body{
+                tr{
+                    td{
+                        color: rgba(255, 255, 255, 0.7);
+                    }
+                }
                 tr:hover > td{
                     background-color:unset !important;
                 }
