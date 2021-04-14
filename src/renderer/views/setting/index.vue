@@ -1151,7 +1151,9 @@
                 align-items: center;
                 padding: 0;
                 .el-radio{
-                    margin-right: 1vw;
+                    margin-right: 8px;
+                    position: relative;
+                    top: 1px;
                     &:last-child{
                         margin-right: 0;
                     }

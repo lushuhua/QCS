@@ -494,7 +494,7 @@
                     testData = testData.replace(/mm|%|°/,'')
                     // val = val?(val.includes('%')?val.replace('%','')/100:val):0
                     console.log(val,testVal,testData)
-                    return (testVal - testData) <0
+                    return (testVal - testData) <=0
                 }
             }
         }),
