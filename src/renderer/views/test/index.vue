@@ -135,11 +135,12 @@
                                                         <input type="text" placeholder="请输入" v-model="project.energyJson.inputData[inputIndex]" @change="onchangeVal(project)">
                                                     </div>
                                                 </div>
-                                                <div v-if="project.energyJson.levelNum==2" v-for="(energy,energyIndex) in project.energyJson" :key="energyIndex"><!--此处有能量档 无检测点-->
+                                                <div v-if="project.energyJson.levelNum==2 && energyIndex == selectedEnergy" v-for="(energy,energyIndex) in project.energyJson" :key="energyIndex"><!--此处有能量档 无检测点-->
                                                     <div class="left" style="width: 50px;line-height: 30px;margin: 2% 0;" v-if="energyIndex!='levelNum'"> {{energyIndex}}</div>
                                                     <div class="test-number-lists-item left" v-if="energyIndex!='levelNum'" v-for="(inputValue,inputIndex) in energy.inputData" :key="inputIndex" :style="{  width: (66/project.numOfInput)+'%'}" >
                                                         <input type="text" placeholder="请输入" v-model="energy.inputData[inputIndex]" @change="onchangeVal(project)">
                                                     </div>
+                                                    <span style="white-space: nowrap;line-height: 32px;float: left;top: 3px;position: relative;" v-if="project.projectID===8 && energyIndex!='levelNum'">gy</span>
                                                 </div>
                                                 <div v-if="project.energyJson.levelNum==3" v-for="(energy,energyIndex) in project.energyJson" :key="energyIndex"><!--此处有能量档 有检测点-->
                                                     <div v-if="energyIndex!='levelNum'&&energyIndex==item"  v-for="(pointValues,pointIndex) in energy.points" :key="pointIndex">
@@ -1007,7 +1008,7 @@
             },
             getWidth(num){
                 var width='240';
-                if(num==1)  width='240';
+                if(num==1)  width='280';
                 else if(num==2)  width='240';
                 else if(num==3)  width='360';
                 else if(num==4)  width='360';
