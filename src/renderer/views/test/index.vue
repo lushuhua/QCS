@@ -1,6 +1,6 @@
 <template>
-    <div class="test-page">
-        <div class="test-search">
+    <div class="test-page page-qcs">
+        <div class="test-search page-qcs-head">
             <div class="test-search-left">
                 <div class="test-search-lists">
                     <el-input placeholder="请输入项目号" v-model="projectSearch.projectNo"></el-input>
@@ -18,16 +18,12 @@
                         <el-option value="一年"></el-option>
                     </el-select>
                 </div>
-                <div class="test-search-btn">
-                    <el-button type="primary" class="active" @click="getProjectsFn(1)">查询</el-button>
-                </div>
-                <div class="test-search-btn">
-                    <el-button type="primary" @click="resetFn">重置</el-button>
-                </div>
+                <el-button type="primary" @click="getProjectsFn(1)">查询</el-button>
+                <el-button @click="resetFn">重置</el-button>
             </div>
         </div>
-        <div class="test-tab clearfix">
-            <div class="test-tab-left left" style="overflow-y: auto;position: relative;display: flex;background: #000000">
+        <div class="test-tab clearfix page-qcs-body">
+            <div class="test-tab-left" style="overflow-y: auto;position: relative;display: flex;background: #000000">
                 <div style="flex: auto;">
                     <div class="test-type clearfix">
                         <div class="test-type-item left" :class="{active:typeName=='image'}"   @click="switchProject('image','影像分析')">图像分析</div>
@@ -41,24 +37,24 @@
                                    accept=".dcm"
                                    :limit="50"
                                    multiple>
-                            <el-button @click="onclickOpen">载入图片</el-button>
+                            <el-button type="primary" @click="onclickOpen">载入图片</el-button>
                         </el-upload>
                         <!--<el-button type="primary" class="active" @click="addImage">载入图片</el-button>-->
-                        <el-button type="primary" class="active" @click="onclickDicom()">RT_Plan Dicom输出</el-button>
+                        <el-button type="primary" style="margin-left: 10px" @click="onclickDicom()">RT_Plan Dicom输出</el-button>
                     </div>
                     <table class="table test-tab-content" border="0" cellspacing="0" v-if="typeName=='image'">
                         <thead class="tab-header">
                         <tr>
-                            <th>
+                            <th>Plan
                                 <!--<el-checkbox v-model="checkedAll" @change="handleChangeAll"></el-checkbox>-->
                             </th>
-                            <th>项目号</th>
+                            <th class="word-break-not">项目号<sort @sortClick="onclickSort"></sort></th>
                             <th>项目名称</th>
                             <th>检测值</th>
                             <!--<th>辐射类型</th>-->
                             <th>阈值</th>
                             <th>上次检测时间</th>
-                            <th>过期提醒</th>
+                            <th class="word-break-not">过期提醒</th>
                             <th>操作</th>
                         </tr>
                         </thead>
@@ -93,15 +89,15 @@
                     <table class="table test-tab-content" border="0" cellspacing="0" v-if="typeName=='number'" style="margin-top: 2%;">
                         <thead class="tab-header">
                         <tr>
-                            <th>项目号</th>
+                            <th class="word-break-not">项目号<sort @sortClick="onclickSortNum"></sort></th>
                             <th>项目名称</th>
                             <!--<th>辐射类型</th>-->
                             <th>输入值</th>
                             <th>计算值</th>
                             <th>阈值</th>
-                            <th>检测周期</th>
+                            <th class="word-break-not">检测周期</th>
                             <th>上次检测时间</th>
-                            <th>过期提醒</th>
+                            <th class="word-break-not">过期提醒</th>
                             <th>操作</th>
                         </tr>
                         </thead>
@@ -127,7 +123,7 @@
                                                 <!--<div class="item-unit left">mm</div>-->
                                                 <div class="item-number left">
                                                     <span>{{getTestResultCalc(project,item)}}</span>
-                                                    <img v-if="project.testResult" :class="{'item-number-min': compareCal(getTestResultCalc(project,item),project.threshold)}" src="../../assets/images/arrow.png"/>
+                                                    <img v-if="project.testResult && !compareCal(getTestResultCalc(project,item),project.threshold)" src="../../assets/images/arrow.png"/>
                                                 </div>
                                             </div>
                                         </div>
@@ -167,7 +163,7 @@
                             <td>{{project.period}}</td>
                             <td>{{project.createDate}}</td>
                             <td><div :style="{color: getOverDate(project).color}">{{getOverDate(project).name}}</div></td>
-                            <td class="" style="width: 50px;">
+                            <td class="" style="width: 40px;">
                                 <div class="handle">
                                     <div class="handle-item" :style="{color: project.changed?'#2CCEAD':'rgba(255, 255, 255, 1)'}" @click="saveProjectChange(project)">保存</div>
                                 </div>
@@ -206,11 +202,11 @@
 
                     </div>
                 </div>
-                <div style="width:30px;">
+                <div style="width:20px;">
 
                 </div>
             </div>
-            <div class="test-tab-right right">
+            <div class="test-tab-right">
                  <div class="test-tab-right-item">
                      WS674标准
                  </div>
@@ -220,7 +216,7 @@
                 </div>
                 <div class="test-tab-right-content" v-if="currentRow && currentRow.id">
                     <!--将慢感光胶片置于治疗床面，用建成材料覆盖其上。将70KG负载（成人）均匀分布在床面，中心作用在等中心上，照射野调至10cm*10cm，治疗床面调至近似于等中心高度时，对慢感光胶片进行照射。然后将床面将至20cm并在此照射，测出两个照射野中心的位移。-->
-                {{currentRow.detail}}
+                    {{currentRow.detail}}
                     <br>
                     <img v-if="currentRow.detailUrl" :src="currentRow.detailUrl" style="max-width: 100%;max-height: 100%" alt="">
                 </div>
@@ -244,7 +240,7 @@
                     </thead>
                     <tbody class="tab-lists">
                     <tr v-for="(v,index) in dicomData.data" :key="index" @click="onclickTr(v)">
-                        <td>
+                        <td style="width: 50px">
                             <!--<el-radio name="dicomname" @click="onclickTr(v)"  :ref="v.refName"></el-radio>-->
                             <!--<input name="dicomname" type="radio" @click="onclickTr(v)"  :ref="v.refName">-->
                             <label class="page-radio"><input type="radio" name="dicomname" @click="onclickTr(v)"  :ref="v.refName"><label><span class="radio-span"></span></label></label>
@@ -267,14 +263,15 @@
                             class="right"
                             @current-change="handleCurrentChangeDic"
                             :current-page="dicomData.pageNum"
+                            style="margin-top: 0"
                     >
                     </el-pagination>
                 </div>
             </el-main>
             <div slot="footer">
                 <div class="add-image-btn" >
-                    <el-button type="primary" @click="showDICOM=false">取消</el-button>
-                    <el-button type="primary" class="active" @click="onclickSave()">保存</el-button>
+                    <el-button @click="showDICOM=false">取消</el-button>
+                    <el-button type="primary" @click="onclickSave()">保存</el-button>
                 </div>
             </div>
         </el-dialog>
@@ -291,8 +288,8 @@
             </div>
             <div slot="footer">
                 <div class="add-image-btn">
-                    <el-button type="primary" @click="showImage=false">取消</el-button>
-                    <el-button type="primary" class="active" @click="showImageAnalyse()">下一步</el-button>
+                    <el-button @click="showImage=false">取消</el-button>
+                    <el-button type="primary" @click="showImageAnalyse()">下一步</el-button>
                 </div>
             </div>
         </el-dialog>
@@ -343,8 +340,8 @@
             </div>
             <div slot="footer">
                 <div class="add-image-btn">
-                    <el-button type="primary" class="" @click="handleClose">取消</el-button>
-                    <el-button type="primary" class="active" @click="onclickAna">确定</el-button>
+                    <el-button @click="handleClose">取消</el-button>
+                    <el-button type="primary" @click="onclickAna">确定</el-button>
                 </div>
             </div>
         </el-dialog>
@@ -358,9 +355,11 @@
     import { addDicom,getDicoms,delDicom,addDevice,getDevices,delDevice,getProjects,updateProject,addTestResult,getTestValue,transferDicom } from "../../api";
     import * as cacTestVal from '../../utils/result'
     import TestResult from '../../components/testResult'
+    import Sort from '../../components/sort'
     export default {
         components: {
-            TestResult
+            TestResult,
+            Sort
         },
         data() {
             return {
@@ -382,13 +381,15 @@
                     data: [],
                     pageNum: 1,
                     offset: 110,
-                    count: 0
+                    count: 0,
+                    orderBy: 'projectNo&asc'
                 },
                 projectNum: {
                     data: [],
                     pageNum: 1,
                     offset: 10,
-                    count: 0
+                    count: 0,
+                    orderBy: undefined
                 },
                 dicomData: {
                     data: [],
@@ -410,6 +411,7 @@
                 checkedAll: false,
                 currentRowIndex: null,
                 currentRowIndexNum: null,
+                tempTestResult: [],  /// 测试临时数据保存
             }
         },
         computed: mapState({
@@ -484,15 +486,15 @@
             compareCal(){
                 return function (val,data) {
                     if (!data) return
-                    let index = data.indexOf('mm')
-                    if (index>-1){
-                        data = data.substring(1,index)
-                    } else {
-                        data = data.substring(1,data.length-1)
+                    let testVal = 0,testData = 0
+                    if (val){
+                        testVal = val.replace(/mm|%|°/,'')
                     }
-                    val = val?(val.includes('%')?val.replace('%','')/100:val):0
-                    console.log('compareCal',val,data)
-                    return (val - data) <0
+                    testData = data.substr(1)
+                    testData = testData.replace(/mm|%|°/,'')
+                    // val = val?(val.includes('%')?val.replace('%','')/100:val):0
+                    console.log(val,testVal,testData)
+                    return (testVal - testData) <0
                 }
             }
         }),
@@ -548,14 +550,25 @@
                     analysis: 1,
                     projectNo: this.projectSearch.projectNo,
                     name: this.projectSearch.name,
-                    period: this.projectSearch.period
+                    period: this.projectSearch.period,
+                    orderBy: this.projectImage.orderBy
                 }
                 getProjects(obj).then(res =>{
                     console.log(res);
                     //根据检测点数 和输入值的数量以及是否有x线和电子线来自动分配数据
-                    this.projectImage.data = this.makeupJson(res.projects);
+                    let data = this.makeupJson(res.projects);
+                    data.forEach(val=>{
+                        let obj = this.tempTestResult.find(item=>item.id === val.id)
+                        if (obj){
+                            console.log(`obj,`,obj)
+                            val.tmpResult = obj.tmpResult
+                            val.testResult = obj.testResult
+                        }
+                    })
+                    this.projectImage.data = data;
                     this.projectImage.count = res.count;
                     console.log(`projectImage,`,this.projectImage)
+                    this.$forceUpdate()
                 })
             },
             getProjectsNum(state){
@@ -567,13 +580,27 @@
                     offset:this.projectNum.offset,
                     projectNo: this.projectSearch.projectNo,
                     name: this.projectSearch.name,
-                    period: this.projectSearch.period
+                    period: this.projectSearch.period,
+                    orderBy: this.projectNum.orderBy
                 }
                 getProjects(obj).then(res =>{
                     console.log(res);
                     //根据检测点数 和输入值的数量以及是否有x线和电子线来自动分配数据
-                    this.projectNum.data = this.makeupJson(res.projects);
+                    console.log('this.tempTestResult',this.tempTestResult)
+                    let data = this.makeupJson(res.projects);
+                    data.forEach(val=>{
+                        let obj = this.tempTestResult.find(item=>item.id === val.id)
+                        if (obj){
+                            console.log('onbj',obj)
+                            val.tmpResult = obj.tmpResult
+                            val.testResult = obj.testResult
+                            val.changed = true
+                        }
+                    })
+                    this.projectNum.data = data;
                     this.projectNum.count = res.count;
+                    console.log(`projectNum,`,this.projectNum)
+                    this.$forceUpdate()
                 })
             },
             async onHttpRequest(file){
@@ -622,6 +649,30 @@
                 console.log(this.selectedVal)
                 this.showDICOM = true
                 this.getDicomdData()
+            },
+            sort(val,type){
+                let orderBy
+                if (val === 'ascending'){
+                    orderBy = 'projectNo&asc'
+                } else if (val==='descending'){
+                    orderBy = 'projectNo&desc'
+                } else {
+                    orderBy = 'projectNo&asc'
+                }
+                if (type){
+                    this.projectNum.orderBy = !val?'':orderBy
+                } else {
+                    this.projectImage.orderBy = orderBy
+                }
+                this.getProjectsFn(1)
+            },
+            onclickSort(val){
+                console.log(val)
+                this.sort(val)
+            },
+            onclickSortNum(val){
+                console.log(val)
+                this.sort(val,1)
             },
             getDicomdData(state){
                 if (state)  this.dicomData.pageNum=1
@@ -714,6 +765,20 @@
             },
             resetFn(){
                 this.projectSearch = {}
+                this.projectImage = {
+                    data: [],
+                    pageNum: 1,
+                    offset: 110,
+                    count: 0,
+                    orderBy: 'projectNo&asc'
+                }
+                this.projectNum = {
+                    data: [],
+                    pageNum: 1,
+                    offset: 10,
+                    count: 0,
+                    orderBy: undefined
+                }
                 this.getProjectsFn(1)
             },
             saveProjectChangeImage(project){
@@ -726,6 +791,7 @@
                     testResult: JSON.stringify(project.tmpResult),
                     personName: '无'
                 };
+                this.tempTestResult = this.tempTestResult.filter(value => value.id !== project.id)
                 addTestResult(result).then(res =>{
                     console.log(res);
                     this.$message.success('保存成功');
@@ -794,6 +860,7 @@
                     personName:'无'
                 };
                 console.log('saveProjectChange',project.energyJson,project.result)
+                this.tempTestResult = this.tempTestResult.filter(value => value.id !== project.id)
                 // return
                 addTestResult(result).then(res =>{
                     console.log(res);
@@ -807,28 +874,32 @@
                 if (!this.selectedRow.changed) return
                 let $val = this.selectedRow.name + (this.selectedRow.subName?('('+ this.selectedRow.subName +')'):''),result={key: this.selectedEnergy}
                 console.log($val,cacTestVal)
-                this.selectedRow.testResult = this.selectedRow.testResult || []
-                let args = []
+                let args = [],testResult = []
                 switch (this.selectedRow.energyJson.levelNum) {
                     case 1:
                         args = this.selectedRow.energyJson.inputData
                         break;
                     case 2:
                         args = this.selectedRow.energyJson[this.selectedEnergy].inputData
+                        testResult = Array(Object.keys(this.selectedRow.energyJson).filter(val=>val!='levelNum').length).fill({})
                         break;
                     case 3:
                         args = Object.values(this.selectedRow.energyJson[this.selectedEnergy].points)
+                        testResult = Array(Object.keys(this.selectedRow.energyJson).filter(val=>val!='levelNum').length).fill({})
                         break;
                 }
+                this.selectedRow.testResult = this.selectedRow.testResult || testResult
+                console.log(args)
                 switch ($val) {
                     case '等中心的指示（激光灯）':
+                        args = args.map(value => value?value:0)
+                        console.log($val,args)
                         result.val = cacTestVal.center(...args)
                         break;
                     case '重复性（剂量）':
                         result.val = cacTestVal.getRepeat(...args)
                         break;
                     case '日稳定性（剂量）':
-                        console.log(args)
                         let reargs = args.flat().map(val=>+val)
                         result.val = cacTestVal.stableDay(...reargs)
                         break;
@@ -880,13 +951,19 @@
                         console.log(args,reargs)
                         result.val = cacTestVal.eleRay(reargs)
                         break;
+                    case '剂量偏差':
+                        console.log('剂量偏差',args)
+                        result.val = args[0]
+                        break;
                     default:
                         result.val = args[this.selectedIndex]
                         break
                 }
                 // this.selectedRow.testResult[this.selectedIndex] = result
                 this.selectedRow.testResult.splice(this.selectedIndex,1,result)
-                console.log('result=',result)
+                console.log('result=',result,this.selectedRow)
+                /// 将数据保存在临时变量中
+                this.saveDataToTemp(this.selectedRow)
                 this.$forceUpdate()
             },
             /// 获取一组数字的平均值
@@ -907,6 +984,14 @@
                 }
                 console.log('getDeepCalval',val)
                 return val/100
+            },
+            saveDataToTemp(value){
+                let index = this.tempTestResult.findIndex(val=>val.id ==value.id)
+                if (index!=-1){
+                    this.tempTestResult.splice(index,1,this.tempTestResult[index])
+                } else {
+                    this.tempTestResult.push(value)
+                }
             },
             onchangeVal(val){
                 console.log('onchangeVal')
@@ -971,6 +1056,7 @@
                         })
                         console.log(obj)
                         this.projectImage.data.splice(index,1,obj)
+                        this.saveDataToTemp(obj)
                     }
                     this.handleClose()
                     console.log(this.projectImage.data)
@@ -1086,6 +1172,8 @@
                 border: 1px solid rgba(255, 255, 255, 0.1);
                 line-height: 21px;
                 width: 77px;
+                margin: auto;
+                padding: 3px;
             }
         }
         .test-popover:not(:last-of-type){
@@ -1093,47 +1181,10 @@
                 margin-bottom: 5px;
             }
         }
-        .pagination{
-            margin-top: 2%;
-            /*/deep/ .el-pagination{*/
-                /*.btn-prev{*/
-                    /*border: 1px solid #464646;*/
-                    /*color: rgba(255,255,255,0.8);*/
-                /*}*/
-                /*:disabled{*/
-                    /*color: rgba(255,255,255,0.8);*/
-                /*}*/
-                /*.btn-next{*/
-                    /*border: 1px solid #464646;*/
-                    /*color: rgba(255,255,255,0.8);*/
-                /*}*/
-                /*.el-pager li{*/
-                    /*background: #1C1C1C;*/
-                    /*border: 1px solid #464646;*/
-                    /*color: rgba(255,255,255,0.8);*/
-                /*}*/
-                /*.el-pagination.is-background .el-pager li:not(.disabled).active{*/
-                    /*background-color: #3D3D3D!important;*/
-                /*}*/
-                /*.el-pagination__jump{*/
-                    /*color: rgba(255,255,255,0.8);*/
-                    /*.el-input__inner{*/
-                        /*background-color: #1C1C1C;*/
-                        /*border: 1px solid #464646;*/
-                        /*color: rgba(255,255,255,0.8);*/
-                    /*}*/
-                /*}*/
-            /*}*/
-
-
-        }
         .test-search{
-            width: 100%;
-            height: 10%;
             min-height: 80px;
             background: rgba(255,255,255,0.1);
             display: flex;
-            justify-content: space-between;
             align-items: center;
             .test-search-left{
                 width: 80%;
@@ -1141,10 +1192,9 @@
                 display: flex;
                 justify-content: flex-start;
                 align-items: center;
-                margin-left: 3%;
                 .test-search-lists{
                     width: 22%;
-                    height: 40%;
+                    height: 40px;
                     margin-right: 1%;
                     color: #fff;
                     /deep/ .el-input{
@@ -1159,6 +1209,7 @@
                         }
                     }
                     /deep/ .el-select{
+                        width: 100%;
                         height: 100%;
                         .el-input__inner {
                             height: 100%;
@@ -1174,26 +1225,6 @@
                     }
 
                 }
-                .test-search-btn{
-                    width: 10%;
-                    height: 40%;
-                    margin-right: 1%;
-                    /deep/ .el-button--primary {
-                        width: 100%;
-                        height: 100%;
-                        text-align: center;
-                        background: rgba(255, 255, 255, 0.08);
-                        border-radius: 4px;
-                        border: 1px solid rgba(44, 206, 173, 0.5);
-                        color: #2CCEAD;
-                        padding: 0;
-                    }
-                    .active{
-                        background: #2CCEAD;
-                        border-radius: 4px;
-                        color: #FFFFFF;
-                    }
-                }
             }
             .test-search-right{
                 width: 20%;
@@ -1202,34 +1233,12 @@
                 justify-content: flex-end;
                 align-items: center;
                 margin-right: 3%;
-                .test-print{
-                    width: 80%;
-                    height: 40%;
-                    margin-right: 1%;
-                    /deep/ .el-button--primary {
-                        width: 100%;
-                        height: 100%;
-                        text-align: center;
-                        background: rgba(255, 255, 255, 0.08);
-                        border-radius: 4px;
-                        border: 1px solid rgba(44, 206, 173, 0.5);
-                        color: #2CCEAD;
-                        padding: 0;
-                    }
-                    .active{
-                        background: #2CCEAD;
-                        border-radius: 4px;
-                        color: #FFFFFF;
-                    }
-                }
             }
         }
         .test-tab{
-            height: 84%;
-            margin-top: 25px;
+            display: flex;
             .test-tab-left{
-                width: 84%;
-                height: 100%;
+                flex: auto;
                 background: rgba(255,255,255,0.1);
                 .test-type{
                     .test-type-item{
@@ -1237,7 +1246,7 @@
                         background: #2C2C2C;
                         color: rgba(255,255,255,0.8);
                         text-align: center;
-                        padding: 1% 0;
+                        padding: 17px 0;
                         font-size: 14px;
                         border-bottom: 6px solid #2C2C2C;
                     }
@@ -1248,36 +1257,14 @@
                     }
                 }
                 .test-upload{
-                    height: 10%;
-                    margin-right: 1%;
                     display: flex;
                     justify-content: flex-end;
                     align-items: center;
-                    /deep/ .el-button--primary {
-                        /*width: 14%;*/
-                        text-align: center;
-                        background: rgba(255, 255, 255, 0.08);
-                        border-radius: 4px;
-                        border: 1px solid rgba(44, 206, 173, 0.5);
-                        color: #2CCEAD;
-                        padding: 0.7vh 1vw;
-                        font-size: 14px;
-                    }
+                    padding: 20px 16px;
                     .active{
                         background: #2CCEAD;
                         border-radius: 4px;
                         color: #FFFFFF;
-                    }
-                    .upload-demo{
-                        .el-button{
-                            background: #2CCEAD;
-                            border-radius: 4px;
-                            border: 1px solid rgba(44, 206, 173, 0.5);
-                            color: #FFFFFF;
-                            font-size: 14px;
-                            padding: 0.7vh 1vw;
-                            margin-right: 1vw;
-                        }
                     }
                 }
                 .test-tab-content{
@@ -1311,13 +1298,13 @@
                 }
             }
             .test-tab-right{
-                width: 16%;
+                width: 300px;
                 height: 100%;
                 background: rgba(255,255,255,0.1);
                 overflow-y: auto;
                 .test-tab-right-item{
                     background: #2C2C2C;
-                    padding: 6% 0;
+                    padding: 20px 0;
                     text-align: center;
                     font-size: 14px;
                     border-left: 6px solid #2CCEAD;
@@ -1540,16 +1527,6 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        /deep/ .el-button--primary {
-            width: 20%;
-            height: 100%;
-            text-align: center;
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 4px;
-            border: 1px solid rgba(44, 206, 173, 0.5);
-            color: #2CCEAD;
-            padding: 2% 0;
-        }
         .active{
             background: #2CCEAD;
             border-radius: 4px;

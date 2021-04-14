@@ -22,7 +22,7 @@ body {
   /*height: 800px;*/
   overflow: hidden;
   color: rgba(255,255,255,0.8);
-  font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
+  font-family: PingFangSC-Regular, PingFang SC;
 }
   .el-popover{
     background: #1C1C1C !important;
@@ -55,23 +55,6 @@ input::-webkit-inner-spin-button {
 }
 .el-checkbox__input.is-checked+.el-checkbox__label,.el-radio__input.is-checked+.el-radio__label{
   color: #2CCEAD;
-}
-.el-pagination .el-pager li.active{
-  background: rgba(115, 107, 107, 0.8) !important;
-  color: #ffffff!important;
-  border-color: transparent!important;
-}
-.el-pagination__sizes .el-input__inner{
-  background: #1C1C1C;
-  border-color: #464646;
-  color: rgba(255,255,255,0.8);
-}
-.el-pagination .btn-next,.el-pagination .btn-prev{
-  padding: 0 6px!important;
-}
-.el-pagination .el-pager .number{
-  background: rgba(38, 38, 38, 0.6)!important;
-  border: 1px solid rgba(255,255,255,0.3)!important;
 }
 /*定义滚动条高宽及背景 高宽分别对应横竖滚动条的尺寸*/
 ::-webkit-scrollbar
@@ -190,25 +173,6 @@ input::-webkit-inner-spin-button {
       background: rgba(255, 255, 255, 0.08);
     }
   }
-.el-button{
-     background: rgba(255,255,255,0.08);
-     border-color: rgba(255,255,255,0.08);
-     &:hover{
-       border-color: #2CCEAD;
-       color: #ffffff;
-     }
-  &--text{
-    background: transparent;
-    border-color: transparent;
-    &:hover{
-      border-color: transparent;
-    }
-  }
-  &--primary{
-    background-color: #2CCEAD;
-    color: #fff
-  }
-   }
   .el-input__inner::-webkit-input-placeholder{
     font-size: 13px ;
   }
@@ -226,7 +190,7 @@ input::-webkit-inner-spin-button {
           content: '';
           background: url("assets/images/arrow_tb.png") no-repeat;
           background-size: 100% 100%;
-          width: 28px;
+          width: 18px;
           height: 100%;
           position: absolute;
           left: 100%;
@@ -251,7 +215,7 @@ input::-webkit-inner-spin-button {
         content: '';
         background: url("assets/images/arrow_black.png") no-repeat;
         background-size: 100% 100%;
-        width: 28px;
+        width: 18px;
         height: 100%;
         position: absolute;
         left: 100%;
@@ -260,5 +224,117 @@ input::-webkit-inner-spin-button {
       }
     }
   }
+}
+.page-qcs{
+    display: flex;
+    flex-direction: column;
+    &-head{
+        margin-bottom: 25px;
+        overflow: auto;
+        padding: 0 20px;
+    }
+    &-body{
+        flex: auto;overflow-y: auto;
+    }
+    table.table{
+        text-align: center;
+        width: 100%;
+        thead{
+            tr{
+                th{
+                    font-size: 16px;
+                    font-weight: 400;
+                    color: #FFFFFF;
+                    line-height: 22px;
+                    border-right: 1px solid #464646;
+                    padding: 28px 6px;
+                    background: rgba(255, 255, 255, 0.15);
+                }
+            }
+        }
+        tbody{
+            tr{
+                td{
+                    font-size: 15px;
+                    font-weight: 400;
+                    color: rgba(255, 255, 255, 0.7);
+                    line-height: 21px;
+                    padding: 20px 6px;
+                    border-right: 1px solid #464646;
+                }
+            }
+        }
+        .project-name{
+            max-width: 220px;
+        }
+        .word-break-not{
+            white-space: nowrap;
+        }
+    }
+    .el-dialog{
+        &__header{
+            height: 60px;
+            background: #3C3C3C;
+            padding: 0!important;
+            line-height: 60px;
+        }
+        &__title{
+            font-size: 16px!important;
+        }
+    }
+    .el-button{
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 4px;
+        border: 1px solid rgba(44, 206, 173, 0.5);
+        color: #2CCEAD;
+        min-width: 104px;
+        &:hover{
+            border-color: #2CCEAD;
+            color: #ffffff;
+        }
+        &--text{
+            background: transparent;
+            border-color: transparent;
+            &:hover{
+                border-color: transparent;
+            }
+        }
+        &--primary{
+            background-color: #2CCEAD;
+            color: #fff
+        }
+    }
+
+    .el-pagination {
+        padding-right: 20px;
+        margin-top: 30px;
+        .el-pager li.active {
+            background: rgba(115, 107, 107, 0.8) !important;
+            color: #ffffff !important;
+            border-color: transparent !important;
+        }
+        &__sizes .el-input__inner{
+            background: #1C1C1C;
+            border-color: #464646;
+            color: rgba(255,255,255,0.8);
+        }
+        .btn-next,.btn-prev{
+            padding: 0 6px!important;
+        }
+        .el-pager .number{
+            background: rgba(38, 38, 38, 0.6)!important;
+            border: 1px solid rgba(255,255,255,0.3)!important;
+        }
+    }
+    .el-checkbox__inner{
+        &:after{
+            border-color: #ffffff;
+        }
+    }
+    .el-radio__inner{
+        &:after{
+            background: #ffffff;
+        }
+    }
 }
 </style>

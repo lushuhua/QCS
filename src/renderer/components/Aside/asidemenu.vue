@@ -92,7 +92,7 @@
             .menu-list-item{
                 width: 85%;
                 /*height: 45px;*/
-                font-size: 1.2vw;
+                font-size: 17px;
                 font-family: PingFangSC-Regular, PingFang SC;
                 font-weight: 400;
                 color: #FFFFFF;

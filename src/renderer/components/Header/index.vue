@@ -11,7 +11,7 @@
             </el-select>
         </div>
         <div>
-            <el-button class="no-drag" @click="addHospital()">设置医院信息</el-button>
+            <el-button class="no-drag header-view-btn" @click="addHospital()">设置医院信息</el-button>
             <span style="margin: 0 10px;">{{getDateTime}}</span>
             <el-button @click="maximize" class="no-drag hover-color" size="medium" type="text" v-if="!isFullScreen">
                 <i class="btn el-icon-full-screen"></i>
@@ -26,7 +26,7 @@
         <el-dialog
                 title="设置医院信息"
                 :visible.sync="dialogHospital"
-                width="50vw"
+                width="600px"
                 center
         >
             <div class="hospital">
@@ -38,13 +38,18 @@
                             :show-file-list="false"
                             :http-request="onHttpRequest">
                         <i class="el-icon-plus upload-icon" v-if="!hospitalInfo.avatar"></i>
-                        <img :src="hospitalInfo.avatar" width="117" height="117" v-else>
-                        <span>请上传医院logo，仅支持jpg、jpeg、png等格式</span>
+                        <el-image :src="hospitalInfo.avatar" class="hospital-image" v-else>
+                            <div slot="error" class="image-slot">
+                                <i class="el-icon-plus upload-icon"></i>
+                            </div>
+                        </el-image>
+                        <!--<img :src="hospitalInfo.avatar" width="117" height="117" v-else>-->
+                        <span style="color: rgba(255, 255, 255, 0.5);padding-left: 30px">请上传医院logo，仅支持jpg、jpeg、png等格式</span>
                     </el-upload>
                 </div>
-                <div class="input-label-container" style="width: 100%;margin-top: 20px">
+                <div class="input-label-container" style="width: 100%;margin-top: 20px;border-radius: 0 4px 4px 0">
                     <el-input v-model="hospitalInfo.name" placeholder="请输入医院名称"></el-input>
-                    <span style="width: 100px;">医院名称</span>
+                    <span style="width: 100px;color: rgba(255, 255, 255, 0.8);font-size: 15px">医院名称</span>
                 </div>
                 <!--<div class="hospital-item hospital-item-input">-->
                     <!--<input class="item-content" v-model="hospitalInfo.name" placeholder="请输入医院名称" type="text">-->
@@ -53,8 +58,8 @@
             </div>
             <div slot="footer">
                 <div class="confirm-btn">
-                    <el-button  @click="dialogHospital=false">取消</el-button>
-                    <el-button type="primary" @click="onclickHos()">保存</el-button>
+                    <el-button class="header-view-btn" style="min-width: 104px"  @click="dialogHospital=false">取消</el-button>
+                    <el-button type="primary"  style="min-width: 104px;color: #ffffff;" @click="onclickHos()">保存</el-button>
                 </div>
             </div>
         </el-dialog>
@@ -104,7 +109,6 @@
                     this.defaultID = res.devices[0].id
                 }
             })
-            this.getHospitalInfo()
         },
         watch: {
             currentDeviceID: function (val) {
@@ -186,13 +190,14 @@
             },
             addHospital(){
                 this.dialogHospital = true
+                this.getHospitalInfo()
             },
             onclickHos(){
                 console.log('onclickHos',this.$electron)
                 editHospital(this.hospitalInfo).then(res=>{
                     this.$message.success('保存成功')
                     this.dialogHospital = false
-                    this.getHospitalInfo()
+                    // this.getHospitalInfo()
                 })
             },
         }
@@ -204,6 +209,11 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
+        &-btn{
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
         /deep/ .header-left {
             height: 100%;
             width: 16%;
@@ -263,6 +273,32 @@
             /*.btn:hover {*/
                 /*color: #31c27c;*/
             /*}*/
+        }
+
+        /deep/ .el-select{
+            input{
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+        }
+        /deep/ .el-dialog{
+            &__header{
+                height: 60px;
+                padding: 0!important;
+                line-height: 60px;
+                background: rgba(255, 255, 255, 0.15);
+                border-radius: 4px 4px 0px 0px;
+                font-size: 16px;
+            }
+            &__title{
+                font-size: 16px;
+            }
+        }
+        .hospital-image{
+            width: 117px;height: 117px;vertical-align: middle;
+            display: inline-flex;align-items: center;justify-content: center;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
     }
 

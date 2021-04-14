@@ -1,6 +1,6 @@
 <template>
-    <div class="project-page">
-        <div class="project-search">
+    <div class="project-page page-qcs">
+        <div class="project-search page-qcs-head">
             <div class="project-search-lists">
                 <el-input placeholder="请输入项目号" v-model="searchObj.projectNo" @change="getProjectsData(1)"></el-input>
             </div>
@@ -17,7 +17,7 @@
                     <el-option value="一年"></el-option>
                 </el-select>
             </div>
-            <div class="project-search-lists" style="width: 120px">
+            <div class="project-search-lists">
                 <el-date-picker
                         v-model="searchObj.testDate"
                         type="date"
@@ -30,7 +30,7 @@
                 >
                 </el-date-picker>
             </div>
-            <div class="project-search-lists" style="width: 130px">
+            <div class="project-search-lists">
                 <el-date-picker
                         v-model="searchObj.validDate"
                         type="date"
@@ -43,25 +43,21 @@
                 >
                 </el-date-picker>
             </div>
-            <div class="project-search-btn">
-                <el-button type="primary" class="active" @click="getProjectsData(1)">查询</el-button>
-            </div>
-            <div class="project-search-btn">
-                <el-button type="primary" @click="reset">重置</el-button>
-            </div>
+            <el-button type="primary" @click="getProjectsData(1)">查询</el-button>
+            <el-button @click="reset">重置</el-button>
         </div>
-        <div class="project-tab" style="height: 72vh;overflow-y: auto">
-            <table class="table project-tab-content" border="0" cellspacing="0">
-                <thead class="tab-header">
+        <div class=" page-qcs-body" >
+            <table class="table" border="0" cellspacing="0">
+                <thead>
                     <tr>
-                        <th>项目号</th>
+                        <th class="word-break-not">项目号<sort @sortClick="onclickSort"></sort></th>
                         <th>项目名称</th>
                         <!--<th>次级项目名称</th>-->
                         <!--<th>辐射类型</th>-->
-                        <th>检测值</th>
-                        <th>阈值</th>
-                        <th>检测类型</th>
-                        <th>检测周期</th>
+                        <th class="word-break-not">检测值</th>
+                        <th class="word-break-not">阈值</th>
+                        <th class="word-break-not">检测类型</th>
+                        <th class="word-break-not">检测周期</th>
                         <th>检测日期</th>
                         <th>合格有效期</th>
                         <th>过期提醒</th>
@@ -69,10 +65,10 @@
                         <th>操作</th>
                     </tr>
                 </thead>
-                <tbody class="tab-lists">
+                <tbody>
                     <tr v-for="(project,index) in searchObj.data" :key="index">
                     <td>{{project.projectNo}}</td>
-                    <td>{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td>
+                    <td class="project-name">{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td>
                     <!--<td>{{project.subName}}</td>-->
                     <!--<td>{{project.radioType}}</td>-->
                     <td>
@@ -85,8 +81,8 @@
                         <!--</div>-->
                         <test-result :project="project"></test-result>
                     </td>
-                    <td>{{project.threshold}}</td>
-                    <td>{{project.detectType}}</td>
+                    <td class="word-break-not">{{project.threshold}}</td>
+                    <td class="word-break-not">{{project.detectType}}</td>
                     <td>{{project.period}}</td>
                     <td>{{project.createDate}}</td>
                     <td>{{getValid(project)}} </td>
@@ -94,7 +90,7 @@
                     <td> </td>
                     <td class="">
                         <div class="handle">
-                            <div class="handle-item" @click="showHistory(project)">查看历史</div>
+                            <div class="handle-item word-break-not" @click="showHistory(project)">查看历史</div>
                         </div>
                     </td>
                 </tr>
@@ -161,6 +157,7 @@
             <div slot="footer" class="dialog-footer">
                 <div class="pagination clearfix">
                     <el-pagination
+                            style="margin-top: 0"
                             :background="true"
                             layout="prev, pager, next,jumper"
                             :page-size="test.offset"
@@ -182,10 +179,12 @@
     import { getProjects,getProjectTests } from "../../api";
     import {calcWarningTime,parseTime} from "../../utils";
     import TestResult from '../../components/testResult'
+    import Sort from '../../components/sort'
 
     export default {
         components: {
-            TestResult
+            TestResult,
+            Sort
         },
         data() {
             return {
@@ -201,7 +200,8 @@
                     data: [],
                     pageNum: 1,
                     offset: 10,
-                    count: 0
+                    count: 0,
+                    orderBy: undefined
                 },
                 test: {
                     visible: false,
@@ -259,6 +259,7 @@
                 this.getProjectsData(1)
             },
             $route: function () {
+                console.log('$route')
                 this.getProjectsData()
             }
         },
@@ -278,12 +279,25 @@
                     projectNo: this.searchObj.projectNo,
                     name: this.searchObj.name,
                     testDate: this.searchObj.testDate,
-                    validDate: this.searchObj.validDate
+                    validDate: this.searchObj.validDate,
+                    orderBy: this.searchObj.orderBy
                 }).then(res =>{
                     console.log(res);
                     this.searchObj.data = res.projects;
                     this.searchObj.count = res.count;
                 })
+            },
+            onclickSort(val){
+                let orderBy
+                if (val === 'ascending'){
+                    orderBy = 'projectNo&asc'
+                } else if (val==='descending'){
+                    orderBy = 'projectNo&desc'
+                } else {
+
+                }
+                this.searchObj.orderBy = orderBy
+                this.getProjectsData(1)
             },
             reset(){
                 this.searchObj = {
@@ -332,16 +346,13 @@
        padding:25px 26px 44px;
 
         .project-search{
-            width: 100%;
-            height: 10%;
             min-height: 80px;
             background: rgba(255,255,255,0.1);
             display: flex;
             align-items: center;
-            padding: 0 20px;
             .project-search-lists{
                 width: 15%;
-                height: 40%;
+                height: 40px;
                 margin-right: 1%;
                 color: #fff;
                 font-size: 12px;
@@ -370,118 +381,11 @@
                 }
 
             }
-            .project-search-btn{
-                width: 6.5%;
-                height: 40%;
-                margin-right: 1%;
-                /deep/ .el-button--primary {
-                    width: 100%;
-                    height: 100%;
-                    text-align: center;
-                    background: rgba(255, 255, 255, 0.08);
-                    border-radius: 4px;
-                    border: 1px solid rgba(44, 206, 173, 0.5);
-                    color: #2CCEAD;
-                    padding: 0;
-                }
-                .active{
-                    background: #2CCEAD;
-                    border-radius: 4px;
-                    color: #FFFFFF;
-                }
-            }
-        }
-        .project-tab{
-            /*height: 84%;*/
-            margin-top: 25px;
-            background: rgba(255,255,255,0.1);
-            .project-tab-content{
-                width: 100%;
-                .tab-header{
-                    background: rgba(255,255,255,0.1);
-                    color: #fff;
-                    font-family: "Microsoft YaHei";
-                    font-weight: 400;
-                    font-size: 1.1vw;
-                }
-                .tab-lists{
-                    /*background: rgba(255,255,255,0.1);*/
-                    color: rgba(255,255,255,0.8);
-                    font-family: "Microsoft YaHei";
-                    font-size: 1vw;
-                    text-align: center;
-                    .watch-history{
-                        font-family: PingFangSC-Regular, PingFang SC;
-                        font-weight: 400;
-                        color: #2CCEAD;
-                    }
-
-                }
-            }
-            .pagination{
-                margin-top: 2%;
-                /*/deep/ .el-pagination{*/
-                     /*.btn-prev{*/
-                        /*background-color: #1C1C1C;*/
-                        /*border: 1px solid #464646;*/
-                        /*color: rgba(255,255,255,0.8);*/
-                    /*}*/
-                    /*:disabled{*/
-                        /*color: rgba(255,255,255,0.8);*/
-                    /*}*/
-                    /*.btn-next{*/
-                        /*background-color: #1C1C1C;*/
-                        /*border: 1px solid #464646;*/
-                        /*color: rgba(255,255,255,0.8);*/
-                    /*}*/
-                    /*.el-pager li{*/
-                        /*background: #1C1C1C;*/
-                        /*border: 1px solid #464646;*/
-                        /*color: rgba(255,255,255,0.8);*/
-                    /*}*/
-                    /*.el-pagination.is-background .el-pager li:not(.disabled).active{*/
-                        /*background-color: #3D3D3D!important;*/
-                    /*}*/
-                    /*.el-pagination__jump{*/
-                        /*color: rgba(255,255,255,0.8);*/
-                        /*.el-input__inner{*/
-                            /*background-color: #1C1C1C;*/
-                            /*border: 1px solid #464646;*/
-                            /*color: rgba(255,255,255,0.8);*/
-                        /*}*/
-                    /*}*/
-                /*}*/
-
-
-            }
         }
         /deep/ .el-dialog__wrapper{
             display: flex;
             justify-content: center;
             align-items: center;
-        }
-        /deep/ .el-dialog{
-            margin-top: 0vh!important;
-            margin: 0;
-            .el-dialog__header{
-                background: #3C3C3C;
-                padding:8px 0;
-                .el-dialog__title{
-                    color: rgba(255,255,255,0.8);
-                    font-size: 15px;
-
-                }
-                .el-dialog__headerbtn{
-                    top: 12px;
-                }
-            }
-            .el-dialog__body{
-                color: rgba(255,255,255,0.8);
-                padding: 0 2%;
-            }
-            .el-dialog__footer{
-                color: rgba(255,255,255,0.8);
-            }
         }
         .el-dialog-project{
             background: rgba(38, 38, 38, 1);
@@ -513,44 +417,6 @@
             }
             .tab-lists{
                 font-size: 1.1vw;
-            }
-        }
-        .dialog-footer{
-            .pagination{
-                margin-top: 2%;
-                /deep/ .el-pagination{
-                    .btn-prev{
-                        background-color: #1C1C1C;
-                        border: 1px solid #464646;
-                        color: rgba(255,255,255,0.8);
-                    }
-                    :disabled{
-                        color: rgba(255,255,255,0.8);
-                    }
-                    .btn-next{
-                        background-color: #1C1C1C;
-                        border: 1px solid #464646;
-                        color: rgba(255,255,255,0.8);
-                    }
-                    .el-pager li{
-                        background: #1C1C1C;
-                        border: 1px solid #464646;
-                        color: rgba(255,255,255,0.8);
-                    }
-                    .el-pagination.is-background .el-pager li:not(.disabled).active{
-                        background-color: #3D3D3D!important;
-                    }
-                    .el-pagination__jump{
-                        color: rgba(255,255,255,0.8);
-                        .el-input__inner{
-                            background-color: #1C1C1C;
-                            border: 1px solid #464646;
-                            color: rgba(255,255,255,0.8);
-                        }
-                    }
-                }
-
-
             }
         }
     }

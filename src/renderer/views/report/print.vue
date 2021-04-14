@@ -1,45 +1,64 @@
 <template>
     <div>
         <div id="print-wrapper" style="margin: 20px 30px;padding: 20px">
-            <div v-if="hospitalInfo">
-                <img :src="hospitalInfo.avatar" width="50" height="50" style="border-radius: 50%;margin-right: 10px;vertical-align: middle" alt="">{{hospitalInfo.name}}
+            <div v-show="hospitalInfo" style="font-size: 14px;display: flex;justify-content: space-between;align-items: center">
+                <div>
+                    <img :src="hospitalInfo.avatar" width="50" height="50" style="border-radius: 50%;margin-right: 10px;vertical-align: middle;width: 50px;height: 50px" alt="">
+                    <span>{{hospitalInfo.name}}</span>
+                </div>
+                <div style="color: #9B9B9B;font-size: 12px">
+                    打印时间：{{nowTme}}
+                </div>
+
             </div>
             <div class="report-tab" style="font-size: 30px;margin-top: 20px;height: 60vh;overflow-y: auto">
                 <table class="table report-tab-content" border="0" cellspacing="0">
                     <thead class="tab-header">
                     <tr>
                         <th>项目名称</th>
+                        <th>标称能量</th>
                         <th>检测值</th>
+                        <th>照射野</th>
                         <th>检测时间</th>
                     </tr>
                     </thead>
                     <tbody class="tab-lists">
-                    <tr v-for="(project,index) in projects" :key="index">
-                        <td>{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td>
-                        <td>
-                            <div v-if="project.detectType=='影像分析'">
-                                <div v-for="v in project.testResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>
-                            </div>
-                            <div v-else>
-                                <div v-if="project.testResult" v-for="te in project.testResult" class="test-result">{{te.val}}</div>
-                            </div>
+                    <tr v-for="(project,index) in projectData(projects)" :key="index">
+                        <td :rowspan="project.rowspan" v-show="project.rowspan>0">{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td>
+                        <td class="word-break-not">{{project.result&&project.result?(project.detectType=='影像分析'?project.result.power:project.result.key):''}}</td>
+                        <td class="word-break-not">
+                            {{project.result&&project.result?(project.detectType=='影像分析'?project.result.value:project.result.val):''}}
+                            <!--<div v-if="project.detectType=='影像分析'">-->
+                                <!--<div v-for="v in project.testResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>-->
+                            <!--</div>-->
+                            <!--<div v-else>-->
+                                <!--<div v-if="project.testResult" v-for="te in project.testResult" class="test-result">{{te.val}}</div>-->
+                            <!--</div>-->
                         </td>
-                        <td>{{project.createDate}}</td>
+                        <td class="word-break-not">{{project.result&&project.result?(project.detectType=='影像分析'?(project.result.size+'cm'):'-'):''}}</td>
+                        <td :rowspan="project.rowspan" v-show="project.rowspan>0" class="word-break-not">{{project.createDate?project.createDate.substr(0,16):''}}</td>
                     </tr>
                     </tbody>
                 </table>
             </div>
         </div>
         <div style="text-align: center;padding-bottom: 20px">
-            <el-button type="primary" class="active active-print" @click="print">打印报表</el-button>
+            <el-button type="primary" class="active" @click="print">打印报表</el-button>
         </div>
     </div>
 
 </template>
 
 <script>
+    import {parseTime} from "../../utils";
+
     export default {
         name: "print",
+        data(){
+            return {
+                nowTme: parseTime(Date.now())
+            }
+        },
         props: {
             hospitalInfo: {
                 type: Object,
@@ -50,8 +69,30 @@
                 default: []
             }
         },
+        computed:{
+            projectData(){
+                return function (value) {
+                    let data = []
+                    value.forEach(val=>{
+                        val.rowspan = 1
+                        if (val.testResult && Array.isArray(val.testResult)){
+                            val.rowspan = val.testResult.length
+                            val.testResult.forEach((item,index)=>{
+                                if (index !==0)  val.rowspan = 0
+                                data.push({...val,...{result: item}})
+                            })
+                        } else {
+                            data.push(val)
+                        }
+                    })
+                    console.log('data',data)
+                    return data
+                }
+            }
+        },
         methods: {
             print(){
+                this.nowTme = parseTime(Date.now())
                 let html = document.getElementById('print-wrapper').outerHTML,style = this.getStyle()
                 console.log(html.indexOf('height: 60vh'))
                 html = html.replace('height: 60vh','')
@@ -104,13 +145,27 @@
             color: #333;
             border-color: #D2D2D2;
             border-bottom: 1px solid #D2D2D2;
-            background: #ffffff;
+            border-right: 1px solid #D2D2D2;
+            font-size: 12px;
+            padding: 6px;
+            white-space: nowrap;
+            font-weight: 700;
+            background: #F3F3F3;
+            &:last-of-type{
+                border-right: none;
+            }
         }
         td{
             background: #ffffff;
             color: #333;
             border-color: #D2D2D2;
             border-bottom: 1px solid #D2D2D2;
+            border-right: 1px solid #D2D2D2;
+            font-size: 11px;
+            padding: 6px;
+            &:last-of-type{
+                border-right: none;
+            }
         }
         tr:last-of-type{
             td{
@@ -180,6 +235,11 @@
 
 
             }
+        }
+    }
+    @media print {
+        #print-wrapper {
+            -webkit-print-color-adjust: exact;
         }
     }
 </style>

@@ -19,13 +19,14 @@ console.log('qcsNodeUrl',qcsNodeUrl)
 const qcsNode = require(`qcs`);
 // loadProject()
 export function getProjects(obj) {
-    console.log('getProjects')
+    console.log('getProjects',obj)
     return new Promise((resolve, reject)=>{
         obj = obj?obj:{}
         console.log(obj);
         console.log('/medical/getDevices');
         var rows = [],index = 0;
         var db = new sq3.Database(sqlDir);
+        let orderBy='ORDER BY validDate'
         if(!obj.offset)  obj.offset = 10;
         if(!obj.pageNum) obj.pageNum = 0;
         let cond_sql ='',testTable = `(SELECT a.* FROM (SELECT id AS testID,testResult,createDate,qscDeviceProjID FROM ${DBTABLE.DEVICE_PROJECT_RESULT} ORDER BY testID DESC) a GROUP BY a.qscDeviceProjID ORDER BY a.testID DESC)`;
@@ -40,6 +41,22 @@ export function getProjects(obj) {
         }
         if (obj.validDate){
             cond_sql += ` AND data.validDate BETWEEN '${obj.validDate}' AND '${obj.validDate} 23:59:59' `
+        }
+        if (obj.orderBy){
+            let str = obj.orderBy.split('&')
+            if (str.length>1 && str[1]){
+                switch (str[0]) {
+                    case 'projectNo':
+                        orderBy = ' ORDER BY projectNo '+str[1]
+                        break
+                    case 'registerTime':
+                        orderBy = ' ORDER BY a.registerTime '+str[1]
+                        break
+                    case 'machineCount':
+                        orderBy = ' ORDER BY machineCount '+str[1]
+                        break
+                }
+            }
         }
         let sel_sql = `(SELECT proj.name,proj.radioType,proj.subName,proj.projectNo,proj.radioType,proj.dataRequire,proj.extraRequire,proj.analysis,proj.views,proj.type,proj.detectCondition,proj.step,proj.remark,proj.moduleRequire,proj.detectType,proj.detail,proj.detailUrl
                 ,device.x_energy_level,device.e_energy_level 
@@ -69,7 +86,7 @@ export function getProjects(obj) {
                 WHERE dp.deviceID=${obj.deviceID}) AS data`
         async.waterfall([
             function(callback) {
-                let select_sql = `SELECT * FROM ${sel_sql} WHERE 1 ${cond_sql} ORDER BY validDate LIMIT ${obj.offset*obj.pageNum},${obj.offset}`
+                let select_sql = `SELECT * FROM ${sel_sql} WHERE 1 ${cond_sql} ${orderBy} LIMIT ${obj.offset*obj.pageNum},${obj.offset}`
                 // var select_sql = "SELECT proj.*,device.x_energy_level,device.e_energy_level " +
                 //     ",IFNULL(dp.testPoint,proj.testPoint) AS testPoint" +
                 //     ", IFNULL(dp.numOfInput,proj.numOfInput) AS numOfInput " +
@@ -203,7 +220,7 @@ export function addDicom(obj) {
     })
 }
 export function delDicom(obj) {
-    console.log('delDicom')
+    console.log('delDicom',obj)
     return new Promise(resolve => {
         var db = new sq3.Database(sqlDir);
         db.run('DELETE FROM qsc_dicom WHERE id='+obj.id,()=>{
@@ -409,7 +426,7 @@ export function delDevice(obj) {
     })
 }
 export function getDevices(obj) {
-    console.log('delDicom')
+    console.log('getDevices')
     return new Promise(resolve => {
         var rows = [],index = 0;
         var resObj ={"msg":"","result":true,"token":"","error_code":"0",code:200};

@@ -1,7 +1,7 @@
 <template>
-    <div class="report-page">
-        <iframe id="iframePrint" style="display: none"></iframe>
-        <div class="report-search">
+    <div class="report-page page-qcs">
+        <iframe id="iframePrint " style="display: none"></iframe>
+        <div class="report-search page-qcs-head">
             <div class="report-search-left">
                 <div class="report-search-lists">
                     <el-date-picker
@@ -35,35 +35,29 @@
                         <el-option value="一年"></el-option>
                     </el-select>
                 </div>
-                <div class="report-search-btn">
-                    <el-button type="primary" class="active" @click="search()">查询</el-button>
-                </div>
-                <div class="report-search-btn">
-                    <el-button type="primary" @click="reset()">重置</el-button>
-                </div>
+                <el-button type="primary" @click="search()">查询</el-button>
+                <el-button @click="reset()">重置</el-button>
             </div>
             <div class="report-search-right">
-                  <div class="report-print">
-                      <el-button type="primary" class="active" @click="reportPrint()">打印报表</el-button>
-                  </div>
+                <el-button type="primary" class="active" @click="reportPrint()">打印报表</el-button>
             </div>
         </div>
-        <div class="report-tab" style="height: 72vh;overflow-y: auto">
-            <table class="table report-tab-content" border="0" cellspacing="0">
-                <thead class="tab-header">
+        <div class="report-tab page-qcs-body">
+            <table class="table" border="0" cellspacing="0">
+                <thead>
                     <tr>
                         <th>项目号</th>
                         <th>项目名称</th>
-                        <th>检测周期</th>
+                        <th class="word-break-not">检测周期</th>
                         <th>检测值</th>
                         <th>阈值</th>
                         <th>检测日期</th>
                     </tr>
                 </thead>
-                <tbody class="tab-lists">
+                <tbody>
                 <tr v-for="(project,index) in projects" :key="index">
                     <td>{{project.projectNo}}</td>
-                    <td>{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td>
+                    <td class="project-name">{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td>
                     <td>{{project.period}}</td>
                     <td>
                         <div v-if="project.detectType=='影像分析'">
@@ -99,7 +93,7 @@
         <el-dialog
                 title="报表打印预览"
                 :visible.sync="dialogVisible"
-                width="40vw"
+                width="600px"
                 center
                 ref="print"
         >
@@ -211,23 +205,20 @@
         width: 100%;
        padding:25px 26px 44px;
         .report-search{
-            width: 100%;
-            height: 10%;
             min-height: 80px;
             background: rgba(255,255,255,0.1);
             display: flex;
-            justify-content: space-around;
             align-items: center;
+            justify-content: space-between;
             .report-search-left{
                 width: 80%;
                 height: 100%;
                 display: flex;
                 justify-content: flex-start;
                 align-items: center;
-                margin-left: 3%;
                 .report-search-lists{
                     width: 22%;
-                    height: 40%;
+                    height: 40px;
                     margin-right: 1%;
                     color: #fff;
                     /deep/ .el-input{
@@ -242,6 +233,7 @@
                         }
                     }
                     /deep/ .el-select{
+                        width: 100%;
                         height: 100%;
                         .el-input__inner {
                             height: 100%;
@@ -258,19 +250,6 @@
 
                 }
                 .report-search-btn{
-                    width: 10%;
-                    height: 40%;
-                    margin-right: 1%;
-                    /deep/ .el-button--primary {
-                        width: 100%;
-                        height: 100%;
-                        text-align: center;
-                        background: rgba(255, 255, 255, 0.08);
-                        border-radius: 4px;
-                        border: 1px solid rgba(44, 206, 173, 0.5);
-                        color: #2CCEAD;
-                        padding: 0;
-                    }
                     .active{
                         background: #2CCEAD;
                         border-radius: 4px;
@@ -279,99 +258,78 @@
                 }
             }
             .report-search-right{
-                width: 20%;
-                height: 100%;
-                display: flex;
-                justify-content: flex-end;
-                align-items: center;
-                margin-right: 3%;
-                .report-print{
-                    width: 80%;
-                    height: 40%;
-                    margin-right: 1%;
-                    /deep/ .el-button--primary {
-                        width: 100%;
-                        height: 100%;
-                        text-align: center;
-                        background: rgba(255, 255, 255, 0.08);
-                        border-radius: 4px;
-                        border: 1px solid rgba(44, 206, 173, 0.5);
-                        color: #2CCEAD;
-                        padding: 0;
-                    }
-                    .active{
-                        background: #2CCEAD;
-                        border-radius: 4px;
-                        color: #FFFFFF;
-                    }
+                .active{
+                    background: #2CCEAD;
+                    border-radius: 4px;
+                    color: #FFFFFF;
                 }
             }
 
         }
-        .report-tab{
-            height: 84%;
-            margin-top: 25px;
-            background: rgba(255,255,255,0.1);
-            .report-tab-content{
-                width: 100%;
-                .tab-header{
-                    background: rgba(255,255,255,0.1);
-                    color: #fff;
-                    font-family: "Microsoft YaHei";
-                    font-weight: 400;
-                    font-size: 14px;
-                }
-                .tab-lists{
+        /*.report-tab{*/
+            /*height: 84%;*/
+            /*margin-top: 25px;*/
+            /*background: rgba(255,255,255,0.1);*/
+            /*.report-tab-content{*/
+                /*width: 100%;*/
+                /*.tab-header{*/
                     /*background: rgba(255,255,255,0.1);*/
-                    color: rgba(255,255,255,0.8);
-                    font-family: "Microsoft YaHei";
-                    font-size: 13px;
-                    text-align: center;
-                    .watch-history{
-                        font-family: PingFangSC-Regular, PingFang SC;
-                        font-weight: 400;
-                        color: #2CCEAD;
-                    }
+                    /*color: #fff;*/
+                    /*font-family: "Microsoft YaHei";*/
+                    /*font-weight: 400;*/
+                    /*font-size: 14px;*/
+                /*}*/
+                /*.tab-lists{*/
+                    /*!*background: rgba(255,255,255,0.1);*!*/
+                    /*color: rgba(255,255,255,0.8);*/
+                    /*font-family: "Microsoft YaHei";*/
+                    /*font-size: 13px;*/
+                    /*text-align: center;*/
+                    /*.watch-history{*/
+                        /*font-family: PingFangSC-Regular, PingFang SC;*/
+                        /*font-weight: 400;*/
+                        /*color: #2CCEAD;*/
+                    /*}*/
 
-                }
-            }
-            .pagination{
-                margin-top: 2%;
-                /deep/ .el-pagination{
-                     .btn-prev{
-                        background-color: #1C1C1C;
-                        border: 1px solid #464646;
-                        color: rgba(255,255,255,0.8);
-                    }
-                    :disabled{
-                        color: rgba(255,255,255,0.8);
-                    }
-                    .btn-next{
-                        background-color: #1C1C1C;
-                        border: 1px solid #464646;
-                        color: rgba(255,255,255,0.8);
-                    }
-                    .el-pager li{
-                        background: #1C1C1C;
-                        border: 1px solid #464646;
-                        color: rgba(255,255,255,0.8);
-                    }
-                    .el-pagination.is-background .el-pager li:not(.disabled).active{
-                        background-color: #3D3D3D!important;
-                    }
-                    .el-pagination__jump{
-                        color: rgba(255,255,255,0.8);
-                        .el-input__inner{
-                            background-color: #1C1C1C;
-                            border: 1px solid #464646;
-                            color: rgba(255,255,255,0.8);
-                        }
-                    }
-                }
+                /*}*/
+            /*}*/
+            /*.pagination{*/
+                /*margin-top: 2%;*/
+                /*/deep/ .el-pagination{*/
+                     /*.btn-prev{*/
+                        /*background-color: #1C1C1C;*/
+                        /*border: 1px solid #464646;*/
+                        /*color: rgba(255,255,255,0.8);*/
+                    /*}*/
+                    /*:disabled{*/
+                        /*color: rgba(255,255,255,0.8);*/
+                    /*}*/
+                    /*.btn-next{*/
+                        /*background-color: #1C1C1C;*/
+                        /*border: 1px solid #464646;*/
+                        /*color: rgba(255,255,255,0.8);*/
+                    /*}*/
+                    /*.el-pager li{*/
+                        /*background: #1C1C1C;*/
+                        /*border: 1px solid #464646;*/
+                        /*color: rgba(255,255,255,0.8);*/
+                    /*}*/
+                    /*.el-pagination.is-background .el-pager li:not(.disabled).active{*/
+                        /*background-color: #3D3D3D!important;*/
+                    /*}*/
+                    /*.el-pagination__jump{*/
+                        /*color: rgba(255,255,255,0.8);*/
+                        /*.el-input__inner{*/
+                            /*background-color: #1C1C1C;*/
+                            /*border: 1px solid #464646;*/
+                            /*color: rgba(255,255,255,0.8);*/
+                        /*}*/
+                    /*}*/
+                /*}*/
 
 
-            }
-        }
+            /*}*/
+        /*}*/
         /deep/ .el-dialog__wrapper{
             display: flex;
             justify-content: center;
@@ -421,8 +379,5 @@
         :last-child{
             border-bottom: 0;
         }
-    }
-    .active-print{
-        border-color: transparent;
     }
 </style>

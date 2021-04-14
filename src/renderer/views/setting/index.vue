@@ -1,6 +1,6 @@
 <template>
-    <div class="setting-page">
-        <div class="setting-tab clearfix">
+    <div class="setting-page page-qcs">
+        <div class="setting-tab clearfix page-qcs-body">
             <div class="setting-tab-left left">
                 <div class="setting-type clearfix">
                     <div class="setting-type-item left" :class="{active:typeName=='accelerate'}" @click="changeType('accelerate',0)">加速器配置</div>
@@ -17,14 +17,14 @@
                 </div>
                 <div class="setting-tab-content">
                     <div v-if="showTypeIndex==0">
-                        <el-table :data="devicesData" border height="70vh" :span-method="objectSpanMethod">
+                        <el-table :data="devicesData" border :row-style="getStyle" :span-method="objectSpanMethod">
                             <el-table-column prop="name"></el-table-column>
                             <el-table-column label="能量档" prop="power" width="220">
                                 <template slot-scope="scope">
                                     <div style="display: flex;align-items: center">
                                         <div class="input-label-container" style="display: inline-flex;margin-right: 5px">
                                             <el-input v-model="scope.row.x" type="number" @change="onblur"></el-input>
-                                            <span>MV</span>
+                                            <span>{{scope.row.name===lineXInit.name?'MV':'MeV'}}</span>
                                         </div>
                                         <el-checkbox v-if="scope.row.name===lineXInit.name" style="flex: none;" v-model="scope.row.checked">FFF模式</el-checkbox>
                                     </div>
@@ -120,8 +120,8 @@
                             <th>项目名称</th>
                             <th>阈值</th>
                             <th>检测周期</th>
-                            <th>辐射类型</th>
-                            <th>能量档</th>
+                            <!--<th>辐射类型</th>-->
+                            <!--<th>能量档</th>-->
                             <th>检测类型</th>
                             <th>操作</th>
                         </tr>
@@ -132,8 +132,8 @@
                             <td>{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td>
                             <td>{{project.threshold}}</td>
                             <td>{{project.period}}</td>
-                            <td>{{project.radioType}}</td>
-                            <td><div v-for="(v,index) in device.powerX" :key="index">{{v.x}}{{v.checked?' FFF模式':''}}</div></td>
+                            <!--<td>{{project.radioType}}</td>-->
+                            <!--<td><div v-for="(v,index) in device.powerX" :key="index">{{v.x}}{{v.checked?' FFF模式':''}}</div></td>-->
                             <td>{{project.detectType}}</td>
                             <td class="">
                                 <div class="handle">
@@ -307,7 +307,7 @@
                             <div class="item-name">电子限光筒/cm cone</div>
                         </div>
                         <div class="project-change-lists-item">
-                            <div class="item-content project-change-radio-group" style="width: 65%;">
+                            <div class="item-content project-change-radio-group" style="width: 63%;">
                                 <!--<input type="text" placeholder="请输入" v-model="device.multileaf_collimator_size">-->
                                 <el-radio-group v-model="device.multileaf_collimator_size">
                                     <el-radio :label="40">40</el-radio>
@@ -315,7 +315,7 @@
                                     <el-radio :label="80">80</el-radio>
                                 </el-radio-group>
                             </div>
-                            <div class="item-name">多叶光栅(对)</div>
+                            <div class="item-name" style="font-size: 14px">多叶光栅(对)</div>
                         </div>
                     </div>
                     <div slot="footer">
@@ -336,8 +336,8 @@
                     </div>
                     <div slot="footer">
                         <div class="delete-btn">
-                            <el-button type="primary" class="" @click="isShowDelete=false">取消</el-button>
-                            <el-button type="primary" class="active" @click="delConfirm()">确定删除</el-button>
+                            <el-button @click="isShowDelete=false">取消</el-button>
+                            <el-button type="primary" @click="delConfirm()">确定删除</el-button>
                         </div>
                     </div>
                 </el-dialog>
@@ -358,7 +358,7 @@
                                  <el-option value="六个月"></el-option>
                                  <el-option value="一年"></el-option>
                              </el-select>
-                             <div class="item-name" style="width: 80px;flex: none;height: 100%;border-left: 1px solid rgba(255,255,255,0.08);line-height: 5.5vh">检测周期</div>
+                             <div class="item-name" style="width: 80px;flex: none;height: 100%;border-left: 1px solid rgba(255,255,255,0.08);line-height: 45px">检测周期</div>
                          </div>
                         <div class="project-change-lists-item">
                             <input type="text" class="item-content" style="width: 50px;" v-model="project.thresholdValue">
@@ -367,7 +367,7 @@
                                 <el-option value="%"></el-option>
                                 <el-option value="°"></el-option>
                             </el-select>
-                            <div class="item-name" style="width: 40px;flex: none;height: 100%;border-left: 1px solid rgba(255,255,255,0.08);line-height: 5.5vh">阈值</div>
+                            <div class="item-name" style="width: 40px;flex: none;height: 100%;border-left: 1px solid rgba(255,255,255,0.08);line-height: 45px">阈值</div>
                         </div>
                     </div>
                     <div slot="footer">
@@ -530,7 +530,7 @@
             },
             getProjectsData(state){
                 if (state) this.projectInfo.pageNum = 1
-                getProjects({deviceID:this.currentDeviceID,pageNum: this.projectInfo.pageNum-1,offset: this.projectInfo.offset}).then(res =>{
+                getProjects({deviceID:this.currentDeviceID,pageNum: this.projectInfo.pageNum-1,offset: this.projectInfo.offset,orderBy: 'projectNo&asc'}).then(res =>{
                     console.log(res);
                     if (res.devices){
                         res.devices.forEach(val=>{
@@ -761,25 +761,26 @@
                 }
             },
             delConfirm(){
+                console.log('delConfirm',this.showTypeIndex)
                 switch (this.showTypeIndex) {
                     case 0:
-                        delDicom(this.diCom).then(res =>{
+                        delDevice(this.device).then(res =>{
                             console.log(res);
                             this.isShowDelete = false;
-                            this.getDicomsData(1)
+                            this.getDevicesData(1)
                         })
                         break
                     case 1:
                         delDeviceProject({id: this.currentProject.id}).then(res=>{
                             this.isShowDelete = false
-                            this.getProjectsData(1)
+                            this.getProjectsData()
                         })
                         break
                     case 2:
-                        delDevice(this.device).then(res =>{
+                        delDicom(this.diCom).then(res =>{
                             console.log(res);
                             this.isShowDelete = false;
-                            this.getDevicesData(1)
+                            this.getDicomsData(1)
                         })
                         break
                 }
@@ -832,6 +833,11 @@
                 }
                 return rowAndSpan
             },
+            getStyle(val){
+                if (val.row.name === this.lineEleInit.name){
+                    return {background: '#2C2C2C'}
+                }
+            },
             deviceDataTransfer(data){
                 let lineX = [],lineEle = []
                 data.forEach(val=>{
@@ -847,6 +853,10 @@
             },
             onclickDevice(row){
                 console.log(row)
+                if (this.devicesData.filter(val=>val.name===row.name).length>5){
+                    this.$message.warning('最多添加6个')
+                    return
+                }
                 this.devicesData.push({
                     name: row.name,
                     rowspan: 0,
@@ -907,31 +917,13 @@
                     }
                 }
                 .setting-upload{
-                    height: 10%;
-                    margin-right: 1%;
                     display: flex;
                     justify-content: flex-end;
                     align-items: center;
-                    /deep/ .el-button--primary {
-                        width: 12%;
-                        text-align: center;
-                        background: rgba(255, 255, 255, 0.08);
-                        border-radius: 4px;
-                        border: 1px solid rgba(44, 206, 173, 0.5);
-                        color: #2CCEAD;
-                        padding: 0.8% 0;
-                        font-size: 14px;
-                    }
-                    .active{
-                        background: #2CCEAD;
-                        border-radius: 4px;
-                        color: #FFFFFF;
-                    }
+                    padding: 20px 35px;
                 }
                 .setting-tab-content{
                     width: 100%;
-                    height: 72vh;
-                    overflow-y: auto;
                     table{
                         width: 100%;
                     }
@@ -954,42 +946,6 @@
                             color: #2CCEAD;
                         }
                     }
-                }
-                .pagination{
-                    margin-top: 2%;
-                    /deep/ .el-pagination{
-                        .btn-prev{
-                            background-color: #1C1C1C;
-                            border: 1px solid #464646;
-                            color: rgba(255,255,255,0.8);
-                        }
-                        :disabled{
-                            color: rgba(255,255,255,0.8);
-                        }
-                        .btn-next{
-                            background-color: #1C1C1C;
-                            border: 1px solid #464646;
-                            color: rgba(255,255,255,0.8);
-                        }
-                        .el-pager li{
-                            background: #1C1C1C;
-                            border: 1px solid #464646;
-                            color: rgba(255,255,255,0.8);
-                        }
-                        .el-pagination.is-background .el-pager li:not(.disabled).active{
-                            background-color: #3D3D3D!important;
-                        }
-                        .el-pagination__jump{
-                            color: rgba(255,255,255,0.8);
-                            .el-input__inner{
-                                background-color: #1C1C1C;
-                                border: 1px solid #464646;
-                                color: rgba(255,255,255,0.8);
-                            }
-                        }
-                    }
-
-
                 }
             }
             .setting-tab-right{
@@ -1051,40 +1007,32 @@
                 color: rgba(255,255,255,0.8);
             }
         }
-        .table-list{
-            width: 100%;
-            /*text-align: center;*/
-
-
-        }
-        .dialog-footer{
-
-        }
-        .hospital{
-            padding: 20px;
-            &-item{
-                &:not(:last-child){
-                    margin-bottom: 20px;
-                }
-                .item-content{
-                    background-color: #2C2C2C;
-                    padding: 0 1vw;
-                    border: 0;
-                    border-right: 1px solid rgba(255, 255, 255, 0.08);
-                    line-height: 30px;
-                    flex: auto;
-                }
-                &-input{
-                    background: rgba(255, 255, 255, 0.08);
-                    border-radius: 4px;
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    display: flex;
-                    align-items: center;
+        /deep/ .el-table{
+            border: none;
+            &:before{
+                height: 0;
+            }
+            &:after{
+                width: 0;
+            }
+            td,th{
+                text-align: center;
+                border-right-color: rgba(255, 255, 255, 0.08);
+                border-bottom-color: rgba(255, 255, 255, 0.08)!important;
+            }
+            &__header{
+                tr{
+                    th{
+                        height: 77px;
+                        background: rgba(255, 255, 255, 0.15);
+                    }
                 }
             }
-        }
-        /deep/ .el-table__body tr:hover > td{
-            background-color:#1A1A1A !important;
+            &__body{
+                tr:hover > td{
+                    background-color:unset !important;
+                }
+            }
         }
     }
     .table-more{
@@ -1141,21 +1089,6 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        /deep/ .el-button--primary {
-            width: 35%;
-            height: 100%;
-            text-align: center;
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 4px;
-            border: 1px solid rgba(44, 206, 173, 0.5);
-            color: #2CCEAD;
-            padding: 2% 0;
-        }
-        .active{
-            background: #2CCEAD;
-            border-radius: 4px;
-            color: #FFFFFF;
-        }
     }
     .project-change-lists{
         /*display: flex;*/
@@ -1224,6 +1157,17 @@
                 text-align: center;
                 font-size: 15px;
                 flex: auto;
+            }
+            /deep/ .el-select{
+                height: 45px;
+                .el-input{
+                    height: 100%;
+                    input{
+                        height: 100%;
+                        border: transparent;
+                        background: #2C2C2C;
+                    }
+                }
             }
         }
         .project-change-power-add{

@@ -5,7 +5,8 @@
         </div>
         <div v-else>
             <div v-if="project.testResult" v-for="(te,teIndex) in project.testResult" :key="teIndex" class="test-result">{{te.val}}
-                <img :class="{'test-result-min': compare(te.val,project.threshold)}" src="../assets/images/arrow.png">
+                <!--<img :class="{'test-result-min': compare(te.val,project.threshold)}" src="../assets/images/arrow.png">-->
+                <img v-if="!compare(te.val,project.threshold)" src="../assets/images/arrow.png">
             </div>
         </div>
     </div>
@@ -24,15 +25,21 @@
             compare(){
                 return function (val,data) {
                     if (!data) return
-                    let index = data.indexOf('mm')
-                    if (index>-1){
-                        data = data.substring(1,index)
-                    } else {
-                        data = data.substring(1,data.length-1)
+                    // let index = data.indexOf('mm')
+                    // if (index>-1){
+                    //     data = data.substring(1,index)
+                    // } else {
+                    //     data = data.substring(1,data.length-1)
+                    // }
+                    let testVal = 0,testData = 0
+                    if (val){
+                        testVal = val.replace(/mm|%|°/,'')
                     }
-                    val = val?(val.includes('%')?val.replace('%','')/100:val):0
-                    console.log(val,data)
-                    return (val - data) <0
+                    testData = data.substr(1)
+                    testData = testData.replace(/mm|%|°/,'')
+                    // val = val?(val.includes('%')?val.replace('%','')/100:val):0
+                    console.log(val,testVal,testData)
+                    return (testVal - testData) <0
                 }
             }
         }
@@ -41,8 +48,9 @@
 
 <style lang="scss" scoped>
     .test-result{
-        line-height: 21px;
+        line-height: 30px;
         white-space: nowrap;
+        min-height: 30px;
         img{
             width: 7px;
             height: 13px;
