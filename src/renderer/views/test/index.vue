@@ -552,7 +552,8 @@
                     projectNo: this.projectSearch.projectNo,
                     name: this.projectSearch.name,
                     period: this.projectSearch.period,
-                    orderBy: this.projectImage.orderBy
+                    orderBy: this.projectImage.orderBy,
+                    timeout: 1
                 }
                 getProjects(obj).then(res =>{
                     console.log(res);
@@ -954,7 +955,7 @@
                         break;
                     case '剂量偏差':
                         console.log('剂量偏差',args)
-                        result.val = args[0]
+                        result.val = cacTestVal.wrong(args[0]?args[0]:0)
                         break;
                     default:
                         result.val = args[this.selectedIndex]

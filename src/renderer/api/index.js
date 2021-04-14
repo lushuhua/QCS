@@ -168,8 +168,8 @@ export function getProjects(obj) {
                 console.error(err);
                 resObj.result = false;
             }
-            db.close();
             resolve(resObj);
+            db.close();
         });
     })
 }
