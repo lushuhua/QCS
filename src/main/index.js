@@ -34,6 +34,7 @@ function createWindow() {
         transparent: false,
         title:"QCS",
         autoHideMenuBar:true,
+        backgroundColor: '#000',
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
