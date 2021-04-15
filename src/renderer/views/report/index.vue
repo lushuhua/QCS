@@ -46,7 +46,7 @@
             <table class="table" border="0" cellspacing="0">
                 <thead>
                     <tr>
-                        <th>项目号</th>
+                        <th style="width: 100px;">项目号 <sort @sortClick="onclickSort"></sort></th>
                         <th>项目名称</th>
                         <th class="word-break-not">检测周期</th>
                         <th>检测值</th>
@@ -107,11 +107,13 @@
     import { getProjectTests,getHospitals } from "../../api";
     import Print  from './print'
     import TestResult  from '../../components/testResult'
+    import Sort  from '../../components/sort'
 
     export default {
         components: {
             Print,
-            TestResult
+            TestResult,
+            Sort
         },
         data() {
             return {
@@ -125,7 +127,8 @@
                 projects:[],
                 offset: 10,
                 count:0,
-                hospitalInfo: {}
+                hospitalInfo: {},
+                orderBy: null
             }
         },
         watch: {
@@ -182,6 +185,18 @@
                 console.log(`当前页: ${val}`);
                 this.getTestData()
             },
+            onclickSort(val){
+                let orderBy
+                if (val === 'ascending'){
+                    orderBy = 'projectNo&asc'
+                } else if (val==='descending'){
+                    orderBy = 'projectNo&desc'
+                } else {
+
+                }
+                this.orderBy = orderBy
+                this.getTestData(1)
+            },
             getTestData(state){
                 if (state) this.currentPage = 1
                 getProjectTests({
@@ -189,6 +204,7 @@
                     fromDate:this.fromDate,
                     toDate:this.toDate,
                     period:this.period,
+                    orderBy:this.orderBy,
                     pageNum:this.currentPage-1,
                     offset:this.offset}).then(res =>{
                     console.log(res);
@@ -205,6 +221,14 @@
 </script>
 <style lang="scss" scoped>
     .report-page {
+        /*定义滚动条高宽及背景 高宽分别对应横竖滚动条的尺寸*/
+        ::-webkit-scrollbar
+        {
+            width: 6px;
+            height: 6px;
+            background-color: rgba(0,0,0,0.3);
+            display: block;
+        }
         width: 100%;
        padding:25px 26px 44px;
         .report-search{

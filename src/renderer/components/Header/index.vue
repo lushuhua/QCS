@@ -1,7 +1,7 @@
 <template>
     <div class="header-view" :style="{height: height}">
-        <div class="no-drag" style="flex: auto">
-            <el-select class="left" v-model="defaultID" placeholder="请选择设备" @change="deviceChange">
+        <div style="flex: auto">
+            <el-select class="left no-drag" v-model="defaultID" placeholder="请选择设备" @change="deviceChange">
                 <el-option
                         v-for="item in devices"
                         :key="item.id"

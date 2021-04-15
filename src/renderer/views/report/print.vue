@@ -12,7 +12,7 @@
 
             </div>
             <div class="report-tab" style="font-size: 30px;margin-top: 20px;height: 60vh;overflow-y: auto">
-                <table class="table report-tab-content" border="0" cellspacing="0">
+                <table class=" report-tab-content" border="0" cellspacing="0">
                     <thead class="tab-header">
                     <tr>
                         <th>项目名称</th>
@@ -136,40 +136,67 @@
 <style lang="scss" scoped>
 
     #print-wrapper{
+
+        /*定义滚动条高宽及背景 高宽分别对应横竖滚动条的尺寸*/
+        ::-webkit-scrollbar
+        {
+            width: 6px;
+            height: 6px;
+            background-color: rgba(0, 0, 0, 0.01);
+        }
+        /*定义滚动条轨道 内阴影+圆角*/
+        ::-webkit-scrollbar-track
+        {
+            -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.24);
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0);
+            /*background-color: #c1c1c0;*/
+        }
+
+        /*定义滑块 内阴影+圆角*/
+        ::-webkit-scrollbar-thumb
+        {
+            border-radius: 10px;
+            -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+            background-color: rgba(139, 139, 138, 0.47);
+        }
         background: #ffffff;
         color: #333;
         table{
-            border: 1px solid #D2D2D2;
-        }
-        th{
-            color: #333;
-            border-color: #D2D2D2;
-            border-bottom: 1px solid #D2D2D2;
             border-right: 1px solid #D2D2D2;
-            font-size: 12px;
-            padding: 6px;
-            white-space: nowrap;
-            font-weight: 700;
-            background: #F3F3F3;
-            &:last-of-type{
-                border-right: none;
-            }
-        }
-        td{
-            background: #ffffff;
-            color: #333;
-            border-color: #D2D2D2;
             border-bottom: 1px solid #D2D2D2;
-            border-right: 1px solid #D2D2D2;
-            font-size: 11px;
-            padding: 6px;
-            &:last-of-type{
-                border-right: none;
-            }
-        }
-        tr:last-of-type{
-            td{
-                border-bottom: none;
+            tr{
+                th{
+                    color: #333;
+                    border-color: #D2D2D2;
+                    border-top: 1px solid #D2D2D2;
+                    border-left: 1px solid #D2D2D2;
+                    font-size: 12px;
+                    padding: 6px;
+                    white-space: nowrap;
+                    font-weight: 700;
+                    background: #F3F3F3;
+                    &:last-of-type{
+                        /*border-right: none;*/
+                    }
+                }
+                td{
+                    background: #ffffff;
+                    color: #333;
+                    border-color: #D2D2D2;
+                    border-top: 1px solid #D2D2D2;
+                    border-left: 1px solid #D2D2D2;
+                    font-size: 11px;
+                    padding: 6px;
+                    &:last-of-type{
+                        /*border-right: none;*/
+                    }
+                }
+                &:last-of-type{
+                    td{
+                        /*border-bottom: none;*/
+                    }
+                }
             }
         }
         .report-tab{

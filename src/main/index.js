@@ -27,7 +27,9 @@ function createWindow() {
         useContentSize: true,
         width: 1382,//1182
         frame: false,
-        resizable: false,
+        minWidth: 1182,
+        minHeight: 600,
+        resizable: true,
         skipTaskbar: false,
         transparent: false,
         title:"QCS",

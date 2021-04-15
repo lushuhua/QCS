@@ -486,13 +486,25 @@ export function getProjectTests(obj) {
         if(obj.projectName){
             cond_sql += ` AND dp_result.projectName LIKE '%${obj.projectName}%'`;
         }
+        let orderBy = ' ORDER BY dp_result.id DESC '
+        if (obj.orderBy){
+            let str = obj.orderBy.split('&')
+            if (str.length>1 && str[1]){
+                switch (str[0]) {
+                    case 'projectNo':
+                        orderBy = ' ORDER BY proj.projectNo '+str[1]
+                        break
+                    case 'registerTime':
+                        orderBy = ' ORDER BY a.registerTime '+str[1]
+                        break
+                    case 'machineCount':
+                        orderBy = ' ORDER BY machineCount '+str[1]
+                        break
+                }
+            }
+        }
         async.waterfall([
             function(callback) {
-                // "testPoint INTEGER," +
-                // "numOfInput INTEGER," +
-                // "period TEXT," +
-                // "threshold INTEGER," +
-
                 var select_sql = "SELECT proj.*,device.x_energy_level,device.e_energy_level " +
                     ",IFNULL(dp.testPoint,proj.testPoint) AS testPoint" +
                     ", IFNULL(dp.numOfInput,proj.numOfInput) AS numOfInput " +
@@ -502,7 +514,7 @@ export function getProjectTests(obj) {
                     ' LEFT JOIN '+DBTABLE.DEVICE_PROJ+" AS dp ON dp_result.qscDeviceProjID=dp.id " +
                     " LEFT JOIN " +DBTABLE.PROJECT+' AS proj ON dp.projectID=proj.id'+
                     " LEFT JOIN " +DBTABLE.DEVICE+' AS device ON dp.deviceID=device.id'+
-                    " WHERE dp_result.deviceID="+obj.deviceID+cond_sql+" ORDER BY dp_result.id DESC limit "+obj.offset*obj.pageNum+','+obj.offset;
+                    " WHERE dp_result.deviceID="+obj.deviceID + cond_sql + orderBy +" limit "+obj.offset*obj.pageNum+','+obj.offset;
                 console.log(select_sql)
                 db.all(select_sql, function(err, rows) {
                     console.log(err)

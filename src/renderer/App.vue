@@ -163,6 +163,9 @@ input::-webkit-inner-spin-button {
       border: 0;
       border-right: 1px solid rgba(255, 255, 255, 0.2);
       line-height: 30px;
+      &:hover,&:active,&:focus{
+        border-right: 1px solid rgba(255, 255, 255, 0.2);
+      }
     }
     span{
       flex: none;
