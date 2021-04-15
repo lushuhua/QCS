@@ -158,11 +158,14 @@ input::-webkit-inner-spin-button {
     align-items: center;
     background: rgba(255, 255, 255, 0.08);
     width: auto;
+    border-radius: 4px 0 0 4px;
     input{
       background: rgba(255, 255, 255, 0.08);
       border: 0;
       border-right: 1px solid rgba(255, 255, 255, 0.2);
       line-height: 30px;
+      border-top-right-radius: unset;
+      border-bottom-right-radius: unset;
       &:hover,&:active,&:focus{
         border-right: 1px solid rgba(255, 255, 255, 0.2);
       }
@@ -174,6 +177,7 @@ input::-webkit-inner-spin-button {
       display: flex;justify-content: center;
       align-items: center;
       background: rgba(255, 255, 255, 0.08);
+      border-radius: 0 4px 4px 0;
     }
   }
   .el-input__inner::-webkit-input-placeholder{
