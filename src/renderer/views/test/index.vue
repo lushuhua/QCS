@@ -471,10 +471,10 @@
             },
             getTestResultCalc(){
                 return function (project,item) {
-                    console.log(item)
+                    console.log(item,project.testResult)
                     let val = null
-                    if (project.testResult) {
-                        let obj = project.testResult.find(val=>val.key == item)
+                    if (project.testResult && project.testResult.length>0) {
+                        let obj = project.testResult.find(val1=>val1.key == item)
                         if (obj) {
                             val = obj.val
                         }else {
@@ -858,7 +858,7 @@
                     qscDeviceProjID:project.id,
                     projectID:project.projectID,
                     deviceID:project.deviceID,
-                    testResult:JSON.stringify(project.testResult),
+                    testResult:JSON.stringify(project.testResult.filter(val=>val&&val.hasOwnProperty('key'))),
                     personName:'无'
                 };
                 console.log('saveProjectChange',project.energyJson,project.result)
