@@ -109,6 +109,10 @@
                     this.defaultID = res.devices[0].id
                 }
             })
+            window.onresize = ()=>{
+                this.isFullScreen = this.$electron.remote.getCurrentWindow().isMaximized()
+                console.log('size-change',this.isFullScreen)
+            }
         },
         watch: {
             currentDeviceID: function (val) {
@@ -153,6 +157,7 @@
                 this.$electron.ipcRenderer.send('minimize')
             },
             maximize(){
+                console.log('this.$electron',this.$electron)
                 if (this.isFullScreen){
                     this.$electron.ipcRenderer.send('unmaximize')
                 }else{

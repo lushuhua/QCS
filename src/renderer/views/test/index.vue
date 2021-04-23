@@ -619,14 +619,14 @@
                     ,refName = 'canvas'+ len
                     ,refNameAna = 'canvasAna'+ len
                 this.imageData.push({
-                    data: libraryData,
+                    data: libraryData.imageData,
                     refName: refName,
                     refNameAna: refNameAna,
                     testValue: testValue,
                     filePath: filePath
                 })
                 this.viewImageData.push({
-                    data: libraryData,
+                    data: libraryData.imageData,
                     refNameAna: refNameAna,
                     testValue: testValue,
                     filePath: filePath
