@@ -383,7 +383,7 @@
                     pageNum: 1,
                     offset: 110,
                     count: 0,
-                    orderBy: 'projectNo&asc'
+                    orderBy: ''
                 },
                 projectNum: {
                     data: [],
