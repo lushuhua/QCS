@@ -256,11 +256,15 @@
         watch: {
             currentDeviceID: function (val) {
                 console.log(val);
-                this.getProjectsData(1)
+                if (this.$route.name === 'project'){
+                    this.getProjectsData(1)
+                }
             },
             $route: function () {
                 console.log('$route')
-                this.getProjectsData()
+                if (this.$route.name === 'project'){
+                    this.getProjectsData()
+                }
             }
         },
         mounted() {

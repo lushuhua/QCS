@@ -237,6 +237,7 @@
                         <th>终端名</th>
                         <th>AE TITLE</th>
                         <th>IP</th>
+                        <th>端口号</th>
                     </tr>
                     </thead>
                     <tbody class="tab-lists">
@@ -249,7 +250,8 @@
                         </td>
                         <td style="width: 100px;text-align: center">{{v.customer}}</td>
                         <td style="width: 100px;text-align: center">{{v.aeTitle}}</td>
-                        <td style="width: 100px;text-align: center">{{v.ip}}:{{v.port}}</td>
+                        <td style="width: 100px;text-align: center">{{v.ip}}</td>
+                        <td style="width: 100px;text-align: center">{{v.port}}</td>
                     </tr>
                     </tbody>
                 </table>
@@ -504,8 +506,10 @@
         },
         watch: {
             currentDeviceID: function (val) {
-                console.log(val);
-                this.getProjectsFn(1)
+                console.log('currentDeviceID',this.$route);
+                if (this.$route.name === 'test'){
+                    this.getProjectsFn(1)
+                }
             }
         },
         methods: {

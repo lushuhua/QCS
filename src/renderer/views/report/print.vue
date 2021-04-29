@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div style="display: flex;flex-direction: column">
         <div id="print-wrapper" style="margin: 20px 30px;padding: 20px">
             <div v-show="hospitalInfo" style="font-size: 14px;display: flex;justify-content: space-between;align-items: center">
                 <div>
@@ -11,7 +11,7 @@
                 </div>
 
             </div>
-            <div class="report-tab" style="font-size: 30px;margin-top: 20px;height: 60vh;overflow-y: auto">
+            <div class="report-tab" style="font-size: 30px;margin-top: 20px;max-height:450px;overflow-y: auto">
                 <table class=" report-tab-content" border="0" cellspacing="0">
                     <thead class="tab-header">
                     <tr>
@@ -42,7 +42,7 @@
                 </table>
             </div>
         </div>
-        <div style="text-align: center;padding-bottom: 20px">
+        <div style="text-align: center;padding-bottom: 20px;flex: none;">
             <el-button type="primary" class="active" @click="print">打印报表</el-button>
         </div>
     </div>

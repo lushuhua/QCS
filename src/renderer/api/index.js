@@ -31,7 +31,7 @@ export function getProjects(obj) {
         if(!obj.pageNum) obj.pageNum = 0;
         let cond_sql ='',testTable = `(SELECT a.* FROM (SELECT id AS testID,testResult,createDate,qscDeviceProjID FROM ${DBTABLE.DEVICE_PROJECT_RESULT} ORDER BY testID DESC) a GROUP BY a.qscDeviceProjID ORDER BY a.testID DESC)`;
         if(obj.detectType) cond_sql +=' AND data.detectType="'+obj.detectType+'"';
-        if(obj.name) cond_sql +=' AND data.name LIKE "%'+obj.name+'%"';
+        if(obj.name) cond_sql +=` AND (data.name LIKE "%${obj.name}%" OR data.subName LIKE "%${obj.name}%")`;
         if(obj.step) cond_sql +=' AND data.step="'+obj.step+'"';
         if(obj.analysis) cond_sql +=' AND data.analysis="'+obj.analysis+'"';
         if(obj.projectNo) cond_sql +=' AND data.projectNo="'+obj.projectNo+'"';
@@ -52,13 +52,14 @@ export function getProjects(obj) {
                     case 'registerTime':
                         orderBy = ' ORDER BY a.registerTime '+str[1]
                         break
-                    case 'machineCount':
-                        orderBy = ' ORDER BY machineCount '+str[1]
+                    case 'projectID':
+                        orderBy = ' ORDER BY projectID '+str[1]
                         break
                 }
             }
         }
-        let sel_sql = `(SELECT proj.name,proj.radioType,proj.subName,proj.projectNo,proj.radioType,proj.dataRequire,proj.extraRequire,proj.analysis,proj.views,proj.type,proj.detectCondition,proj.step,proj.remark,proj.moduleRequire,proj.detectType,proj.detail,proj.detailUrl
+        let sel_sql = `(SELECT proj.name,proj.radioType,proj.subName,proj.projectNo,proj.radioType,proj.dataRequire,proj.extraRequire,proj.analysis,proj.views,proj.type,proj.detectCondition
+                ,proj.step,proj.remark,proj.moduleRequire,proj.detectType,proj.detail,proj.detailUrl
                 ,device.x_energy_level,device.e_energy_level 
                 ,IFNULL(dp.testPoint,proj.testPoint) AS testPoint
                 ,IFNULL(dp.numOfInput,proj.numOfInput) AS numOfInput
@@ -99,7 +100,7 @@ export function getProjects(obj) {
                 console.log(select_sql)
                 db.all(select_sql, function(err, rows) {
                     console.log(err)
-                    console.log('rows',rows)
+                    // console.log('rows',rows)
                     if (err){
                         callback(err)
                     } else {

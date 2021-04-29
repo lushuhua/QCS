@@ -133,10 +133,14 @@
         },
         watch: {
             currentDeviceID:function () {
-                this.getTestData(1)
+                if (this.$route.name === 'report'){
+                    this.getTestData(1)
+                }
             },
             $route: function () {
-                this.getTestData(1)
+                if (this.$route.name === 'report'){
+                    this.getTestData(1)
+                }
             }
         },
         computed: mapState({

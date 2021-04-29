@@ -129,7 +129,7 @@
                         <tbody class="tab-lists">
                         <tr v-for="(project,index) in projects" :key="index">
                             <td>{{project.projectNo}}</td>
-                            <td>{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td>
+                            <td style="max-width: 300px">{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td>
                             <td>{{project.threshold}}</td>
                             <td>{{project.period}}</td>
                             <!--<td>{{project.radioType}}</td>-->
@@ -503,8 +503,10 @@
             currentDeviceID: function (val) {
                 console.log(val);
                 // this.getProjectsData()
-                this.changeType(this.typeName,this.showTypeIndex)
-                this.initDeviceData()
+                if (this.$route.name === 'setting'){
+                    this.changeType(this.typeName,this.showTypeIndex)
+                    this.initDeviceData()
+                }
             }
         },
         methods: {
@@ -530,7 +532,7 @@
             },
             getProjectsData(state){
                 if (state) this.projectInfo.pageNum = 1
-                getProjects({deviceID:this.currentDeviceID,pageNum: this.projectInfo.pageNum-1,offset: this.projectInfo.offset,orderBy: 'projectNo&asc'}).then(res =>{
+                getProjects({deviceID:this.currentDeviceID,pageNum: this.projectInfo.pageNum-1,offset: this.projectInfo.offset,orderBy: 'projectID&asc'}).then(res =>{
                     console.log(res);
                     if (res.devices){
                         res.devices.forEach(val=>{
@@ -808,12 +810,11 @@
                     this.project.dpID = project.dpID
                     this.project.id = project.id
                     if (this.project.threshold){
+                        this.project.thresholdValue = this.project.threshold.replace(/mm|%|°/,'').substr(1)
                         let index = this.project.threshold.indexOf('mm')
                         if (index>-1){
-                            this.project.thresholdValue = this.project.threshold.substring(1,index)
                             this.project.thresholdUnit = 'mm'
                         } else {
-                            this.project.thresholdValue = this.project.threshold.substr(1,this.project.threshold.length-1)
                             this.project.thresholdUnit = this.project.threshold.substr(-1)
                         }
                     }
