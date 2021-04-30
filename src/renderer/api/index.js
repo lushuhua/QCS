@@ -59,7 +59,7 @@ export function getProjects(obj) {
             }
         }
         let sel_sql = `(SELECT proj.name,proj.radioType,proj.subName,proj.projectNo,proj.radioType,proj.dataRequire,proj.extraRequire,proj.analysis,proj.views,proj.type,proj.detectCondition
-                ,proj.step,proj.remark,proj.moduleRequire,proj.detectType,proj.detail,proj.detailUrl
+                ,proj.step,proj.remark,proj.moduleRequire,proj.detectType,proj.detail,proj.detailUrl,proj.unit,proj.supply
                 ,device.x_energy_level,device.e_energy_level 
                 ,IFNULL(dp.testPoint,proj.testPoint) AS testPoint
                 ,IFNULL(dp.numOfInput,proj.numOfInput) AS numOfInput

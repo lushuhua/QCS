@@ -117,7 +117,7 @@
                                 >
                                     <div class=test-item>
                                         <div class="test-result">
-                                            <div class="test-result-title"><span v-if="item!='-'">{{item}}的</span>检测值</div>
+                                            <div class="test-result-title"><span v-if="item!='-'">{{item}}的</span>检测值<span v-if="showTitle1(project)">（10*10）</span></div>
                                             <div class="test-result-item clearfix">
                                                 <!--<div class="item-number left"><span>{{project.energyJson.levelNum}}</span></div>-->
                                                 <!--<div class="item-unit left">mm</div>-->
@@ -132,13 +132,13 @@
                                             <div class="test-number-lists clearfix">
                                                 <div v-if="project.energyJson.levelNum==1" ><!--此处无能量档 无检测点 -->
                                                     <div class="test-number-lists-item left" v-for="(inputValue,inputIndex) in project.energyJson.inputData" :key="inputIndex" :style="{  width: (66/project.numOfInput)+'%'}" >
-                                                        <input type="text" placeholder="请输入" v-model="project.energyJson.inputData[inputIndex]" @change="onchangeVal(project)">
+                                                        <input type="text" :placeholder="inputPlaceholder(project, inputValue, inputIndex)" v-model="project.energyJson.inputData[inputIndex]" @change="onchangeVal(project)">
                                                     </div>
                                                 </div>
                                                 <div v-if="project.energyJson.levelNum==2 && energyIndex == selectedEnergy" v-for="(energy,energyIndex) in project.energyJson" :key="energyIndex"><!--此处有能量档 无检测点-->
                                                     <div class="left" style="width: 50px;line-height: 30px;margin: 2% 0;" v-if="energyIndex!='levelNum'"> {{energyIndex}}</div>
                                                     <div class="test-number-lists-item left" v-if="energyIndex!='levelNum'" v-for="(inputValue,inputIndex) in energy.inputData" :key="inputIndex" :style="{  width: (66/project.numOfInput)+'%'}" >
-                                                        <input type="text" placeholder="请输入" v-model="energy.inputData[inputIndex]" @change="onchangeVal(project)">
+                                                        <input type="text" :placeholder="inputPlaceholder(project, inputValue, inputIndex)" v-model="energy.inputData[inputIndex]" @change="onchangeVal(project)">
                                                     </div>
                                                     <span style="white-space: nowrap;line-height: 32px;float: left;top: 3px;position: relative;" v-if="project.projectID===8 && energyIndex!='levelNum'">gy</span>
                                                 </div>
@@ -146,7 +146,7 @@
                                                     <div v-if="energyIndex!='levelNum'&&energyIndex==item"  v-for="(pointValues,pointIndex) in energy.points" :key="pointIndex">
                                                         <div class="left" style="width: 50px;line-height: 30px;margin: 2% 0;" > {{pointIndex}}</div>
                                                         <div class="test-number-lists-item left" v-for="(pointValue,pointValueIndex) in pointValues" :key="pointValueIndex" :style="{  width: (66/project.numOfInput)+'%'}" >
-                                                            <input type="text" placeholder="请输入" v-model="pointValues[pointValueIndex]" @change="onchangeVal(project)">
+                                                            <input type="text" :placeholder="inputPlaceholder(project, pointValue, pointValueIndex)" v-model="pointValues[pointValueIndex]" @change="onchangeVal(project)">
                                                         </div>
                                                     </div>
                                                 </div>
@@ -237,7 +237,6 @@
                         <th>终端名</th>
                         <th>AE TITLE</th>
                         <th>IP</th>
-                        <th>端口号</th>
                     </tr>
                     </thead>
                     <tbody class="tab-lists">
@@ -250,8 +249,7 @@
                         </td>
                         <td style="width: 100px;text-align: center">{{v.customer}}</td>
                         <td style="width: 100px;text-align: center">{{v.aeTitle}}</td>
-                        <td style="width: 100px;text-align: center">{{v.ip}}</td>
-                        <td style="width: 100px;text-align: center">{{v.port}}</td>
+                        <td style="width: 100px;text-align: center">{{v.ip}}:{{v.port}}</td>
                     </tr>
                     </tbody>
                 </table>
@@ -483,6 +481,10 @@
                             val = project.testResult[0].val
                         }
                     }
+                    // 应该是这个一句吧，这是我昨天没写完的 ooo o
+                    // if (project.supply.indexOf("输入框左侧一列为") > -1) {
+
+                    // }
                     return val
                 }
             },
@@ -506,10 +508,8 @@
         },
         watch: {
             currentDeviceID: function (val) {
-                console.log('currentDeviceID',this.$route);
-                if (this.$route.name === 'test'){
-                    this.getProjectsFn(1)
-                }
+                console.log(val);
+                this.getProjectsFn(1)
             }
         },
         methods: {
@@ -1007,6 +1007,7 @@
             },
             onShowInput(val,item,index){
                 console.log('onShowInput',val)
+                console.log(item)
                 this.selectedRow = val
                 this.selectedEnergy = item
                 this.selectedIndex = index
@@ -1137,6 +1138,8 @@
                 }
                 let files = [],projectIDs = []
                 this.selectedVal.forEach(val=>{
+                    console.log("aaaaaaaaa");
+                    console.log(val);
                     if ( val.testResult&&val.testResult.length>0){
                         files.push(val.testResult.map(value => (value.filePath)))
                     }
@@ -1162,6 +1165,23 @@
                 }).finally(res=>{
                     this.showDICOM = false
                 })
+            },
+            inputPlaceholder(data, value, index) {
+                console.log(data, value, index);
+                if (data.supply === '每个输入框中有个提示，将“请输入”分别改为“左水平，左竖直，体中线，右水平，右竖直”') {
+                    let list = ['左水平', '左竖直', '体中线', '右水平', '右竖直'];
+                    return list[index];
+                } else {
+                    return '请输入' + data.unit;
+                }
+            },
+
+            showTitle1(data) {
+                if (data.supply != null) {
+                    return data.supply.indexOf('对应能量, 10cm*10cm') > -1;
+                } else {
+                    return false;
+                }
             }
         }
     }
