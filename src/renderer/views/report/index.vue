@@ -69,6 +69,7 @@
                         <!--</div>-->
                     </td>
                     <td>{{project.threshold}}</td>
+                    <!-- 检测日期 -->
                     <td>{{project.createDate}}</td>
                 </tr>
                 </tbody>
@@ -98,7 +99,7 @@
                 center
                 ref="print"
         >
-            <Print :hospital-info="hospitalInfo" :projects="projects"></Print>
+            <Print :hospital-info="hospitalInfo" :projects="projects" :currentPage="currentPage" :total="Math.ceil(count/offset)"></Print>
         </el-dialog>
     </div>
 </template>
@@ -133,14 +134,10 @@
         },
         watch: {
             currentDeviceID:function () {
-                if (this.$route.name === 'report'){
-                    this.getTestData(1)
-                }
+                this.getTestData(1)
             },
             $route: function () {
-                if (this.$route.name === 'report'){
-                    this.getTestData(1)
-                }
+                this.getTestData(1)
             }
         },
         computed: mapState({
