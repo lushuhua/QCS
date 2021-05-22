@@ -31,7 +31,7 @@ export function getProjects(obj) {
         if(!obj.pageNum) obj.pageNum = 0;
         let cond_sql ='',testTable = `(SELECT a.* FROM (SELECT id AS testID,testResult,createDate,qscDeviceProjID FROM ${DBTABLE.DEVICE_PROJECT_RESULT} ORDER BY testID DESC) a GROUP BY a.qscDeviceProjID ORDER BY a.testID DESC)`;
         if(obj.detectType) cond_sql +=' AND data.detectType="'+obj.detectType+'"';
-        if(obj.name) cond_sql +=` AND (data.name LIKE "%${obj.name}%" OR data.subName LIKE "%${obj.name}%")`;
+        if(obj.name) cond_sql +=' AND data.name LIKE "%'+obj.name+'%"';
         if(obj.step) cond_sql +=' AND data.step="'+obj.step+'"';
         if(obj.analysis) cond_sql +=' AND data.analysis="'+obj.analysis+'"';
         if(obj.projectNo) cond_sql +=' AND data.projectNo="'+obj.projectNo+'"';
@@ -52,14 +52,13 @@ export function getProjects(obj) {
                     case 'registerTime':
                         orderBy = ' ORDER BY a.registerTime '+str[1]
                         break
-                    case 'projectID':
-                        orderBy = ' ORDER BY projectID '+str[1]
+                    case 'machineCount':
+                        orderBy = ' ORDER BY machineCount '+str[1]
                         break
                 }
             }
         }
-        let sel_sql = `(SELECT proj.name,proj.radioType,proj.subName,proj.projectNo,proj.radioType,proj.dataRequire,proj.extraRequire,proj.analysis,proj.views,proj.type,proj.detectCondition
-                ,proj.step,proj.remark,proj.moduleRequire,proj.detectType,proj.detail,proj.detailUrl,proj.unit,proj.supply,proj.tips,proj.nameAPI,proj.pathRT,proj.testUnit
+        let sel_sql = `(SELECT proj.name,proj.radioType,proj.subName,proj.projectNo,proj.radioType,proj.dataRequire,proj.extraRequire,proj.analysis,proj.views,proj.type,proj.detectCondition,proj.step,proj.remark,proj.moduleRequire,proj.detectType,proj.detail,proj.detailUrl,proj.unit,proj.supply
                 ,device.x_energy_level,device.e_energy_level 
                 ,IFNULL(dp.testPoint,proj.testPoint) AS testPoint
                 ,IFNULL(dp.numOfInput,proj.numOfInput) AS numOfInput
@@ -100,7 +99,7 @@ export function getProjects(obj) {
                 console.log(select_sql)
                 db.all(select_sql, function(err, rows) {
                     console.log(err)
-                    // console.log('rows',rows)
+                    console.log('rows',rows)
                     if (err){
                         callback(err)
                     } else {
@@ -650,15 +649,12 @@ export function fileUpload(obj) {
 export function getTestValue(obj) {
     console.log('getTestValue',obj)
     return new Promise((resolve,reject) => {
-        console.log(11111111)
         // const value = path.join(__dirname,"./RI.1.3.46.423632.131000.1606838764.9.dcm")
         // console.log('symmetry of this graph is:',qcsNode.get_symmetry(value));
         try {
-            let value = qcsNode[obj.apiUrl](obj.filePath);
-            console.log('%c [ obj.apiUrl ]', 'font-size:13px; background:pink; color:#bf2c9f;', obj.apiUrl)
-            console.log(`value=${value}`);
-                resolve(value)
-            
+            let value = qcsNode.get_symmetry(obj.filePath)
+            console.log(`value=${value}`)
+            resolve(value)
         }catch (e) {
             console.log(e)
         }
@@ -667,17 +663,15 @@ export function getTestValue(obj) {
 const {execFile, exec} = require('child_process');
 /// 传输dicom文件
 export function transferDicom(obj) {
-    console.log('transferDicom',obj);
-    var pathRT=obj.pathRT;
+    console.log('transferDicom',obj)
+    console.log('33333333333333333333333333333333333');
     return new Promise((resolve,reject) => {
+        console.log('2222222222222222222222222222222');
         //qcsNode.get_scu("-d","10.0.10.172","7007","..\\..\\..\\src\\extraResources\\images\\aaaa.dcm","-aec","ACME_STORE","-aet","QCS")
-        const info = ["-aec","ACME_STORE","-aet","QCS","-d","10.0.10.172","7007"];
+        const args = ["-d","10.0.10.172","7007","bbbb.dcm","-aec","ACME_STORE","-aet","QCS"];
         //const child = exec('storescu.exe', args, {cwd: 'storescu'}, (error, stdout, stdin) => {
-        var args =  info.concat(pathRT);
-        console.log('%c [ args ]', 'font-size:13px; background:pink; color:#bf2c9f;', args)
         //const child = exec('storescu.exe -d 10.0.10.172 7007 aaaa.dcm -aec ACME_STORE -aet QCS', {'cwd': 'src/renderer/api/storescu'}, 
-        const child = execFile('storescu.exe', args, {'cwd': 'src/extraResources/storescu'}, 
-
+        const child = execFile('storescu.exe', args, {'cwd': 'src/renderer/api/storescu'}, 
             (error, stdout, stdin) => {
                 if (error) {
                 console.log(error);
@@ -685,6 +679,7 @@ export function transferDicom(obj) {
             }
             console.log(stdout);
         })
+        console.log('111111111111111111111111111')
         // const value = path.join(__dirname,"./RI.1.3.46.423632.131000.1606838764.9.dcm")
         // console.log('symmetry of this graph is:',qcsNode.get_symmetry(value));
         try {
@@ -700,24 +695,6 @@ export function transferDicom(obj) {
         }
     })
 }
-/// 传输dicom文件
-// export function transferDicom(obj) {
-//     console.log('transferDicom',obj)
-//     return new Promise((resolve,reject) => {
-//         // const value = path.join(__dirname,"./RI.1.3.46.423632.131000.1606838764.9.dcm")
-//         // console.log('symmetry of this graph is:',qcsNode.get_symmetry(value));
-//          qcsNode.get_scu('storescu.exe',obj.ip,obj.port,file)
-//         try {
-//             // for (let file of obj.files){
-//             //     qcsNode.get_scu('storescu.exe',obj.ip,obj.port,file)
-//             //     console.log(file)
-//             // }
-//             resolve(1)
-//         }catch (e) {
-//             console.log(e)
-//         }
-//     })
-// }
 // export function album(obj) {
 //     console.log('delDicom')
 //     return new Promise(resolve => {

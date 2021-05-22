@@ -6,7 +6,7 @@
         <div v-else>
             <div v-if="project.testResult" v-for="(te,teIndex) in project.testResult" :key="teIndex" class="test-result">
                 <span v-if="showPower && te.key && te.key!='-'">{{te.key}} -</span>
-                {{te.val}}
+                {{te.val}}{{project.testUnit}}
                 <!--<img :class="{'test-result-min': compare(te.val,project.threshold)}" src="../assets/images/arrow.png">-->
                 <img v-if="!compare(te.val,project.threshold)" src="../assets/images/arrow.png">
             </div>
@@ -38,11 +38,11 @@
                     //     data = data.substring(1,data.length-1)
                     // }
                     let testVal = 0,testData = 0
-                    if (val){
-                        testVal = val.replace(/mm|%|°/,'')
-                    }
+                    // if (val){
+                    //     testVal = val.replace(/mm|%|°/,'')
+                    // }
                     testData = data.substr(1)
-                    testData = testData.replace(/mm|%|°/,'')
+                    // testData = testData.replace(/mm|%|°/,'')
                     // val = val?(val.includes('%')?val.replace('%','')/100:val):0
                     console.log(val,testVal,testData)
                     return (testVal - testData) <=0

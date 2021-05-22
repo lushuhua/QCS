@@ -80,9 +80,9 @@ exports.initCoreData = function() {
                 "views TEXT"+
                 ")");
 
-            // db.run("ALTER TABLE qsc_project ADD COLUMN supply TEXT ",function (err) {
-            //     console.log(err)
-            // });
+            db.run("ALTER TABLE qsc_project ADD COLUMN testUnit TEXT ",function (err) {
+                console.log(err)
+            });
             // db.run("ALTER TABLE qsc_project ADD COLUMN detailUrl TEXT ",function (err) {
             //     console.log(err)
             // });
@@ -258,8 +258,8 @@ exports.loadProject = function() {
             // return
             const db = new sq3.Database(sqlDir);//如果不存在，则会自动创建一个文件
             db.serialize(function() {
-                let insert_sql = 'INSERT OR REPLACE INTO qsc_project (id,name,radioType,subName,projectNo,testPoint,numOfInput,dataRequire,extraRequire,analysis,views,type,detectCondition,period,threshold,step,remark,moduleRequire,detectType,detail,detailUrl,unit,supply) ' +
-                    'VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+                let insert_sql = 'INSERT OR REPLACE INTO qsc_project (id,name,radioType,subName,projectNo,testPoint,numOfInput,dataRequire,extraRequire,analysis,views,type,detectCondition,period,threshold,step,remark,moduleRequire,detectType,detail,detailUrl,unit,supply,tips,nameAPI,pathRT,testUnit) ' +
+                    'VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
                 let stmt = db.prepare(insert_sql);
                 workSheets.forEach((val,index)=>{
                     if (index>0 && val.length>0){
