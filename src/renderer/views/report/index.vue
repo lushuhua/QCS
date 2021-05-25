@@ -61,6 +61,7 @@
                     <td>{{project.period}}</td>
                     <td>
                         <test-result :project="project" :show-power="true"></test-result>
+                        
                         <!--<div v-if="project.detectType=='影像分析'">-->
                             <!--<div v-for="v in project.testResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>-->
                         <!--</div>-->

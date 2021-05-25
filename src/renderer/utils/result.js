@@ -1,43 +1,54 @@
 //6.5.2 等中心的指示（激光灯）
 function center(X = 0, Y1 = 0, Y2 = 0, Z1 = 0, Z2 = 0) {
-    const a = X * X + (Y1 + Y2) * (Y1 + Y2) + (Z1 + Z2) * (Z1 + Z2);
-    const resultCenter = (Math.sqrt(a));
-    console.log('%c [ resultCenter ]', 'font-size:13px; background:pink; color:#bf2c9f;', resultCenter)
+    const a = (X+Z1)/2 * (X+Z1)/2 + (Y1 + Z2) /2* (Y1 + Z2)/2 +Y2 * Y2;
+    const aa = Math.sqrt(a);
+    const resultCenter= Math.abs(aa)
     return resultCenter.toFixed(2);
 };
 //6.9 治疗床的等中心旋转
 function rotate(a=0,b=0) {
-    const resultRotate = a>b?a:b;
+    const arr = Math.abs(a)>Math.abs(b)?a:b;
+    const resultRotate = Math.abs(arr)
     return resultRotate
 }
 //6.1.2 重复性（剂量）
-function getR() {
+function getR() {  
     let sum = 0;
+    let inputList=[];
     let list = Array.from(arguments);
-    list = list.map(item => {
-        if (item == null) {
-            return 0
+    for(var i =0;i<list.length;i++) {
+        if(list[i]!==null&&list[i]!=="") {
+            inputList.push(parseInt(list[i]));
         }
-        return item / 2
-    })
-    list.forEach(item => {
-        sum += item;
+        // return list[i]/2
+    }
+    inputList.forEach(item => {
+        console.log(item)
+        sum=sum+item
+        
     });
-    return sum / arguments.length;
+    return sum / inputList.length;
 };
 
 function getRepeat() {
     let r = getR(...arguments);
     let list = Array.from(arguments);
-    list = list.map(item => {
-        if (item == null) {
-            return 0
+    let arr=[];
+    for(var i =0;i<list.length;i++) {
+        if(list[i]!==null&&list[i]!=="") {
+            arr.push(parseInt(list[i]));
         }
-        return item / 2
-    })
+        // return list[i]/2
+    }
+    // list = list.map(item => {
+    //     // if (item == null) {
+    //     //     return 0
+    //     // }
+    //     return item / 2
+    // })
     let sum = 0;
-    let n = list.length;
-    list.forEach(item => {
+    let n = arr.length;
+    arr.forEach(item => {
         sum += (r - item) * (r - item) / (n - 1);
     })
     sum = Math.sqrt(sum)
@@ -48,28 +59,36 @@ function getRepeat() {
     function stableDay(X1 = 0, X2 = 0, X3 = 0, X4 = 0, X5 = 0, X6 = 0) {
         const D1 = (X1 + X2 + X3) / 3;
         const D2 = (X4 + X5 + X6) / 3;
-        const resultStableDay = ((D1 - D2) / D1) * 100;
+        const DD = ((D1 - D2) / D1) * 100;
+        const resultStableDay = Math.abs(DD)
         return resultStableDay.toFixed(2);
     }
 
     //6.1.4随设备角度位置的变化 6.1.5 随机架旋转的变化（剂量 X） 6.1.5 随机架旋转的变化（剂量 电子）
     function angle() {
         let values = Array.from(arguments);
+        let arrr = [];
+        for(var i =0;i<values.length;i++) {
+            if(values[i]!==null&&values[i]!=="") {
+                arrr.push(parseInt(values[i]));
+            }
+            // return list[i]/2
+        }
         let sum = 0;
-        values.forEach(item => {
+        arrr.forEach(item => {
             sum += item;
         })
-        let avg = sum / arguments.length;
-        let dMax = Math.max(...values);
-        let dMin = Math.min(...values);
+        let avg = sum / arrr.length;
+        let dMax = Math.max(...arrr);
+        let dMin = Math.min(...arrr);
         let Da = (dMax - dMin) / avg * 100;
         return Da.toFixed(2);
     }
-
     // 6.1.1 剂量偏差
 
     function wrong(val = 0) {
-        return val - 2 * 100;
+        var val = Math.abs((val/2-1)*100);
+        return val.toFixed(2);
     }
     // 6.1.3.2 线性（剂量）
 
@@ -156,8 +175,12 @@ function getRepeat() {
         let rayEle = eleValue - eleDose;
         return rayEle.toFixed(2)
     }
-
+    //6.6.3 治疗床纵向转动（轴7）横向转动（轴8）
+    function shaft(value=0) {
+        const resultShaft = Math.abs(value);
+        return resultShaft
+    }
 
 export {
-    eleRay, XRay, getLdr, getLd, stableDay, getRepeat, center, angle, wrong,rotate
+    eleRay, XRay, getLdr, getLd, stableDay, getRepeat, center, angle, wrong,rotate,shaft
 }

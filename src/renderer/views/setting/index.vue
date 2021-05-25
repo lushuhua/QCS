@@ -680,10 +680,15 @@
             onblur(){
                 let x_energy_level = [],e_energy_level=[]
                 this.devicesData.forEach(val=>{
+                    console.log(val)
+                    if (val.x == null) {
+                        return;
+                    } 
                     if (val.name === this.lineXInit.name){
                         x_energy_level.push({x: val.x,deep: val.deep,checked: val.checked})
                     } else {
                         e_energy_level.push({x: val.x,deep: val.deep})
+
                     }
                 })
                 let obj = {
@@ -853,21 +858,27 @@
                 return [...lineX,...lineEle]
             },
             onclickDevice(row){
-                console.log(row)
                 if (this.devicesData.filter(val=>val.name===row.name).length>5){
                     this.$message.warning('最多添加6个')
                     return
+                }
+                // 判断devicesData里是否有空值
+                if (this.devicesData.some(val => val.x == null || val.deep == null)) {
+                    this.$message.warning('请输入完数值再添加');
+                    return;
                 }
                 this.devicesData.push({
                     name: row.name,
                     rowspan: 0,
                 })
                 this.devicesData = this.deviceDataTransfer(this.devicesData)
+                console.log('%c [ this.devicesData  ]', 'font-size:13px; background:pink; color:#bf2c9f;', this.devicesData )
                 this.$forceUpdate()
             },
             onclickDeviceDel(scope){
                 this.devicesData.splice(scope.$index,1)
                 this.devicesData = this.deviceDataTransfer(this.devicesData)
+                this.onblur();  // 是不是可以啦 我康康哈
                 this.$forceUpdate()
             }
         }

@@ -133,7 +133,7 @@
                     <tr style="text-align: center" v-for="(project,index) in test.data" :key="index">
                         <td>{{project.createDate}}</td>
                         <td>
-                            <test-result :project="project"></test-result>
+                            <test-result :project="project" :showPower="true"></test-result>
                         </td>
                         <td>{{project.threshold}}</td>
                     </tr>

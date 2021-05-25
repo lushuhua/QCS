@@ -76,10 +76,10 @@
               <th>项目号</th>
               <th>项目名称</th>
               <th>标称能量</th>
-              <th>检测值</th>
+              <th style="width: 50px;">检测值</th>
               <!-- <th>照射野</th> -->
-              <th>阈值</th>
-              <th>检测时间</th> 
+              <th style="width: 40px;">阈值</th>
+              <th style="width: 60px;">检测时间</th> 
             </tr>
           </thead>
           <tbody class="tab-lists">
@@ -106,6 +106,8 @@
                       : project.result.val
                     : ""
                 }}
+                <!-- 检测值单位 -->
+                <span>{{project.testUnit}}</span>
                 <!--<div v-if="project.detectType=='影像分析'">-->
                 <!--<div v-for="v in project.testResult">{{v.power}} {{v.size}}cm-{{v.value}}mm</div>-->
                 <!--</div>-->

@@ -135,7 +135,11 @@
                     <div v-for="v in project.tmpResult">
                       {{ v.power }} {{ v.size }}cm-{{ v.value }}{{ v.testUnit }}
                       <!-- <img v-if="!compare(v.val,project.threshold)" src="../assets/images/arrow.png" /> -->
-                      <img class='showArrow' v-if="!compareCal(v.value,project.threshold)" src="../../assets/images/arrow.png" />
+                      <img
+                        class="showArrow"
+                        v-if="!compareCal(v.value, project.threshold)"
+                        src="../../assets/images/arrow.png"
+                      />
                     </div>
                   </div>
                   <div v-else>
@@ -208,7 +212,7 @@
                 :key="index"
                 @click="handleCurrentChangeSelected(project, index, 1)"
               >
-              <!-- 数值输入 项目号 -->
+                <!-- 数值输入 项目号 -->
                 <td>{{ project.projectNo }}</td>
                 <td class="table-project-name">
                   {{ project.name
@@ -238,7 +242,10 @@
                           <!--<div class="item-number left"><span>{{project.energyJson.levelNum}}</span></div>-->
                           <!--<div class="item-unit left">mm</div>-->
                           <div class="item-number left">
-                            <span>{{ getTestResultCalc(project, item) }}</span>
+                            <span
+                              >{{ getTestResultCalc(project, item)
+                              }}{{ project.testUnit }}</span
+                            >
                             <img
                               v-if="
                                 project.testResult &&
@@ -401,9 +408,7 @@
                 </td>
                 <td>
                   <!-- 这个是计算值的组件 -->
-                  <test-result :project="project">
-                  </test-result>
-                
+                  <test-result :project="project"> </test-result>
                 </td>
                 <td>{{ project.threshold }}</td>
                 <td>{{ project.period }}</td>
@@ -819,15 +824,16 @@ export default {
         //   // testVal = val.replace(/mm|%|°/, "");
         // }
         testData = data.substr(1);
-        // testData = testData.replace(/mm|%|°/, "");
-        // val = val?(val.includes('%')?val.replace('%','')/100:val):0
-        console.log('1111111',val, testVal, testData);
+        testData = testData.replace(/mm|%|°/, "");
+        // testVal = val?(val.includes('%')?val.replace('%','')/100:val):0;
+        testVal=val?val:0;
         return testVal - testData <= 0;
       };
     },
   }),
   mounted() {
     this.getProjectsFn(1);
+ 
   },
 
   watch: {
@@ -1221,13 +1227,6 @@ export default {
       });
     },
     hideInput() {
-      console.log("hideInput", this.currentDeviceInfo);
-      console.log(
-        111,
-        this.selectedRow,
-        this.selectedEnergy,
-        this.selectedIndex
-      );
       // this.testUnit = this.selectedRow.testUnit//检测值单位
       if (!this.selectedRow.changed) return;
       let $val =
@@ -1236,7 +1235,6 @@ export default {
             ? "(" + this.selectedRow.subName + ")"
             : ""),
         result = { key: this.selectedEnergy };
-      console.log($val, cacTestVal);
       let args = [],
         testResult = [];
       switch (this.selectedRow.energyJson.levelNum) {
@@ -1261,15 +1259,12 @@ export default {
             ).length
           ).fill({});
           break;
-      }
+      };
       this.selectedRow.testResult = this.selectedRow.testResult || testResult;
-      console.log(args);
       switch ($val) {
         case "等中心的指示（激光灯）":
           args = args.map((value) => (value ? parseFloat(value) : 0));
-          console.log($val, parseFloat(args));
           result.val = cacTestVal.center(...args);
-          console.log("result.val", result.val);
           break;
         case "重复性（剂量）":
           result.val = cacTestVal.getRepeat(...args);
@@ -1281,11 +1276,6 @@ export default {
         case "线性(剂量)":
           console.log("args", args);
           reargs = args.map((val, index) => {
-            console.log(
-              "%c [ index ]",
-              "font-size:13px; background:pink; color:#bf2c9f;",
-              index
-            );
             let total = val.reduce((accumulator, currentValue) => {
               console.log("accumulator", accumulator);
               accumulator += Number.isNaN(currentValue) ? 0 : +currentValue;
@@ -1293,7 +1283,6 @@ export default {
             }, 0);
             return { u: 0.2 * (index + 1), d: total / val.length };
           });
-          console.log(args, reargs);
           result.val = cacTestVal.getLd(reargs);
           break;
         case "线性(剂量率)":
@@ -1304,22 +1293,18 @@ export default {
             }, 0);
             return { u: 1.5 * (index + 1), d: total / val.length };
           });
-          console.log(args, reargs);
           result.val = cacTestVal.getLdr(reargs);
           break;
         case "随设备角度位置的变化（剂量）":
           reargs = args.map((val) => this.getAverage(val));
-          console.log(args, reargs);
           result.val = cacTestVal.angle(...reargs);
           break;
         case "随机架旋转的变化（剂量）(X)":
           reargs = args.map((val) => this.getAverage(val));
-          console.log(args, reargs);
           result.val = cacTestVal.angle(...reargs);
           break;
         case "随机架旋转的变化（剂量）(电子)":
           reargs = args.map((val) => this.getAverage(val));
-          console.log(args, reargs);
           result.val = cacTestVal.angle(...reargs);
           break;
         case "X射线深度吸收剂量特性":
@@ -1330,7 +1315,6 @@ export default {
             ),
             xValue: +val,
           }));
-          console.log(args, reargs);
           result.val = cacTestVal.XRay(reargs);
           break;
         case "电子射线深度吸收剂量特性":
@@ -1341,16 +1325,34 @@ export default {
             ),
             xValue: +val,
           }));
-          console.log(args, reargs);
           result.val = cacTestVal.eleRay(reargs);
           break;
         case "剂量偏差":
-          console.log("剂量偏差", args);
           result.val = cacTestVal.wrong(args[0] ? args[0] : 0);
           break;
         case "治疗床的等中心旋转":
           args = args.map((value) => (value ? value : 0));
           result.val = cacTestVal.rotate(...args);
+          break;
+        case "旋转运动标尺的零刻度位置(治疗床面纵向转动轴)":
+          args = args.map((value) => (value ? value : 0));
+          result.val = cacTestVal.shaft(...args);
+          break;
+           case "旋转运动标尺的零刻度位置(治疗床面横向转动轴)":
+          args = args.map((value) => (value ? value : 0));
+          result.val = cacTestVal.shaft(...args);
+          break;
+          case "治疗床的刚度(横向（侧向倾斜角度）)":
+          args = args.map((value) => (value ? value : 0));
+          result.val = cacTestVal.shaft(...args);
+          break;
+           case "治疗床的刚度(横向（高度的变化）)":
+          args = args.map((value) => (value ? value : 0));
+          result.val = cacTestVal.shaft(...args);
+          break;
+           case "治疗床的刚度(纵向（高度的变化）)":
+          args = args.map((value) => (value ? value : 0));
+          result.val = cacTestVal.shaft(...args);
           break;
         default:
           result.val = args[this.selectedIndex];
@@ -1443,7 +1445,7 @@ export default {
         let activeProject = this.projectsData[this.activeProjectIndex];
         console.log(this.projectsData[this.activeProjectIndex]);
         const apiUrl = activeProject.nameAPI;
-        console.log(apiUrl)
+        console.log(apiUrl);
         let filePath = this.currentFile.file.path;
         let testValue = await getTestValue({ filePath, apiUrl });
         if (apiUrl == "get_flatness") {
@@ -1472,7 +1474,7 @@ export default {
                 size: val.size,
                 filePath: val.filePath,
                 testUnit: obj.testUnit,
-                value: testValue
+                value: testValue,
               });
             }
           });
@@ -2082,10 +2084,10 @@ tr td {
     }
   }
 }
-   .showArrow {
-          width: 7px;
-          height: 13px;
-          position: relative;
-          top: -1px;
-        }
+.showArrow {
+  width: 7px;
+  height: 13px;
+  position: relative;
+  top: -1px;
+}
 </style>

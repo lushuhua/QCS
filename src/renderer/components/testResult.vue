@@ -6,9 +6,9 @@
         <div v-else>
             <div v-if="project.testResult" v-for="(te,teIndex) in project.testResult" :key="teIndex" class="test-result">
                 <span v-if="showPower && te.key && te.key!='-'">{{te.key}} -</span>
-                {{te.val}}{{project.testUnit}}
+                {{te.val}}<span v-if="te.val!=null">{{project.testUnit}}</span>
                 <!--<img :class="{'test-result-min': compare(te.val,project.threshold)}" src="../assets/images/arrow.png">-->
-                <img v-if="!compare(te.val,project.threshold)" src="../assets/images/arrow.png">
+                <img v-if="!compare(te.val,project.threshold)&&te.val!==null" src="../assets/images/arrow.png">
             </div>
         </div>
     </div>
@@ -42,9 +42,10 @@
                     //     testVal = val.replace(/mm|%|°/,'')
                     // }
                     testData = data.substr(1)
-                    // testData = testData.replace(/mm|%|°/,'')
-                    // val = val?(val.includes('%')?val.replace('%','')/100:val):0
-                    console.log(val,testVal,testData)
+                    testData = testData.replace(/mm|%|°/,'')
+                    // testVal = val?(val.includes('%')?val.replace('%','')/100:val):0
+                    testVal=val?val:0;
+                    console.log('%c [ val,testVal,testData ]', 'font-size:13px; background:pink; color:#bf2c9f;', val,testVal,testData)
                     return (testVal - testData) <=0
                 }
             }
