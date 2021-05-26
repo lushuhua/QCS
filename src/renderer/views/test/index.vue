@@ -242,10 +242,10 @@
                           <!--<div class="item-number left"><span>{{project.energyJson.levelNum}}</span></div>-->
                           <!--<div class="item-unit left">mm</div>-->
                           <div class="item-number left">
-                            <span
+                            
+                            <span v-if="getTestResultCalc(project, item)"
                               >{{ getTestResultCalc(project, item)
-                              }}{{ project.testUnit }}</span
-                            >
+                              }}{{ project.testUnit }}</span>
                             <img
                               v-if="
                                 project.testResult &&
@@ -341,7 +341,7 @@
                                 project.projectID === 8 &&
                                 energyIndex != 'levelNum'
                               "
-                              >gy</span
+                              >Gy</span
                             >
                           </div>
                           <div
@@ -826,14 +826,13 @@ export default {
         testData = data.substr(1);
         testData = testData.replace(/mm|%|°/, "");
         // testVal = val?(val.includes('%')?val.replace('%','')/100:val):0;
-        testVal=val?val:0;
+        testVal = val ? val : 0;
         return testVal - testData <= 0;
       };
     },
   }),
   mounted() {
     this.getProjectsFn(1);
- 
   },
 
   watch: {
@@ -1259,7 +1258,7 @@ export default {
             ).length
           ).fill({});
           break;
-      };
+      }
       this.selectedRow.testResult = this.selectedRow.testResult || testResult;
       switch ($val) {
         case "等中心的指示（激光灯）":
@@ -1296,36 +1295,31 @@ export default {
           result.val = cacTestVal.getLdr(reargs);
           break;
         case "随设备角度位置的变化（剂量）":
-          reargs = args.map((val) => this.getAverage(val));
+          reargs = args.map((val) => this.getAverage(val.filter(v=>v!=null)));
           result.val = cacTestVal.angle(...reargs);
           break;
         case "随机架旋转的变化（剂量）(X)":
-          reargs = args.map((val) => this.getAverage(val));
+          reargs = args.map((val) => this.getAverage(val.filter(v=>v!=null)));
+          console.log('%c [ reargs ]', 'font-size:13px; background:pink; color:#bf2c9f;', reargs)
           result.val = cacTestVal.angle(...reargs);
           break;
         case "随机架旋转的变化（剂量）(电子)":
-          reargs = args.map((val) => this.getAverage(val));
+         reargs = args.map((val) => this.getAverage(val.filter(v=>v!=null)));
+         console.log('%c [ reargs ]', 'font-size:13px; background:pink; color:#bf2c9f;', reargs)
+          
           result.val = cacTestVal.angle(...reargs);
           break;
         case "X射线深度吸收剂量特性":
-          reargs = args.map((val) => ({
-            xDose: this.getDeepCal(
-              this.currentRow.radioType,
-              this.selectedEnergy
-            ),
-            xValue: +val,
-          }));
-          result.val = cacTestVal.XRay(reargs);
+          let x_energy_level = JSON.parse(this.selectedRow.x_energy_level);
+          let x_deep = x_energy_level[this.selectedIndex].deep;
+          args = args.map((value) => (value ? value - x_deep : 0));
+          result.val = cacTestVal.shaft(...args);
           break;
-        case "电子射线深度吸收剂量特性":
-          reargs = args.map((val) => ({
-            xDose: this.getDeepCal(
-              this.currentRow.radioType,
-              this.selectedEnergy
-            ),
-            xValue: +val,
-          }));
-          result.val = cacTestVal.eleRay(reargs);
+        case "电子线深度吸收剂量特性":
+          let e_energy_level = JSON.parse(this.selectedRow.e_energy_level);
+          let e_deep = e_energy_level[this.selectedIndex].deep;
+          args = args.map((value) => (value ? value - e_deep : 0));
+          result.val = cacTestVal.shaft(...args);
           break;
         case "剂量偏差":
           result.val = cacTestVal.wrong(args[0] ? args[0] : 0);
@@ -1338,19 +1332,19 @@ export default {
           args = args.map((value) => (value ? value : 0));
           result.val = cacTestVal.shaft(...args);
           break;
-           case "旋转运动标尺的零刻度位置(治疗床面横向转动轴)":
+        case "旋转运动标尺的零刻度位置(治疗床面横向转动轴)":
           args = args.map((value) => (value ? value : 0));
           result.val = cacTestVal.shaft(...args);
           break;
-          case "治疗床的刚度(横向（侧向倾斜角度）)":
+        case "治疗床的刚度(横向（侧向倾斜角度）)":
           args = args.map((value) => (value ? value : 0));
           result.val = cacTestVal.shaft(...args);
           break;
-           case "治疗床的刚度(横向（高度的变化）)":
+        case "治疗床的刚度(横向（高度的变化）)":
           args = args.map((value) => (value ? value : 0));
           result.val = cacTestVal.shaft(...args);
           break;
-           case "治疗床的刚度(纵向（高度的变化）)":
+        case "治疗床的刚度(纵向（高度的变化）)":
           args = args.map((value) => (value ? value : 0));
           result.val = cacTestVal.shaft(...args);
           break;
@@ -1367,10 +1361,14 @@ export default {
     },
     /// 获取一组数字的平均值
     getAverage(data) {
+      if(data.length ==0){
+        return null
+      }
       let total = data.reduce((accumulator, currentValue) => {
         accumulator += Number.isNaN(currentValue) ? 0 : +currentValue;
         return accumulator;
       }, 0);
+      
       return total / data.length;
     },
     getDeepCal(radioType, energy) {

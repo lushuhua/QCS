@@ -67,6 +67,11 @@ function getRepeat() {
     //6.1.4随设备角度位置的变化 6.1.5 随机架旋转的变化（剂量 X） 6.1.5 随机架旋转的变化（剂量 电子）
     function angle() {
         let values = Array.from(arguments);
+        // // reargs = args.map((val) => this.getAverage(val.filter(v=>v!=null)));
+        // console.log('%c [ values ]', 'font-size:13px; background:pink; color:#bf2c9f;', values)
+        // let arr = values.map((val)=>val.filter(v=>v!=NaN))
+        // console.log('%c [ arr ]', 'font-size:13px; background:pink; color:#bf2c9f;', arr)
+
         let arrr = [];
         for(var i =0;i<values.length;i++) {
             if(values[i]!==null&&values[i]!=="") {
