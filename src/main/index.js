@@ -13,11 +13,64 @@ if (process.env.NODE_ENV !== 'development') {
         .join(__dirname, '/static')
         .replace(/\\/g, '\\\\')
 }
+const { cv, cvTranslateError } = require('opencv-wasm');
+//console.log(cv);
+import * as cacImgVal from "../renderer/utils/image";
+import  THRESH_BINARY from 'opencv-wasm/opencv.js';
+import  Mat  from 'opencv-wasm/opencv.js';
+import {  THRESH_OTSU,  THRESH_TRIANGLE,  CONTOURS_MATCH_I1  }  from 'opencv-wasm/opencv.js';
+//import { ConfigurationServicePlaceholders } from 'aws-sdk/lib/config_service_placeholders';
+ipcMain.on('cal_symmetry', (event, rows, columns, pixel_data_16, pixel_data_8) =>
+        event.returnValue = cacImgVal.cal_symmetry(rows, columns, pixel_data_16, pixel_data_8)
+    )
+    //6.3.1 Uniformity of square X-ray irradiation field
+ipcMain.on('cal_uniformity', (event, rows, columns, pixel_data_16, pixel_data_8, image_shape) => {
+            event.returnValue = cacImgVal.cal_uniformity(rows, columns, pixel_data_16, pixel_data_8, image_shape)
+        }
+
+    )
+    //6.4.2 Position indication of radiation beam axis on the patient's incident surface
+ipcMain.on('cal_position_indication', (event, rows, columns, first_pixel_data_16, first_pixel_data_8, first_image_shape, second_pixel_data_16, second_pixel_data_8, second_image_shape) => {
+            event.returnValue = cacImgVal.cal_position_indication(rows, columns, first_pixel_data_16, first_pixel_data_8, first_image_shape, second_pixel_data_16, second_pixel_data_8, second_image_shape)
+        }
+
+    )
+    //6.6.2 Zero scale position of rotary motion ruler
+ipcMain.on('cal_scale_position', (event, rows, columns, first_pixel_data_16, first_pixel_data_8, first_image_shape, second_pixel_data_16, second_pixel_data_8, second_image_shape) => {
+            event.returnValue = cacImgVal.cal_scale_position(rows, columns, first_pixel_data_16, first_pixel_data_8, first_image_shape, second_pixel_data_16, second_pixel_data_8, second_image_shape)
+        }
+
+    )
+    //6.3.3 Penumbra of radiation field
+ipcMain.on('cal_penumbra', (event, rows, columns, pixel_data_16, pixel_data_8) => {
+            event.returnValue = cacImgVal.cal_penumbra(rows, columns, pixel_data_16, pixel_data_8)
+        }
+
+    )
+    //6.4.1 Digital indication of radiation field(Unit beam limiting)
+ipcMain.on('cal_unit_limiting', (event, rows, columns, pixel_data_16, pixel_data_8) => {
+            event.returnValue = cacImgVal.cal_unit_limiting(rows, columns, pixel_data_16, pixel_data_8)
+        }
+
+    )
+    //6.4.1 Digital indication of radiation field(multiple beam limiting :10*10  40 pairs/80 pairs)
+ipcMain.on('cal_small_multiple_limiting', (event, rows, columns, pixel_data_16, pixel_data_8, pairs_number) => {
+            event.returnValue = cacImgVal.cal_small_multiple_limiting(rows, columns, pixel_data_16, pixel_data_8, pairs_number)
+        }
+
+    )
+    //6.4.1 Digital indication of radiation field(multiple beam limiting :10*40  40 pairs/80 pairs )
+ipcMain.on('cal_large_muliiple_limiting', (event, rows, columns, first_pixel_data_16, first_pixel_data_8, pairs_number, second_pixel_data_16, second_pixel_data_8) => {
+        event.returnValue = cacImgVal.cal_large_muliiple_limiting(rows, columns, first_pixel_data_16, first_pixel_data_8, pairs_number, second_pixel_data_16, second_pixel_data_8)
+    }
+
+)
 
 let mainWindow
 const winURL = process.env.NODE_ENV === 'development' ?
     `http://localhost:9080` :
     `file://${__dirname}/index.html`
+
 function createWindow() {
     /**
      * Initial window options
@@ -25,15 +78,15 @@ function createWindow() {
     mainWindow = new BrowserWindow({
         height: 765,
         useContentSize: true,
-        width: 1382,//1182
+        width: 1382, //1182
         frame: false,
         minWidth: 1182,
         minHeight: 600,
         resizable: true,
         skipTaskbar: false,
         transparent: false,
-        title:"QCS",
-        autoHideMenuBar:true,
+        title: "QCS",
+        autoHideMenuBar: true,
         backgroundColor: '#000',
         webPreferences: {
             nodeIntegration: true,
@@ -44,13 +97,13 @@ function createWindow() {
             webviewTag: true,
             enableRemoteModule: true
         },
-        x:0,
-        y:0
+        x: 0,
+        y: 0
     });
 
     mainWindow.loadURL(winURL)
-//重点在下面这行，开启调试
-//     mainWindow.webContents.openDevTools()
+        //重点在下面这行，开启调试
+        //     mainWindow.webContents.openDevTools()
     mainWindow.on('closed', () => {
         mainWindow = null
     })
@@ -70,16 +123,16 @@ app.on('activate', () => {
     }
 })
 
-ipcMain.on('close',e=>{
+ipcMain.on('close', e => {
     mainWindow.close()
 })
-ipcMain.on('minimize',e=>{
+ipcMain.on('minimize', e => {
     mainWindow.minimize()
 })
-ipcMain.on('maximize',e=>{
+ipcMain.on('maximize', e => {
     mainWindow.maximize()
 })
-ipcMain.on('unmaximize',e=>{
+ipcMain.on('unmaximize', e => {
     mainWindow.unmaximize()
 })
 
@@ -102,4 +155,3 @@ app.on('ready', () => {
   if (process.env.NODE_ENV === 'production') autoUpdater.checkForUpdates()
 })
  */
-

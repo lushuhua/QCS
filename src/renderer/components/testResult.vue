@@ -43,7 +43,6 @@
                     // }
                     testData = data.substr(1)
                     testData = testData.replace(/mm|%|°/,'')
-                    // testVal = val?(val.includes('%')?val.replace('%','')/100:val):0
                     testVal=val?val:0;
                     console.log('%c [ val,testVal,testData ]', 'font-size:13px; background:pink; color:#bf2c9f;', val,testVal,testData)
                     return (testVal - testData) <=0

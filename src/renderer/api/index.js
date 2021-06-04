@@ -1,59 +1,60 @@
-
-import {DBTABLE,initCoreData,uploadFile,loadProject} from "../../main/dbaccess/connectDb";
-import {getCurDate} from "../../main/util/util";
+import { DBTABLE, initCoreData, uploadFile, loadProject } from "../../main/dbaccess/connectDb";
+import { getCurDate } from "../../main/util/util";
 
 const sq3 = require('sqlite3').verbose()
 const async = require("async");
 const path = require('path');
-const resObj ={"msg":"","result":true,"token":"","error_code":"0",code:200};
+const resObj = { "msg": "", "result": true, "token": "", "error_code": "0", code: 200 };
 initCoreData()
 loadProject()
 
-let sqlDir = path.join(process.resourcesPath, 'extraResources','medical.db'),
-    qcsNodeUrl = path.resolve(process.resourcesPath, 'extraResources','qcsNode.node')
-if (process.env.NODE_ENV === 'development'){
+let sqlDir = path.join(process.resourcesPath, 'extraResources', 'medical.db'),
+    qcsNodeUrl = path.resolve(process.resourcesPath, 'extraResources', 'qcsNode.node')
+if (process.env.NODE_ENV === 'development') {
     sqlDir = path.join(__dirname, '../../extraResources/medical.db')
     qcsNodeUrl = path.resolve(__dirname, '../../extraResources/qcsNode.node')
 }
-console.log('qcsNodeUrl',qcsNodeUrl)
+console.log('qcsNodeUrl', qcsNodeUrl)
 const qcsNode = require(`qcs`);
 // loadProject()
 export function getProjects(obj) {
-    console.log('getProjects',obj)
-    return new Promise((resolve, reject)=>{
-        obj = obj?obj:{}
+    console.log('getProjects', obj)
+    return new Promise((resolve, reject) => {
+        obj = obj ? obj : {}
         console.log(obj);
         console.log('/medical/getDevices');
-        var rows = [],index = 0;
+        var rows = [],
+            index = 0;
         var db = new sq3.Database(sqlDir);
-        let orderBy='ORDER BY validDate'
-        if(!obj.offset)  obj.offset = 10;
-        if(!obj.pageNum) obj.pageNum = 0;
-        let cond_sql ='',testTable = `(SELECT a.* FROM (SELECT id AS testID,testResult,createDate,qscDeviceProjID FROM ${DBTABLE.DEVICE_PROJECT_RESULT} ORDER BY testID DESC) a GROUP BY a.qscDeviceProjID ORDER BY a.testID DESC)`;
-        if(obj.detectType) cond_sql +=' AND data.detectType="'+obj.detectType+'"';
-        if(obj.name) cond_sql +=` AND (data.name LIKE "%${obj.name}%" OR data.subName LIKE "%${obj.name}%")`;
-        if(obj.step) cond_sql +=' AND data.step="'+obj.step+'"';
-        if(obj.analysis) cond_sql +=' AND data.analysis="'+obj.analysis+'"';
-        if(obj.projectNo) cond_sql +=' AND data.projectNo="'+obj.projectNo+'"';
-        if(obj.period) cond_sql +=' AND data.period="'+obj.period+'"';
-        if (obj.testDate){
+        let orderBy = 'ORDER BY validDate'
+        if (!obj.offset) obj.offset = 10;
+        if (!obj.pageNum) obj.pageNum = 0;
+        let cond_sql = '',
+            testTable = `(SELECT a.* FROM (SELECT id AS testID,testResult,createDate,qscDeviceProjID FROM ${DBTABLE.DEVICE_PROJECT_RESULT} ORDER BY testID DESC) a GROUP BY a.qscDeviceProjID ORDER BY a.testID DESC)`;
+        if (obj.detectType) cond_sql += ' AND data.detectType="' + obj.detectType + '"';
+        if (obj.name) cond_sql += ` AND (data.name LIKE "%${obj.name}%" OR data.subName LIKE "%${obj.name}%")`;
+        if (obj.step) cond_sql += ' AND data.step="' + obj.step + '"';
+        if (obj.analysis) cond_sql += ' AND data.analysis="' + obj.analysis + '"';
+        if (obj.projectNo) cond_sql += ' AND data.projectNo="' + obj.projectNo + '"';
+        if (obj.period) cond_sql += ' AND data.period="' + obj.period + '"';
+        if (obj.testDate) {
             cond_sql += ` AND data.createDate BETWEEN '${obj.testDate}' AND '${obj.testDate} 23:59:59'`
         }
-        if (obj.validDate){
+        if (obj.validDate) {
             cond_sql += ` AND data.validDate BETWEEN '${obj.validDate}' AND '${obj.validDate} 23:59:59' `
         }
-        if (obj.orderBy){
+        if (obj.orderBy) {
             let str = obj.orderBy.split('&')
-            if (str.length>1 && str[1]){
+            if (str.length > 1 && str[1]) {
                 switch (str[0]) {
                     case 'projectNo':
-                        orderBy = ' ORDER BY projectNo '+str[1]
+                        orderBy = ' ORDER BY projectNo ' + str[1]
                         break
                     case 'registerTime':
-                        orderBy = ' ORDER BY a.registerTime '+str[1]
+                        orderBy = ' ORDER BY a.registerTime ' + str[1]
                         break
                     case 'projectID':
-                        orderBy = ' ORDER BY projectID '+str[1]
+                        orderBy = ' ORDER BY projectID ' + str[1]
                         break
                 }
             }
@@ -88,62 +89,62 @@ export function getProjects(obj) {
         async.waterfall([
             function(callback) {
                 let select_sql = `SELECT * FROM ${sel_sql} WHERE 1 ${cond_sql} ${orderBy} LIMIT ${obj.offset*obj.pageNum},${obj.offset}`
-                // var select_sql = "SELECT proj.*,device.x_energy_level,device.e_energy_level " +
-                //     ",IFNULL(dp.testPoint,proj.testPoint) AS testPoint" +
-                //     ", IFNULL(dp.numOfInput,proj.numOfInput) AS numOfInput " +
-                //     ", IFNULL(dp.period,proj.period) AS period " +
-                //     ", IFNULL(dp.threshold,proj.threshold) AS threshold,dp.id,dp.projectID,dp.deviceID  " +
-                //     " FROM "+DBTABLE.DEVICE_PROJ+" AS dp " +
-                //     " LEFT JOIN " +DBTABLE.PROJECT+' AS proj ON dp.projectID=proj.id'+
-                //     " LEFT JOIN " +DBTABLE.DEVICE+' AS device ON dp.deviceID=device.id'+
-                //     "  WHERE dp.deviceID="+obj.deviceID+cond_sql+" ORDER BY dp.id DESC limit "+obj.offset*obj.pageNum+','+obj.offset;
+                    // var select_sql = "SELECT proj.*,device.x_energy_level,device.e_energy_level " +
+                    //     ",IFNULL(dp.testPoint,proj.testPoint) AS testPoint" +
+                    //     ", IFNULL(dp.numOfInput,proj.numOfInput) AS numOfInput " +
+                    //     ", IFNULL(dp.period,proj.period) AS period " +
+                    //     ", IFNULL(dp.threshold,proj.threshold) AS threshold,dp.id,dp.projectID,dp.deviceID  " +
+                    //     " FROM "+DBTABLE.DEVICE_PROJ+" AS dp " +
+                    //     " LEFT JOIN " +DBTABLE.PROJECT+' AS proj ON dp.projectID=proj.id'+
+                    //     " LEFT JOIN " +DBTABLE.DEVICE+' AS device ON dp.deviceID=device.id'+
+                    //     "  WHERE dp.deviceID="+obj.deviceID+cond_sql+" ORDER BY dp.id DESC limit "+obj.offset*obj.pageNum+','+obj.offset;
                 console.log(select_sql)
                 db.all(select_sql, function(err, rows) {
                     console.log(err)
-                    // console.log('rows',rows)
-                    if (err){
+                        // console.log('rows',rows)
+                    if (err) {
                         callback(err)
                     } else {
-                        async.forEachOf(rows, function (row, index, eachcallback) {
+                        async.forEachOf(rows, function(row, index, eachcallback) {
                             var energy = [];
-                            if((row.radioType=='X'||row.radioType=='X和电子')&&row.x_energy_level&&row.x_energy_level.length>0){
+                            if ((row.radioType == 'X' || row.radioType == 'X和电子') && row.x_energy_level && row.x_energy_level.length > 0) {
                                 var x_energy_arr = JSON.parse(row.x_energy_level);
                                 // console.log(x_energy_arr);
-                                for(var j in x_energy_arr) {
-                                    energy.push(x_energy_arr[j].x+'MV')
+                                for (var j in x_energy_arr) {
+                                    energy.push(x_energy_arr[j].x + 'MV')
                                 }
                             }
-                            if((row.radioType=='电子'||row.radioType=='X和电子')&&row.e_energy_level&&row.e_energy_level.length>0){
+                            if ((row.radioType == '电子' || row.radioType == 'X和电子') && row.e_energy_level && row.e_energy_level.length > 0) {
                                 var e_energy_arr = JSON.parse(row.e_energy_level);
                                 // console.log(e_energy_arr);
-                                for(var j in e_energy_arr) {
-                                    energy.push(e_energy_arr[j].x+'MeV')
+                                for (var j in e_energy_arr) {
+                                    energy.push(e_energy_arr[j].x + 'MeV')
                                 }
                             }
-                            if(energy.length==0) energy[0] = '-';
+                            if (energy.length == 0) energy[0] = '-';
                             row.energy = energy;
-                            row.testResult = row.testResult?JSON.parse(row.testResult):null
-                            // var getsql = 'SELECT * FROM  '+DBTABLE.DEVICE_PROJECT_RESULT+' WHERE id=(SELECT max(id) FROM '+DBTABLE.DEVICE_PROJECT_RESULT+' WHERE qscDeviceProjID='+row.id+')' +sqlStr
-                            // console.log(getsql);
-                            // db.all(getsql, function(err, result) {
-                            //     console.log(row.id,result)
-                            //     if(result&&result.length>0){
-                            // if(result[0].testResult) {
-                            //     row.testResult = JSON.parse(result[0].testResult);
-                            //     row.createDate = result[0].createDate;
-                            // }
-                            //     projects.push(row)
-                            // }else {
-                            //     if (!obj.testDate && !obj.validDate){
-                            //         projects.push(row)
-                            //     }
-                            // }
-                            // });
+                            row.testResult = row.testResult ? JSON.parse(row.testResult) : null
+                                // var getsql = 'SELECT * FROM  '+DBTABLE.DEVICE_PROJECT_RESULT+' WHERE id=(SELECT max(id) FROM '+DBTABLE.DEVICE_PROJECT_RESULT+' WHERE qscDeviceProjID='+row.id+')' +sqlStr
+                                // console.log(getsql);
+                                // db.all(getsql, function(err, result) {
+                                //     console.log(row.id,result)
+                                //     if(result&&result.length>0){
+                                // if(result[0].testResult) {
+                                //     row.testResult = JSON.parse(result[0].testResult);
+                                //     row.createDate = result[0].createDate;
+                                // }
+                                //     projects.push(row)
+                                // }else {
+                                //     if (!obj.testDate && !obj.validDate){
+                                //         projects.push(row)
+                                //     }
+                                // }
+                                // });
 
                             eachcallback(null);
-                        }, function (err) {
+                        }, function(err) {
                             if (err) callback(err);
-                            else{
+                            else {
                                 resObj.projects = rows;
                                 callback(null);
                             }
@@ -164,8 +165,8 @@ export function getProjects(obj) {
                     callback(null);
                 });
             }
-        ], function (err, result) {
-            if(err) {
+        ], function(err, result) {
+            if (err) {
                 console.error(err);
                 resObj.result = false;
             }
@@ -177,11 +178,11 @@ export function getProjects(obj) {
 
 /// 删除项目
 export function delDeviceProject(obj) {
-    console.log('delDeviceProject',obj)
-    return new Promise((resolve,reject) => {
+    console.log('delDeviceProject', obj)
+    return new Promise((resolve, reject) => {
         var db = new sq3.Database(sqlDir);
-        if (obj.id){
-            db.run(`DELETE FROM ${DBTABLE.DEVICE_PROJ} WHERE id=${obj.id}`,function (err) {
+        if (obj.id) {
+            db.run(`DELETE FROM ${DBTABLE.DEVICE_PROJ} WHERE id=${obj.id}`, function(err) {
                 if (err) throw err
                 else {
                     db.close();
@@ -201,18 +202,17 @@ export function addDicom(obj) {
     return new Promise(resolve => {
         var db = new sq3.Database(sqlDir);
         var sql = 'INSERT INTO qsc_dicom (customer,aeTitle,ip,port,deviceID)VALUES(?,?,?,?,?)';
-        if(obj.id>0){
+        if (obj.id > 0) {
             sql = 'UPDATE qsc_dicom SET customer=?,aeTitle=?,ip=?,port=? WHERE id=? ';
             let stmt = db.prepare(sql);
-            stmt.run(obj.customer, obj.aeTitle, obj.ip, obj.port,obj.id);
-            stmt.finalize(()=>{
+            stmt.run(obj.customer, obj.aeTitle, obj.ip, obj.port, obj.id);
+            stmt.finalize(() => {
                 resolve(resObj);
             });
-        }
-        else{
+        } else {
             let stmt = db.prepare(sql);
-            stmt.run(obj.customer, obj.aeTitle, obj.ip, obj.port,obj.deviceID);
-            stmt.finalize(()=>{
+            stmt.run(obj.customer, obj.aeTitle, obj.ip, obj.port, obj.deviceID);
+            stmt.finalize(() => {
                 resolve(resObj);
             });
         }
@@ -221,10 +221,10 @@ export function addDicom(obj) {
     })
 }
 export function delDicom(obj) {
-    console.log('delDicom',obj)
+    console.log('delDicom', obj)
     return new Promise(resolve => {
         var db = new sq3.Database(sqlDir);
-        db.run('DELETE FROM qsc_dicom WHERE id='+obj.id,()=>{
+        db.run('DELETE FROM qsc_dicom WHERE id=' + obj.id, () => {
             resolve(resObj);
         })
 
@@ -234,14 +234,15 @@ export function delDicom(obj) {
 export function getDicoms(obj) {
     console.log('getDicoms')
     return new Promise(resolve => {
-        var rows = [],index = 0;
-        var resObj ={"msg":"","result":true,"token":"","templates":"","error_code":"0",code:200};
+        var rows = [],
+            index = 0;
+        var resObj = { "msg": "", "result": true, "token": "", "templates": "", "error_code": "0", code: 200 };
         var db = new sq3.Database(sqlDir);
-        if(!obj.offset)  obj.offset = 10;
-        if(!obj.pageNum) obj.pageNum = 0;
+        if (!obj.offset) obj.offset = 10;
+        if (!obj.pageNum) obj.pageNum = 0;
         async.waterfall([
             function(callback) {
-                var select_sql = "SELECT * FROM qsc_dicom WHERE deviceID="+ obj.deviceID +" ORDER BY id DESC limit "+obj.offset*obj.pageNum+','+obj.offset;
+                var select_sql = "SELECT * FROM qsc_dicom WHERE deviceID=" + obj.deviceID + " ORDER BY id DESC limit " + obj.offset * obj.pageNum + ',' + obj.offset;
                 console.log(select_sql)
                 db.all(select_sql, function(err, rows) {
                     console.log(rows)
@@ -250,15 +251,15 @@ export function getDicoms(obj) {
                 });
             },
             function(callback) {
-                var select_all_sql = "SELECT COUNT(*) AS count FROM qsc_dicom  WHERE deviceID="+ obj.deviceID;
+                var select_all_sql = "SELECT COUNT(*) AS count FROM qsc_dicom  WHERE deviceID=" + obj.deviceID;
                 db.all(select_all_sql, function(err, row) {
                     console.log(row)
                     resObj.count = row[0].count
                     callback(null);
                 });
             }
-        ], function (err, result) {
-            if(err) {
+        ], function(err, result) {
+            if (err) {
                 console.error(err);
                 resObj.result = false;
             }
@@ -273,62 +274,61 @@ export function addDevice(obj) {
     return new Promise(resolve => {
         var db = new sq3.Database(sqlDir);
         var stmt;
-        if(obj.id>0){
+        if (obj.id > 0) {
             //添加该加速器的项目，可以增加
             //先获取默认项目，然后组成一个二维码数组，插入到新表中
             async.waterfall([
-                function (callback) {
+                function(callback) {
                     let updStr = ''
-                    if (obj.hasOwnProperty('model')){
+                    if (obj.hasOwnProperty('model')) {
                         updStr += `,model='${obj.model}'`
                     }
-                    if (obj.hasOwnProperty('sequence')){
+                    if (obj.hasOwnProperty('sequence')) {
                         updStr += `,sequence='${obj.sequence}'`
                     }
-                    if (obj.hasOwnProperty('e_light_size')){
+                    if (obj.hasOwnProperty('e_light_size')) {
                         updStr += `,e_light_size='${obj.e_light_size}'`
                     }
-                    if (obj.hasOwnProperty('multileaf_collimator_size')){
+                    if (obj.hasOwnProperty('multileaf_collimator_size')) {
                         updStr += `,multileaf_collimator_size='${obj.multileaf_collimator_size}'`
                     }
-                    if (obj.hasOwnProperty('x_energy_level')){
+                    if (obj.hasOwnProperty('x_energy_level')) {
                         updStr += `,x_energy_level='${obj.x_energy_level}'`
                     }
-                    if (obj.hasOwnProperty('e_energy_level')){
+                    if (obj.hasOwnProperty('e_energy_level')) {
                         updStr += `,e_energy_level='${obj.e_energy_level}'`
                     }
                     // var update_sql = 'UPDATE qsc_device SET model=?,sequence=?,x_energy_level=?,e_energy_level=?,x_volume_percent=?,e_volume_percent=?,e_light_size=?,multileaf_collimator_size=?,default_dir=?,xFFF=? WHERE id=? ' ;
                     // console.log(update_sql);
-                    if (updStr){
+                    if (updStr) {
                         updStr = updStr.substr(1)
                     }
                     const update_sql = `UPDATE qsc_device SET ${updStr} WHERE id=${obj.id}`
                     console.log(update_sql);
-                    db.run(update_sql,function (err) {
-                        console.log(err)
-                        if (err) callback('更新出错')
-                        else callback(null)
-                    })
-                    // stmt = db.prepare(update_sql);
-                    // stmt.run(obj.model, obj.sequence, obj.x_energy_level,obj.e_energy_level, obj.x_volume_percent,obj.e_volume_percent,obj.e_light_size, obj.multileaf_collimator_size, obj.default_dir,obj.xFFF,obj.id);
-                    // stmt.finalize(function (err) {
-                    //     if (err) callback('更新出错')
-                    //     else callback(null)
-                    // });
+                    db.run(update_sql, function(err) {
+                            console.log(err)
+                            if (err) callback('更新出错')
+                            else callback(null)
+                        })
+                        // stmt = db.prepare(update_sql);
+                        // stmt.run(obj.model, obj.sequence, obj.x_energy_level,obj.e_energy_level, obj.x_volume_percent,obj.e_volume_percent,obj.e_light_size, obj.multileaf_collimator_size, obj.default_dir,obj.xFFF,obj.id);
+                        // stmt.finalize(function (err) {
+                        //     if (err) callback('更新出错')
+                        //     else callback(null)
+                        // });
                 },
                 function(callback) {
                     var select_sql = "SELECT * FROM qsc_project ORDER BY id DESC ";
                     console.log(select_sql)
                     db.all(select_sql, function(err, rows) {
                         // console.log(rows)
-                        callback(null,rows);
+                        callback(null, rows);
                     });
                 },
-                function(projects,callback) {
-                    var insert_sql = 'INSERT INTO '+DBTABLE.DEVICE_PROJ+'  (deviceID,projectID) ' +'VALUES(?,?)';
+                function(projects, callback) {
+                    var insert_sql = 'INSERT INTO ' + DBTABLE.DEVICE_PROJ + '  (deviceID,projectID) ' + 'VALUES(?,?)';
                     stmt = db.prepare(insert_sql);
-                    for(var i in projects)
-                    {
+                    for (var i in projects) {
                         console.log(obj.id, projects[i].id)
                         stmt.run(obj.id, projects[i].id);
                     }
@@ -339,15 +339,15 @@ export function addDevice(obj) {
                     }));
                 },
                 function(callback) {
-                    var select_sql = 'SELECT * FROM '+DBTABLE.DEVICE_PROJ+' WHERE deviceID='+obj.id;
+                    var select_sql = 'SELECT * FROM ' + DBTABLE.DEVICE_PROJ + ' WHERE deviceID=' + obj.id;
                     console.log(select_sql)
                     db.all(select_sql, function(err, rows) {
                         console.log(rows)
                         callback(null);
                     });
                 }
-            ], function (err, result) {
-                if(err) {
+            ], function(err, result) {
+                if (err) {
                     console.error(err);
                     resObj.result = false;
                 }
@@ -355,54 +355,53 @@ export function addDevice(obj) {
                 resolve(resObj);
             });
 
-        }
-        else {
+        } else {
             var insert_sql = 'INSERT INTO qsc_device  (model,sequence,x_energy_level,e_energy_level,x_volume_percent,e_volume_percent,e_light_size,multileaf_collimator_size,default_dir,xFFF) ' +
                 'VALUES(?,?,?,?,?,?,?,?,?,?)';
             var stmt = db.prepare(insert_sql);
             stmt.run(obj.model, obj.sequence, obj.x_energy_level, obj.e_energy_level, obj.x_volume_percent, obj.e_volume_percent, obj.e_light_size, obj.multileaf_collimator_size, obj.default_dir, obj.xFFF);
             //同时添加这个加速器要测试的项目，默认将所有项目都加入到该加速器中
-            stmt.finalize((function (err, result) {
+            stmt.finalize((function(err, result) {
                 console.log(result);
                 //获取刚插入的id
                 async.waterfall([
-                    function (callback) {
-                        db.all('select last_insert_rowid() as insertId ', function (err, rows) {
+                    function(callback) {
+                        db.all('select last_insert_rowid() as insertId ', function(err, rows) {
                             console.log(rows);
                             obj.id = rows[0].insertId;
                             callback(null);
                         })
                     },
-                    function (callback) {
+                    function(callback) {
                         var select_sql = "SELECT * FROM qsc_project ORDER BY id DESC ";
                         console.log(select_sql)
-                        db.all(select_sql, function (err, rows) {
+                        db.all(select_sql, function(err, rows) {
                             // console.log(rows)
                             callback(null, rows);
                         });
                     },
-                    function (projects, callback) {
+                    function(projects, callback) {
                         var insert_sql = 'INSERT INTO ' + DBTABLE.DEVICE_PROJ + '  (deviceID,projectID) ' + 'VALUES(?,?)';
                         stmt = db.prepare(insert_sql);
                         for (var i in projects) {
                             console.log(obj.id, projects[i].id)
                             stmt.run(obj.id, projects[i].id);
                         }
-                        stmt.finalize((function (err) {
+                        stmt.finalize((function(err) {
                             console.log(err);
                             console.log('batch insert done');
                             callback(null);
                         }));
                     },
-                    function (callback) {
+                    function(callback) {
                         var select_sql = 'SELECT * FROM ' + DBTABLE.DEVICE_PROJ + ' WHERE deviceID=' + obj.id;
                         console.log(select_sql)
-                        db.all(select_sql, function (err, rows) {
+                        db.all(select_sql, function(err, rows) {
                             console.log(rows)
                             callback(null);
                         });
                     }
-                ], function (err, result) {
+                ], function(err, result) {
                     if (err) {
                         console.error(err);
                         resObj.result = false;
@@ -419,7 +418,7 @@ export function delDevice(obj) {
     console.log('delDevice')
     return new Promise(resolve => {
         var db = new sq3.Database(sqlDir);
-        db.run('DELETE FROM qsc_device WHERE id='+obj.id,function () {
+        db.run('DELETE FROM qsc_device WHERE id=' + obj.id, function() {
             resolve(resObj);
         })
 
@@ -429,14 +428,15 @@ export function delDevice(obj) {
 export function getDevices(obj) {
     console.log('getDevices')
     return new Promise(resolve => {
-        var rows = [],index = 0;
-        var resObj ={"msg":"","result":true,"token":"","error_code":"0",code:200};
+        var rows = [],
+            index = 0;
+        var resObj = { "msg": "", "result": true, "token": "", "error_code": "0", code: 200 };
         var db = new sq3.Database(sqlDir);
-        if(!obj.offset)  obj.offset = 10;
-        if(!obj.pageNum) obj.pageNum = 0;
+        if (!obj.offset) obj.offset = 10;
+        if (!obj.pageNum) obj.pageNum = 0;
         async.waterfall([
             function(callback) {
-                var select_sql = "SELECT * FROM qsc_device  ORDER BY id DESC limit "+obj.offset*obj.pageNum+','+obj.offset;
+                var select_sql = "SELECT * FROM qsc_device  ORDER BY id DESC limit " + obj.offset * obj.pageNum + ',' + obj.offset;
                 console.log(select_sql)
                 db.all(select_sql, function(err, rows) {
                     // console.log(rows)
@@ -453,8 +453,8 @@ export function getDevices(obj) {
                     callback(null);
                 });
             }
-        ], function (err, result) {
-            if(err) {
+        ], function(err, result) {
+            if (err) {
                 console.error(err);
                 resObj.result = false;
             }
@@ -464,42 +464,43 @@ export function getDevices(obj) {
     })
 }
 export function getProjectTests(obj) {
-    console.log('getProjectTests',obj)
+    console.log('getProjectTests', obj)
     return new Promise(resolve => {
-        var rows = [],index = 0;
-        var resObj ={"msg":"","result":true,"token":"","error_code":"0",code:200};
+        var rows = [],
+            index = 0;
+        var resObj = { "msg": "", "result": true, "token": "", "error_code": "0", code: 200 };
         var db = new sq3.Database(sqlDir);
-        if(!obj.offset)  obj.offset = 10;
-        if(!obj.pageNum) obj.pageNum = 0;
-        var cond_sql ='';
-        if(obj.period){
-            cond_sql += ' AND proj.period="'+obj.period+'"';
+        if (!obj.offset) obj.offset = 10;
+        if (!obj.pageNum) obj.pageNum = 0;
+        var cond_sql = '';
+        if (obj.period) {
+            cond_sql += ' AND proj.period="' + obj.period + '"';
         }
-        if(obj.fromDate){
-            cond_sql += ' AND dp_result.createDate >="'+obj.fromDate+'"';
+        if (obj.fromDate) {
+            cond_sql += ' AND dp_result.createDate >="' + obj.fromDate + '"';
         }
-        if(obj.toDate){
-            cond_sql += ' AND dp_result.createDate <="'+obj.toDate+'"';
+        if (obj.toDate) {
+            cond_sql += ' AND dp_result.createDate <="' + obj.toDate + '"';
         }
-        if(obj.projectID){
+        if (obj.projectID) {
             cond_sql += ` AND dp_result.qscDeviceProjID=${obj.projectID}`;
         }
-        if(obj.projectName){
+        if (obj.projectName) {
             cond_sql += ` AND dp_result.projectName LIKE '%${obj.projectName}%'`;
         }
         let orderBy = ' ORDER BY dp_result.id DESC '
-        if (obj.orderBy){
+        if (obj.orderBy) {
             let str = obj.orderBy.split('&')
-            if (str.length>1 && str[1]){
+            if (str.length > 1 && str[1]) {
                 switch (str[0]) {
                     case 'projectNo':
-                        orderBy = ' ORDER BY proj.projectNo '+str[1]
+                        orderBy = ' ORDER BY proj.projectNo ' + str[1]
                         break
                     case 'registerTime':
-                        orderBy = ' ORDER BY a.registerTime '+str[1]
+                        orderBy = ' ORDER BY a.registerTime ' + str[1]
                         break
                     case 'machineCount':
-                        orderBy = ' ORDER BY machineCount '+str[1]
+                        orderBy = ' ORDER BY machineCount ' + str[1]
                         break
                 }
             }
@@ -511,18 +512,18 @@ export function getProjectTests(obj) {
                     ", IFNULL(dp.numOfInput,proj.numOfInput) AS numOfInput " +
                     ", IFNULL(dp.period,proj.period) AS period " +
                     ", IFNULL(dp.threshold,proj.threshold) AS threshold,dp.id AS dpID,dp.projectID,dp.deviceID,dp_result.testResult,dp_result.createDate,dp_result.id  " +
-                    " FROM "+DBTABLE.DEVICE_PROJECT_RESULT+' AS dp_result ' +
-                    ' LEFT JOIN '+DBTABLE.DEVICE_PROJ+" AS dp ON dp_result.qscDeviceProjID=dp.id " +
-                    " LEFT JOIN " +DBTABLE.PROJECT+' AS proj ON dp.projectID=proj.id'+
-                    " LEFT JOIN " +DBTABLE.DEVICE+' AS device ON dp.deviceID=device.id'+
-                    " WHERE dp_result.deviceID="+obj.deviceID + cond_sql + orderBy +" limit "+obj.offset*obj.pageNum+','+obj.offset;
+                    " FROM " + DBTABLE.DEVICE_PROJECT_RESULT + ' AS dp_result ' +
+                    ' LEFT JOIN ' + DBTABLE.DEVICE_PROJ + " AS dp ON dp_result.qscDeviceProjID=dp.id " +
+                    " LEFT JOIN " + DBTABLE.PROJECT + ' AS proj ON dp.projectID=proj.id' +
+                    " LEFT JOIN " + DBTABLE.DEVICE + ' AS device ON dp.deviceID=device.id' +
+                    " WHERE dp_result.deviceID=" + obj.deviceID + cond_sql + orderBy + " limit " + obj.offset * obj.pageNum + ',' + obj.offset;
                 console.log(select_sql)
                 db.all(select_sql, function(err, rows) {
                     console.log(err)
                     console.log(rows)
-                    if(rows&&rows.length>0){
-                        for(var i in rows){
-                            if(rows[i].testResult) rows[i].testResult = JSON.parse(rows[i].testResult);
+                    if (rows && rows.length > 0) {
+                        for (var i in rows) {
+                            if (rows[i].testResult) rows[i].testResult = JSON.parse(rows[i].testResult);
                         }
                     }
                     resObj.projects = rows;
@@ -530,17 +531,17 @@ export function getProjectTests(obj) {
                 });
             },
             function(callback) {
-                var select_all_sql = "SELECT COUNT(*) AS count FROM  "+DBTABLE.DEVICE_PROJECT_RESULT+" AS dp_result " +
-                    " LEFT JOIN " +DBTABLE.PROJECT+' AS proj ON dp_result.projectID=proj.id '+
-                    " WHERE dp_result.deviceID="+obj.deviceID+cond_sql;
+                var select_all_sql = "SELECT COUNT(*) AS count FROM  " + DBTABLE.DEVICE_PROJECT_RESULT + " AS dp_result " +
+                    " LEFT JOIN " + DBTABLE.PROJECT + ' AS proj ON dp_result.projectID=proj.id ' +
+                    " WHERE dp_result.deviceID=" + obj.deviceID + cond_sql;
                 db.all(select_all_sql, function(err, row) {
                     console.log(row)
                     resObj.count = row[0].count;
                     callback(null);
                 });
             }
-        ], function (err, result) {
-            if(err) {
+        ], function(err, result) {
+            if (err) {
                 console.error(err);
                 resObj.result = false;
             }
@@ -551,14 +552,14 @@ export function getProjectTests(obj) {
     })
 }
 export function updateProject(obj) {
-    console.log('updateProject',obj)
+    console.log('updateProject', obj)
     return new Promise(resolve => {
         var db = new sq3.Database(sqlDir);
-        if(obj.id>0){
-            var sql = 'UPDATE '+DBTABLE.DEVICE_PROJ+' SET period=?,threshold=? WHERE id=? ';
+        if (obj.id > 0) {
+            var sql = 'UPDATE ' + DBTABLE.DEVICE_PROJ + ' SET period=?,threshold=? WHERE id=? ';
             console.log(sql);
             let stmt = db.prepare(sql);
-            stmt.run( obj.period, obj.threshold, obj.id,function () {
+            stmt.run(obj.period, obj.threshold, obj.id, function() {
                 resolve(resObj);
             });
             stmt.finalize();
@@ -568,13 +569,13 @@ export function updateProject(obj) {
     })
 }
 export function addTestResult(obj) {
-    console.log('addTestResult',obj)
+    console.log('addTestResult', obj)
     return new Promise(resolve => {
         var db = new sq3.Database(sqlDir);
-        var sql = 'INSERT INTO '+DBTABLE.DEVICE_PROJECT_RESULT+' (qscDeviceProjID,projectID,deviceID,testResult,personName,createDate)VALUES(?,?,?,?,?,?)';
+        var sql = 'INSERT INTO ' + DBTABLE.DEVICE_PROJECT_RESULT + ' (qscDeviceProjID,projectID,deviceID,testResult,personName,createDate)VALUES(?,?,?,?,?,?)';
         let stmt = db.prepare(sql);
-        stmt.run(obj.qscDeviceProjID, obj.projectID, obj.deviceID,obj.testResult,obj.personName,getCurDate());
-        stmt.finalize(()=>{
+        stmt.run(obj.qscDeviceProjID, obj.projectID, obj.deviceID, obj.testResult, obj.personName, getCurDate());
+        stmt.finalize(() => {
             resolve(resObj);
         });
         db.close();
@@ -585,7 +586,7 @@ export function getTestResult(obj) {
     return new Promise(resolve => {
         var db = new sq3.Database(sqlDir);
         var sql = `SELECT * FROM ${DBTABLE.DEVICE_PROJECT_RESULT} ORDER BY id DESC LIMIT 0,10`
-        db.all(sql,function (err,result) {
+        db.all(sql, function(err, result) {
             resObj.test = result
             resolve(resObj)
         })
@@ -597,18 +598,18 @@ export function editHospital(obj) {
     return new Promise(resolve => {
         var db = new sq3.Database(sqlDir);
         let sql
-        if (obj.id){
-            sql = 'UPDATE '+DBTABLE.HOSPITALS+' SET name=?,avatar=? WHERE id=?';
+        if (obj.id) {
+            sql = 'UPDATE ' + DBTABLE.HOSPITALS + ' SET name=?,avatar=? WHERE id=?';
             let stmt = db.prepare(sql);
-            stmt.run( obj.name, obj.avatar, obj.id);
-            stmt.finalize(()=>{
+            stmt.run(obj.name, obj.avatar, obj.id);
+            stmt.finalize(() => {
                 resolve(resObj);
             });
         } else {
-            sql = 'INSERT INTO '+DBTABLE.HOSPITALS+' (name,avatar,createDate)VALUES(?,?,?)';
+            sql = 'INSERT INTO ' + DBTABLE.HOSPITALS + ' (name,avatar,createDate)VALUES(?,?,?)';
             let stmt = db.prepare(sql);
-            stmt.run(obj.name, obj.avatar,getCurDate());
-            stmt.finalize(()=>{
+            stmt.run(obj.name, obj.avatar, getCurDate());
+            stmt.finalize(() => {
                 resolve(resObj);
             });
         }
@@ -619,12 +620,12 @@ export function editHospital(obj) {
 export function getHospitals(obj) {
     console.log('delDicom')
     return new Promise(resolve => {
-        var resObj ={"msg":"","result":true,"token":"","error_code":"0",code:200};
+        var resObj = { "msg": "", "result": true, "token": "", "error_code": "0", code: 200 };
         var db = new sq3.Database(sqlDir);
-        var select_sql = "SELECT * FROM "+ DBTABLE.HOSPITALS
+        var select_sql = "SELECT * FROM " + DBTABLE.HOSPITALS
         console.log(select_sql)
         db.all(select_sql, function(err, rows) {
-            if (rows && rows.length>0){
+            if (rows && rows.length > 0) {
                 resObj.hospital = rows[0];
             }
             resolve(resObj)
@@ -634,13 +635,13 @@ export function getHospitals(obj) {
 /// 文件上传功能
 export function fileUpload(obj) {
     console.log('fileUpload')
-    return new Promise((resolve,reject) => {
+    return new Promise((resolve, reject) => {
         try {
-            uploadFile(obj,function (err,path) {
+            uploadFile(obj, function(err, path) {
                 if (err) console.log(err)
                 else resolve(path)
             })
-        }catch (e) {
+        } catch (e) {
             console.log(e)
             reject(e)
         }
@@ -648,45 +649,45 @@ export function fileUpload(obj) {
 }
 /// 获取检测值通过dicom文件
 export function getTestValue(obj) {
-    console.log('getTestValue',obj)
-    return new Promise((resolve,reject) => {
+    console.log('getTestValue', obj)
+    return new Promise((resolve, reject) => {
         console.log(11111111)
-        // const value = path.join(__dirname,"./RI.1.3.46.423632.131000.1606838764.9.dcm")
-        // console.log('symmetry of this graph is:',qcsNode.get_symmetry(value));
+            // const value = path.join(__dirname,"./RI.1.3.46.423632.131000.1606838764.9.dcm")
+            // console.log('symmetry of this graph is:',qcsNode.get_symmetry(value));
         try {
             let value = qcsNode[obj.apiUrl](obj.filePath);
             console.log('%c [ obj.apiUrl ]', 'font-size:13px; background:pink; color:#bf2c9f;', obj.apiUrl)
             console.log(`value=${value}`);
-                resolve(value)
-            
-        }catch (e) {
+            resolve(value)
+
+        } catch (e) {
             console.log(e)
         }
     })
 }
-const {execFile, exec} = require('child_process');
+const { execFile, exec } = require('child_process');
 /// 传输dicom文件
 export function transferDicom(obj) {
-    console.log('transferDicom',obj);
-    var pathRT=obj.pathRT;
-    return new Promise((resolve,reject) => {
+    console.log('transferDicom', obj);
+    var pathRT = obj.pathRT;
+    return new Promise((resolve, reject) => {
         //qcsNode.get_scu("-d","10.0.10.172","7007","..\\..\\..\\src\\extraResources\\images\\aaaa.dcm","-aec","ACME_STORE","-aet","QCS")
-        const info = ["-aec","ACME_STORE","-aet","QCS","-d","10.0.10.172","7007"];
+        const info = ["-aec", "ACME_STORE", "-aet", "QCS", "-d", "10.0.10.172", "7007"];
         //const child = exec('storescu.exe', args, {cwd: 'storescu'}, (error, stdout, stdin) => {
-        var args =  info.concat(pathRT);
+        var args = info.concat(pathRT);
         console.log('%c [ args ]', 'font-size:13px; background:pink; color:#bf2c9f;', args)
-        //const child = exec('storescu.exe -d 10.0.10.172 7007 aaaa.dcm -aec ACME_STORE -aet QCS', {'cwd': 'src/renderer/api/storescu'}, 
-        const child = execFile('storescu.exe', args, {'cwd': 'src/extraResources/storescu'}, 
+            //const child = exec('storescu.exe -d 10.0.10.172 7007 aaaa.dcm -aec ACME_STORE -aet QCS', {'cwd': 'src/renderer/api/storescu'}, 
+        const child = execFile('storescu.exe', args, { 'cwd': 'src/extraResources/storescu' },
 
-            (error, stdout, stdin) => {
-                if (error) {
-                console.log(error);
-                throw error;
-            }
-            console.log(stdout);
-        })
-        // const value = path.join(__dirname,"./RI.1.3.46.423632.131000.1606838764.9.dcm")
-        // console.log('symmetry of this graph is:',qcsNode.get_symmetry(value));
+                (error, stdout, stdin) => {
+                    if (error) {
+                        console.log(error);
+                        throw error;
+                    }
+                    console.log(stdout);
+                })
+            // const value = path.join(__dirname,"./RI.1.3.46.423632.131000.1606838764.9.dcm")
+            // console.log('symmetry of this graph is:',qcsNode.get_symmetry(value));
         try {
             // for (let file of obj.files){
             //     // qcsNode.get_scu('storescu.exe',obj.ip,obj.port,file)
@@ -695,7 +696,7 @@ export function transferDicom(obj) {
             //     console.log(file);
             // }
             resolve(1)
-        }catch (e) {
+        } catch (e) {
             console.log(e)
         }
     })

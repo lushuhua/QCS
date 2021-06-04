@@ -8,7 +8,14 @@ import App from './App'
 import router from './router'
 import store from './store'
 import filters from './filters'
+// const { cv } = require('opencv-wasm')
 
+// const { cv,cvTranslateError } = import('opencv-wasm');
+
+// import {cv} from 'opencv-wasm'
+// import THRESH_BINARY from 'opencv-wasm/opencv.js';
+// import Mat from 'opencv-wasm/opencv.js';
+// import { THRESH_OTSU, THRESH_TRIANGLE, CONTOURS_MATCH_I1 } from 'opencv-wasm/opencv.js';
 Object.keys(filters).forEach(key => {
     Vue.filter(key, filters[key])
 });
