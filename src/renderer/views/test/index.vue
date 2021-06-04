@@ -1486,7 +1486,6 @@ export default {
           let pixel_data_8 = imageData.image;
           let pixel_data_16 = imageData.pixels;
           let symmetry = ipcRenderer.sendSync(
-            
             "cal_symmetry",
             rows,
             columns,
@@ -1528,7 +1527,7 @@ export default {
          console.log('%c [ muliiple_limiting ]', 'font-size:13px; background:pink; color:#bf2c9f;', muliiple_limiting)
          testValue = muliiple_limiting?muliiple_limiting.toFixed(2):0
         } else if($val == '辐射束轴在患者入射表面上的位置指示') {
-             let first_viewData = this.viewData[0]; 
+          let first_viewData = this.viewData[0]; 
           let second_viewData = this.viewData[1];
           let first_imageData = this.imageData.find(item => item.refNameAna === first_viewData.refNameAna);
           let second_imageData = this.imageData.find(item=>item.refNameAna === second_viewData.refNameAna)
@@ -1541,7 +1540,8 @@ export default {
           let first_image_shape = first_viewData.size=='10*10'?'10':'20';
           let second_image_shape = second_viewData.size=='10*10'?'10':'20'
           let indication= ipcRenderer.sendSync('cal_position_indication',rows,columns,first_pixel_data_16,first_pixel_data_8,first_image_shape,second_pixel_data_16,second_pixel_data_8,second_image_shape);
-          testValue = indication?(indication).toFixed(2):0
+          console.log('%c [ indication ]', 'font-size:13px; background:pink; color:#bf2c9f;', indication)
+          testValue = indication.toFixed(2)
         }else if($val == '旋转运动标尺的零刻度位置(限束系统旋转轴)') {
              let first_viewData = this.viewData[0]; 
           let second_viewData = this.viewData[1];

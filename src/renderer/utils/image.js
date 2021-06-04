@@ -50,6 +50,9 @@ function cal_symmetry(rows, columns, pixel_data_16, pixel_data_8) {
             break;
         }
     }
+    if (left_Boundary_subscript_index_x == undefined || right_Boundary_subscript_index_x == undefined) {
+        return undefined;
+    }
     var left_min_pixel_value = penumbra_mat.ushortAt(int_cx, int_cy);
     for (var i = left_Boundary_subscript_index_x; i < int_cy; i++) {
         if (penumbra_mat.ushortAt(int_cx, i) < left_min_pixel_value) {
@@ -243,6 +246,9 @@ function cal_position_indication(rows, columns, first_pixel_data_16, first_pixel
             break;
         }
     }
+    if (first_left_Boundary_subscript_index_x == undefined || first_right_Boundary_subscript_index_x == undefined) {
+        return undefined;
+    }
     console.log('first left and right bounday index is ' + first_left_Boundary_subscript_index_x, first_right_Boundary_subscript_index_x);
     var first_left_dose_value = parseInt(first_mat_8.ucharAt(first_int_cx, first_int_cy) + first_mat_8.ucharAt(first_int_cx, first_left_Boundary_subscript_index_x));
     var first_left_half_dose_value = parseInt(first_left_dose_value / 2);
@@ -250,6 +256,9 @@ function cal_position_indication(rows, columns, first_pixel_data_16, first_pixel
     var first_right_dose_value = parseInt(first_mat_8.ucharAt(first_int_cx, first_int_cy) + first_mat_8.ucharAt(first_int_cx, first_right_Boundary_subscript_index_x));
     var first_right_half_dose_value = parseInt(first_right_dose_value / 2);
     console.log(first_right_dose_value, 'right %50 dose value is ' + first_right_half_dose_value);
+    if (first_left_half_dose_value == 0 || first_right_half_dose_value == 0) {
+        return undefined;
+    }
     var first_left_dose_value_index;
     var first_right_dose_value_index;
     console.log('first left index is ' + first_left_dose_value_index);
@@ -310,6 +319,9 @@ function cal_position_indication(rows, columns, first_pixel_data_16, first_pixel
             break;
         }
     }
+    if (second_left_Boundary_subscript_index_x == undefined || second_right_Boundary_subscript_index_x == undefined) {
+        return undefined;
+    }
     console.log('second left and right bounday index is ' + second_left_Boundary_subscript_index_x, second_right_Boundary_subscript_index_x);
     var second_left_dose_value = parseInt(second_mat_8.ucharAt(second_int_cx, second_int_cy) + second_mat_8.ucharAt(second_int_cx, second_left_Boundary_subscript_index_x));
     var second_left_half_dose_value = parseInt(second_left_dose_value / 2);
@@ -318,6 +330,9 @@ function cal_position_indication(rows, columns, first_pixel_data_16, first_pixel
     var second_right_half_dose_value = parseInt(second_right_dose_value / 2);
     console.log(second_right_dose_value, 'second right %50 dose value is ' + second_right_half_dose_value);
     console.log(second_mat_8.data);
+    if (second_left_half_dose_value == 0 || second_right_half_dose_value == 0) {
+        return undefined;
+    }
     var second_left_dose_value_index;
     var second_right_dose_value_index;
     console.log('second left index is ' + second_left_dose_value_index);
@@ -390,6 +405,9 @@ function cal_scale_position(rows, columns, first_pixel_data_16, first_pixel_data
             break;
         }
     }
+    if (first_left_Boundary_subscript_index_x == undefined || first_right_Boundary_subscript_index_x == undefined) {
+        return undefined;
+    }
     console.log('first left and right bounday index is ' + first_left_Boundary_subscript_index_x, first_right_Boundary_subscript_index_x);
     var first_left_dose_value = parseInt(first_mat_8.ucharAt(first_int_cx, first_int_cy) + first_mat_8.ucharAt(first_int_cx, first_left_Boundary_subscript_index_x));
     var first_left_half_dose_value = parseInt(first_left_dose_value / 2);
@@ -457,6 +475,9 @@ function cal_scale_position(rows, columns, first_pixel_data_16, first_pixel_data
             second_right_Boundary_subscript_index_x = i;
             break;
         }
+    }
+    if (second_left_Boundary_subscript_index_x == undefined || second_right_Boundary_subscript_index_x == undefined) {
+        return undefined;
     }
     console.log('second left and right bounday index is ' + second_left_Boundary_subscript_index_x, second_right_Boundary_subscript_index_x);
     var second_left_dose_value = parseInt(second_mat_8.ucharAt(second_int_cx, second_int_cy) + second_mat_8.ucharAt(second_int_cx, second_left_Boundary_subscript_index_x));
@@ -546,6 +567,9 @@ function cal_penumbra(rows, columns, pixel_data_16, pixel_data_8) {
             right_Boundary_subscript_index_x = i;
             break;
         }
+    }
+    if (left_Boundary_subscript_index_x == undefined || right_Boundary_subscript_index_x == undefined) {
+        return undefined;
     }
     console.log('pen_mat');
     console.log(penumbra_mat.data16U);
@@ -665,6 +689,9 @@ function cal_unit_limiting(rows, columns, pixel_data_16, pixel_data_8) {
             break;
         }
     }
+    if (left_Boundary_subscript_index_x == undefined || right_Boundary_subscript_index_x == undefined) {
+        return undefined;
+    }
     var left_dose_value = parseInt(penumbra_mat.ushortAt(int_cx, int_cy));
     console.log("value is  " + penumbra_mat.ushortAt(int_cx, int_cy));
     var left_min_pixel_value = penumbra_mat.ushortAt(int_cx, int_cy);
@@ -754,6 +781,9 @@ function cal_small_multiple_limiting(rows, columns, pixel_data_16, pixel_data_8,
             right_Boundary_subscript_index_x = i;
             break;
         }
+    }
+    if (left_Boundary_subscript_index_x == undefined || right_Boundary_subscript_index_x == undefined) {
+        return undefined;
     }
     var up_Boundary_subscript_index_y;
     for (var i = 0; i < int_cx; i++) {
@@ -929,6 +959,9 @@ function cal_large_muliiple_limiting(rows, columns, first_pixel_data_16, first_p
             break;
         }
     }
+    if (first_left_Boundary_subscript_index_x == undefined || first_right_Boundary_subscript_index_x == undefined) {
+        return undefined;
+    }
     var first_left_dose_value = parseInt(first_penumbra_mat.ushortAt(first_int_cx, first_int_cy));
     console.log("value is  " + first_penumbra_mat.ushortAt(first_int_cx, first_int_cy));
     var first_left_min_pixel_value = first_penumbra_mat.ushortAt(first_int_cx, first_int_cy);
@@ -989,6 +1022,9 @@ function cal_large_muliiple_limiting(rows, columns, first_pixel_data_16, first_p
             second_right_Boundary_subscript_index_x = i;
             break;
         }
+    }
+    if (second_left_Boundary_subscript_index_x == undefined || second_right_Boundary_subscript_index_x == undefined) {
+        return undefined;
     }
     var second_up_Boundary_subscript_index_y;
     for (var i = 0; i < second_int_cx; i++) {
