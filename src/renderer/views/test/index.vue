@@ -132,8 +132,9 @@
                 <td>
                   <!-- 检测值 -->
                   <div v-if="project.tmpResult">
-                    <div v-for="v in project.tmpResult">
-                      {{ v.power }} {{ v.size }}cm-{{ v.value }}{{ v.testUnit }}
+                    <div v-for="v in project.tmpResult" >
+                    <span v-if="v.value !== 'NaN'">{{ v.power }} {{ v.size }}cm-{{ v.value }}{{ v.testUnit }}</span>
+                      <span v-if="v.value == 'NaN'">{{ v.value }}</span>
                       <!-- <img v-if="!compare(v.val,project.threshold)" src="../assets/images/arrow.png" /> -->
                       <img
                         class="showArrow"
@@ -1460,7 +1461,19 @@ export default {
     toLastStpe() {
       this.showImage = true;
     },
-
+    showMessage() {
+        this.$confirm('“影像与检测项目不符，请查核！', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$message({
+            type: 'info',
+            message: '请注意检测结果!'
+          });
+        })
+   
+    },
     async onclickAna() {
       if (this.projectsData && this.projectsData.length > 0) {
         let activeProject = this.projectsData[this.activeProjectIndex];
@@ -1509,10 +1522,14 @@ export default {
             };
           });
       let uniformity = ipcRenderer.sendSync('cal_uniformity',rows,columns,pixel_data_16,pixel_data_8,image_shape);
-      console.log('%c [ uniformity ]', 'font-size:13px; background:pink; color:#bf2c9f;', uniformity)
-      testValue = uniformity?(uniformity*100).toFixed(2):0;
+      if(uniformity==undefined) {
+        this.showMessage();
+        testValue='NaN';
+      }else {
+        testValue = (uniformity*100).toFixed(2)
+      }
         }else if($val == '照射野的数字指示（多元限束）(最大照射野)') {
-             let first_viewData = this.viewData[0]; 
+          let first_viewData = this.viewData[0]; 
           let second_viewData = this.viewData[1];
           let first_imageData = this.imageData.find(item => item.refNameAna === first_viewData.refNameAna);
           let second_imageData = this.imageData.find(item=>item.refNameAna === second_viewData.refNameAna)
@@ -1523,9 +1540,15 @@ export default {
           let second_pixel_data_16 = second_imageData.pixels;
           let second_pixel_data_8 = second_imageData.image; 
           let pairs_number = this.currentDeviceInfo.multileaf_collimator_size;
-         let muliiple_limiting=  ipcRenderer.sendSync('cal_large_muliiple_limiting',rows,columns,first_pixel_data_16,first_pixel_data_8,pairs_number,second_pixel_data_16,second_pixel_data_8);
-         console.log('%c [ muliiple_limiting ]', 'font-size:13px; background:pink; color:#bf2c9f;', muliiple_limiting)
-         testValue = muliiple_limiting?muliiple_limiting.toFixed(2):0
+          let muliiple_limiting=  ipcRenderer.sendSync('cal_large_muliiple_limiting',rows,columns,first_pixel_data_16,first_pixel_data_8,pairs_number,second_pixel_data_16,second_pixel_data_8);
+
+          if(muliiple_limiting==undefined) {
+            this.showMessage();
+            testValue='NaN'
+          } else {
+            testValue = muliiple_limiting.toFixed(2)
+          }    
+         
         } else if($val == '辐射束轴在患者入射表面上的位置指示') {
           let first_viewData = this.viewData[0]; 
           let second_viewData = this.viewData[1];
@@ -1540,8 +1563,13 @@ export default {
           let first_image_shape = first_viewData.size=='10*10'?'10':'20';
           let second_image_shape = second_viewData.size=='10*10'?'10':'20'
           let indication= ipcRenderer.sendSync('cal_position_indication',rows,columns,first_pixel_data_16,first_pixel_data_8,first_image_shape,second_pixel_data_16,second_pixel_data_8,second_image_shape);
-          console.log('%c [ indication ]', 'font-size:13px; background:pink; color:#bf2c9f;', indication)
-          testValue = indication.toFixed(2)
+          // indication == undefined?this.showMessage():indication
+          if(indication==undefined) {
+            this.showMessage();
+            testValue = 'NaN'
+          }else {
+            testValue = (indication).toFixed(2)
+          }
         }else if($val == '旋转运动标尺的零刻度位置(限束系统旋转轴)') {
              let first_viewData = this.viewData[0]; 
           let second_viewData = this.viewData[1];
@@ -1556,8 +1584,12 @@ export default {
           let first_image_shape = first_imageData.size=='10*10'?'10':'20';
           let second_image_shape = second_imageData.size=='10*10'?'10':'20';
           let cal_scale_position= ipcRenderer.sendSync('cal_scale_position',rows,columns,first_pixel_data_16,first_pixel_data_8,first_image_shape,second_pixel_data_16,second_pixel_data_8,second_image_shape);
-          console.log('%c [ cal_scale_position ]', 'font-size:13px; background:pink; color:#bf2c9f;', cal_scale_position)
-          testValue = cal_scale_position?(cal_scale_position).toFixed(2):0   
+          if(cal_scale_position == undefined) {
+            this.showMessage();
+            testValue='NaN'
+          }else {
+            testValue = (cal_scale_position).toFixed(2);
+          }
          } else if($val =='照射野的半影(应符合厂家给出值)') {
              let viewData = this.viewData[0];  // 找到照射野里的第一张图片的数据
           let imageData = this.imageData.find(item => item.refNameAna === viewData.refNameAna);  // 根据viewData的refNameAna在imageData中找出对应的一项
@@ -1566,8 +1598,12 @@ export default {
           let pixel_data_8 = imageData.image;
           let pixel_data_16 = imageData.pixels;
           let cal_penumbra =ipcRenderer.sendSync('cal_penumbra',rows,columns,pixel_data_16,pixel_data_8);
-          console.log('%c [ cal_penumbra ]', 'font-size:13px; background:pink; color:#bf2c9f;', cal_penumbra)
-          testValue = cal_penumbra ? cal_penumbra .toFixed(2) : 0;
+          if(cal_penumbra == undefined) {
+            this.showMessage();
+            testValue='NaN';
+          }else {
+            testValue = cal_penumbra .toFixed(2);
+          }
          }else if($val=='照射野的数字指示（多元限束）(最大照射野)'||$val=='照射野的数字指示（单元限束）(5 cm×5 cm ~20 cm×20 cm)') {
    let viewData = this.viewData[0];  // 找到照射野里的第一张图片的数据
           let imageData = this.imageData.find(item => item.refNameAna === viewData.refNameAna);  // 根据viewData的refNameAna在imageData中找出对应的一项
@@ -1576,8 +1612,12 @@ export default {
           let pixel_data_8 = imageData.image;
           let pixel_data_16 = imageData.pixels;
           let cal_unit_limiting = ipcRenderer.sendSync('cal_unit_limiting',rows,columns,pixel_data_16,pixel_data_8);
-          console.log('%c [ cal_unit_limiting ]', 'font-size:13px; background:pink; color:#bf2c9f;', cal_unit_limiting)
-          testValue = cal_unit_limiting ? cal_unit_limiting.toFixed(2) : 0;
+          if(cal_unit_limiting == undefined) {
+            this.showMessage();
+            testValue='NaN'
+          }else {
+            testValue =cal_unit_limiting.toFixed(2);
+          }
          } else if($val =='照射野的数字指示（多元限束）(10 cm×10 cm)') {
            let viewData = this.viewData[0].data?this.viewData[0]:this.viewData[1];
            let imageData = this.imageData.find(item => item.refNameAna === viewData.refNameAna);  // 根据viewData的refNameAna在imageData中找出对应的一项
@@ -1587,7 +1627,12 @@ export default {
           let pixel_data_16 = imageData.pixels;
           let pairs_number = this.currentDeviceInfo.multileaf_collimator_size;
           let cal_small = ipcRenderer.sendSync('cal_small_multiple_limiting',rows,columns,pixel_data_16,pixel_data_8,pairs_number);
-          testValue = cal_small ? cal_small .toFixed(2) : 0;
+          if(cal_small== undefined) {
+            this.showMessage();
+            testValue = 'NaN';
+          }else {
+            testValue =cal_small .toFixed(2)
+          }
          }
         this.showAnalyse = false;
         let index = this.projectImage.data.findIndex(
