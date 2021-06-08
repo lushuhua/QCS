@@ -118,6 +118,9 @@ function cal_symmetry(rows, columns, pixel_data_16, pixel_data_8) {
         }
     }
     console.log("final max_Symmetry is " + max_Symmetry);
+    if (max_Symmetry == undefined) {
+        return undefined;
+    }
     console.log("Symmetry_array");
     console.log(Symmetry_array);
     console.log("Symmetry_left_boundary_index,Symmetry_right_boundary_index is " + Symmetry_left_boundary_index, Symmetry_right_boundary_index);
@@ -139,6 +142,23 @@ function cal_uniformity(rows, columns, pixel_data_16, pixel_data_8, image_shape)
         if (pixel_data_8[i] > boundray_value) {
             pixel_data_8[i] = 0;
         }
+    }
+    var left_Boundary_subscript_index_x;
+    for (var i = 1; i < int_cy; i++) {
+        if (mat_8.ucharAt(int_cx, i) < boundray_value) {
+            left_Boundary_subscript_index_x = i;
+            break;
+        }
+    }
+    var right_Boundary_subscript_index_x;
+    for (var i = columns - 1; i > int_cy; i--) {
+        if (mat_8.ucharAt(int_cx, i) < boundray_value) {
+            right_Boundary_subscript_index_x = i;
+            break;
+        }
+    }
+    if (left_Boundary_subscript_index_x == undefined || right_Boundary_subscript_index_x == undefined) {
+        return undefined;
     }
     let bin_mat_8 = cv.matFromArray(rows, columns, cv.CV_8UC1, pixel_data_8);
     let penumbra_mat = cv.matFromArray(rows, columns, cv.CV_16UC1, cal_array);
