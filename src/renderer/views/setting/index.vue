@@ -712,7 +712,9 @@
                     this.$message.error('请选择阈值单位')
                     return
                 }
-                this.project.threshold = '≤'+ this.project.thresholdValue + this.project.thresholdUnit
+                console.log('11111',this.project)
+                console.log('aaaaa',this.project.thresholdUnit)
+                this.project.threshold = '≤'+ this.project.thresholdValue + this.project.thresholdUnit;
                 updateProject(this.project).then(res =>{
                     this.isShowProjectChange = false;
                     this.getProjectsData()

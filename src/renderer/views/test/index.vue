@@ -27,7 +27,10 @@
             <el-option value="一年"></el-option>
           </el-select>
         </div>
-        <el-button type="primary" @click="getProjectsFn(1)">查询</el-button>
+        <el-button
+          type="primary"
+          @click="getProjectsFn(1)"
+        >查询</el-button>
         <el-button @click="resetFn">重置</el-button>
       </div>
     </div>
@@ -58,7 +61,10 @@
               数值分析
             </div>
           </div>
-          <div class="test-upload" v-if="typeName == 'image'">
+          <div
+            class="test-upload"
+            v-if="typeName == 'image'"
+          >
             <el-upload
               class="upload-demo"
               action="123"
@@ -68,17 +74,17 @@
               :limit="50"
               multiple
             >
-              <el-button type="primary" @click="onclickOpen"
-                >载入图片</el-button
-              >
+              <el-button
+                type="primary"
+                @click="onclickOpen"
+              >载入图片</el-button>
             </el-upload>
             <!--<el-button type="primary" class="active" @click="addImage">载入图片</el-button>-->
             <el-button
               type="primary"
               style="margin-left: 10px"
               @click="onclickDicom()"
-              >RT_Plan Dicom输出</el-button
-            >
+            >RT_Plan Dicom输出</el-button>
           </div>
           <table
             class="table test-tab-content"
@@ -133,17 +139,18 @@
                   <!-- 检测值 -->
                   <div v-if="project.tmpResult">
                     <div v-for="v in project.tmpResult">
-                      <span v-if="v.value !== 'NaN'"
-                        >{{ v.power }} {{ v.size }}cm-{{ v.value
-                        }}{{ v.testUnit }}</span
-                      >
-                      <span v-if="v.value == 'NaN'">{{ v.value }}</span>
-                      <!-- <img v-if="!compare(v.val,project.threshold)" src="../assets/images/arrow.png" /> -->
-                      <img
-                        class="showArrow"
-                        v-if="!compareCal(v.value, project.threshold)"
-                        src="../../assets/images/arrow.png"
-                      />
+                      <div v-if="v.value != null">
+                        <span v-if="v.value !== 'NaN'">{{ v.power }} {{ v.size }}cm-{{ v.value
+                          }}{{ v.testUnit }}</span>
+                        <span v-if="v.value == 'NaN'">{{ v.value }}</span>
+                        <!-- <img v-if="!compare(v.val,project.threshold)" src="../assets/images/arrow.png" /> -->
+                        <img
+                          class="showArrow"
+                          v-if="!compareCal(v.value, project.threshold)"
+                          src="../../assets/images/arrow.png"
+                        />
+                      </div>
+
                     </div>
                   </div>
                   <div v-else>
@@ -237,19 +244,14 @@
                     <div class="test-item">
                       <div class="test-result">
                         <div class="test-result-title">
-                          <span v-if="item != '-'">{{ item }}的</span
-                          >检测值<span v-if="showTitle1(project)"
-                            >（10*10）</span
-                          >
+                          <span v-if="item != '-'">{{ item }}的</span>检测值<span v-if="showTitle1(project)">（10*10）</span>
                         </div>
                         <div class="test-result-item clearfix">
                           <!--<div class="item-number left"><span>{{project.energyJson.levelNum}}</span></div>-->
                           <!--<div class="item-unit left">mm</div>-->
                           <div class="item-number left">
-                            <span v-if="getTestResultCalc(project, item)"
-                              >{{ getTestResultCalc(project, item)
-                              }}{{ project.testUnit }}</span
-                            >
+                            <span v-if="getTestResultCalc(project, item)">{{ getTestResultCalc(project, item)
+                              }}{{ project.testUnit }}</span>
                             <img
                               v-if="
                                 project.testResult &&
@@ -344,8 +346,7 @@
                                 project.projectID === 8 &&
                                   energyIndex != 'levelNum'
                               "
-                              >Gy</span
-                            >
+                            >Gy</span>
                           </div>
                           <div
                             v-if="project.energyJson.levelNum == 3"
@@ -369,11 +370,11 @@
                                 "
                               >
                                 {{
-                                  getPonitValue(
-                                    project,
-                                    energy.points,
-                                    pointIndex
-                                  )
+                                getPonitValue(
+                                project,
+                                energy.points,
+                                pointIndex
+                                )
                                 }}
                               </div>
                               <div
@@ -403,7 +404,10 @@
                         </div>
                       </div>
                     </div>
-                    <div slot="reference" class="test-popover-item">
+                    <div
+                      slot="reference"
+                      class="test-popover-item"
+                    >
                       {{ item }}
                     </div>
                   </el-popover>
@@ -420,7 +424,10 @@
                     {{ getOverDate(project).name }}
                   </div>
                 </td>
-                <td class="" style="width: 40px">
+                <td
+                  class=""
+                  style="width: 40px"
+                >
                   <div class="handle">
                     <div
                       class="handle-item"
@@ -438,7 +445,10 @@
               </tr>
             </tbody>
           </table>
-          <div class="pagination clearfix" v-if="typeName == 'image'">
+          <div
+            class="pagination clearfix"
+            v-if="typeName == 'image'"
+          >
             <el-pagination
               :background="true"
               layout="total, prev, pager, next,jumper"
@@ -452,7 +462,10 @@
             >
             </el-pagination>
           </div>
-          <div class="pagination clearfix" v-if="typeName == 'number'">
+          <div
+            class="pagination clearfix"
+            v-if="typeName == 'number'"
+          >
             <el-pagination
               :background="true"
               layout="total, prev, pager, next,jumper"
@@ -471,11 +484,17 @@
       </div>
       <div class="test-tab-right">
         <div class="test-tab-right-item">WS674标准</div>
-        <div class="test-tab-right-name" v-if="currentRow && currentRow.id">
+        <div
+          class="test-tab-right-name"
+          v-if="currentRow && currentRow.id"
+        >
           <!--6.6.3 旋转运动标尺的零刻度位置-->
           {{ currentRow.projectNo }} {{ currentRow.name }}
         </div>
-        <div class="test-tab-right-content" v-if="currentRow && currentRow.id">
+        <div
+          class="test-tab-right-content"
+          v-if="currentRow && currentRow.id"
+        >
           <!--将慢感光胶片置于治疗床面，用建成材料覆盖其上。将70KG负载（成人）均匀分布在床面，中心作用在等中心上，照射野调至10cm*10cm，治疗床面调至近似于等中心高度时，对慢感光胶片进行照射。然后将床面将至20cm并在此照射，测出两个照射野中心的位移。-->
           {{ currentRow.detail }}
           <br />
@@ -495,7 +514,11 @@
       center
     >
       <el-main class="table-out">
-        <table class="table test-tab-content" border="0" cellspacing="0">
+        <table
+          class="table test-tab-content"
+          border="0"
+          cellspacing="0"
+        >
           <thead class="tab-header">
             <tr>
               <th></th>
@@ -514,14 +537,12 @@
               <td style="width: 50px">
                 <!--<el-radio name="dicomname" @click="onclickTr(v)"  :ref="v.refName"></el-radio>-->
                 <!--<input name="dicomname" type="radio" @click="onclickTr(v)"  :ref="v.refName">-->
-                <label class="page-radio"
-                  ><input
+                <label class="page-radio"><input
                     type="radio"
                     name="dicomname"
                     @click="onclickTr(v)"
-                    :ref="v.refName"/><label
-                    ><span class="radio-span"></span></label
-                ></label>
+                    :ref="v.refName"
+                  /><label><span class="radio-span"></span></label></label>
               </td>
               <td style="width: 100px; text-align: center">{{ v.customer }}</td>
               <td style="width: 100px; text-align: center">{{ v.aeTitle }}</td>
@@ -551,7 +572,10 @@
       <div slot="footer">
         <div class="add-image-btn">
           <el-button @click="showDICOM = false">取消</el-button>
-          <el-button type="primary" @click="onclickSave()">保存</el-button>
+          <el-button
+            type="primary"
+            @click="onclickSave()"
+          >保存</el-button>
         </div>
       </div>
     </el-dialog>
@@ -567,15 +591,19 @@
           v-for="(v, index) in imageData"
           :key="index"
         >
-          <canvas :ref="v.refName" :name="getData(index, v)"></canvas>
+          <canvas
+            :ref="v.refName"
+            :name="getData(index, v)"
+          ></canvas>
         </div>
       </div>
       <div slot="footer">
         <div class="add-image-btn">
           <el-button @click="showImage = false">取消</el-button>
-          <el-button type="primary" @click="showImageAnalyse()"
-            >下一步</el-button
-          >
+          <el-button
+            type="primary"
+            @click="showImageAnalyse()"
+          >下一步</el-button>
         </div>
       </div>
     </el-dialog>
@@ -660,7 +688,10 @@
       <div slot="footer">
         <div class="add-image-btn">
           <el-button @click="handleClose">取消</el-button>
-          <el-button type="primary" @click="onclickAna">确定</el-button>
+          <el-button
+            type="primary"
+            @click="onclickAna"
+          >确定</el-button>
         </div>
       </div>
     </el-dialog>
@@ -683,7 +714,7 @@ import {
   updateProject,
   addTestResult,
   getTestValue,
-  transferDicom,
+  transferDicom
 } from "../../api";
 import * as cacTestVal from "../../utils/result";
 
@@ -693,7 +724,7 @@ import { ipcRenderer } from "electron";
 export default {
   components: {
     TestResult,
-    Sort,
+    Sort
   },
   data() {
     return {
@@ -716,25 +747,25 @@ export default {
         pageNum: 1,
         offset: 110,
         count: 0,
-        orderBy: "",
+        orderBy: ""
       },
       projectNum: {
         data: [],
         pageNum: 1,
         offset: 10,
         count: 0,
-        orderBy: undefined,
+        orderBy: undefined
       },
       dicomData: {
         data: [],
         pageNum: 1,
         offset: 10,
-        count: 0,
+        count: 0
       },
       projectSearch: {
         projectNo: undefined,
         name: undefined,
-        testValue: undefined,
+        testValue: undefined
       },
       selectedVal: [],
       selectedDicom: {},
@@ -748,12 +779,12 @@ export default {
       tempTestResult: [], /// 测试临时数据保存
       currentFile: "",
       pathRT: [],
-      fromIndex: 0,
+      fromIndex: 0
     };
   },
   computed: mapState({
-    currentDeviceID: (state) => state.user.currentDeviceID,
-    currentDeviceInfo: (state) => state.user.currentDeviceInfo,
+    currentDeviceID: state => state.user.currentDeviceID,
+    currentDeviceInfo: state => state.user.currentDeviceInfo,
     getData() {
       return function(index, val) {
         // console.log(1111)
@@ -810,7 +841,7 @@ export default {
         console.log("666666666666666666", project, item);
         let val = null;
         if (project.testResult && project.testResult.length > 0) {
-          let obj = project.testResult.find((val1) => val1.key == item);
+          let obj = project.testResult.find(val1 => val1.key == item);
           if (obj) {
             val = obj.val;
           }
@@ -836,7 +867,7 @@ export default {
         testVal = val ? val : 0;
         return testVal - testData <= 0;
       };
-    },
+    }
   }),
   mounted() {
     this.getProjectsFn(1);
@@ -852,7 +883,7 @@ export default {
       if (this.$route.name === "test") {
         this.getProjectsFn();
       }
-    },
+    }
   },
   methods: {
     getViewData() {
@@ -860,9 +891,11 @@ export default {
       let data = [];
       let powerList = [];
       let energy = [];
-        project.energy.forEach((item) => {
+      project.energy.forEach(item => {
         powerList.push({ num: parseInt(item), value: item });
-         powerList.sort(function(a,b){return a.num-b.num});
+        powerList.sort(function(a, b) {
+          return a.num - b.num;
+        });
       });
       if (
         project.extraRequire ==
@@ -885,11 +918,11 @@ export default {
         energy.push(powerList[0].value);
       }
       if (energy) {
-        energy.forEach((val) => {
+        energy.forEach(val => {
           let views = project.views;
           if (views) {
             views = views.split(",");
-            views.forEach((value) => {
+            views.forEach(value => {
               let item = { power: val };
               item.size = value;
               data.push(item);
@@ -904,12 +937,12 @@ export default {
       this.viewData = this.getViewData();
       this.viewImageData = [];
       console.log(this.imageData);
-      this.imageData.forEach((val) => {
+      this.imageData.forEach(val => {
         this.viewImageData.push({
           data: val.data,
           refNameAna: val.refNameAna,
           testValue: val.testValue,
-          filePath: val.filePath,
+          filePath: val.filePath
         });
       });
     },
@@ -925,14 +958,14 @@ export default {
         name: this.projectSearch.name,
         period: this.projectSearch.period,
         orderBy: this.projectImage.orderBy,
-        timeout: 1,
+        timeout: 1
       };
-      getProjects(obj).then((res) => {
+      getProjects(obj).then(res => {
         console.log(res);
         //根据检测点数 和输入值的数量以及是否有x线和电子线来自动分配数据
         let data = this.makeupJson(res.projects);
-        data.forEach((val) => {
-          let obj = this.tempTestResult.find((item) => item.id === val.id);
+        data.forEach(val => {
+          let obj = this.tempTestResult.find(item => item.id === val.id);
           if (obj) {
             console.log(`obj,`, obj);
             val.tmpResult = obj.tmpResult;
@@ -955,15 +988,15 @@ export default {
         projectNo: this.projectSearch.projectNo,
         name: this.projectSearch.name,
         period: this.projectSearch.period,
-        orderBy: this.projectNum.orderBy,
+        orderBy: this.projectNum.orderBy
       };
-      getProjects(obj).then((res) => {
+      getProjects(obj).then(res => {
         console.log(res);
         //根据检测点数 和输入值的数量以及是否有x线和电子线来自动分配数据
         console.log("this.tempTestResult", this.tempTestResult);
         let data = this.makeupJson(res.projects);
-        data.forEach((val) => {
-          let obj = this.tempTestResult.find((item) => item.id === val.id);
+        data.forEach(val => {
+          let obj = this.tempTestResult.find(item => item.id === val.id);
           if (obj) {
             console.log("onbj", obj);
             val.tmpResult = obj.tmpResult;
@@ -998,14 +1031,14 @@ export default {
         refNameAna: refNameAna,
         filePath: filePath,
         pixels: libraryData.Pixels,
-        image: libraryData.image,
+        image: libraryData.image
       });
       this.viewImageData.push({
         data: libraryData.imageData,
         refNameAna: refNameAna,
         filePath: filePath,
         pixels: libraryData.Pixels,
-        image: libraryData.image,
+        image: libraryData.image
       });
       this.showAnalyse = true;
       console.log("onHttpRequest", this.imageData);
@@ -1017,8 +1050,8 @@ export default {
         deviceID: this.currentDeviceID,
         pageNum: 0,
         offset: 200,
-        analysis: 1,
-      }).then((res) => {
+        analysis: 1
+      }).then(res => {
         console.log(res);
         this.projectsData = this.makeupJson(res.projects);
         this.viewData = this.getViewData();
@@ -1042,7 +1075,7 @@ export default {
     },
     //选择项目--选中rtplan文件
     onclickDicom() {
-      this.selectedVal = this.projectImage.data.filter((val) => val.checked);
+      this.selectedVal = this.projectImage.data.filter(val => val.checked);
       if (this.selectedVal.length == 0) {
         this.$message.error("请选择项目");
         return;
@@ -1080,10 +1113,10 @@ export default {
       getDicoms({
         deviceID: this.currentDeviceID,
         pageNum: this.dicomData.pageNum - 1,
-        offset: this.dicomData.offset,
-      }).then((res) => {
+        offset: this.dicomData.offset
+      }).then(res => {
         if (res.dicoms && res.dicoms.length > 0) {
-          res.dicoms.forEach((val) => {
+          res.dicoms.forEach(val => {
             val.refName = "dicom" + val.id;
           });
         }
@@ -1177,14 +1210,14 @@ export default {
         pageNum: 1,
         offset: 110,
         count: 0,
-        orderBy: "projectNo&asc",
+        orderBy: "projectNo&asc"
       };
       this.projectNum = {
         data: [],
         pageNum: 1,
         offset: 10,
         count: 0,
-        orderBy: undefined,
+        orderBy: undefined
       };
       this.getProjectsFn(1);
     },
@@ -1196,12 +1229,12 @@ export default {
         projectID: project.projectID,
         deviceID: project.deviceID,
         testResult: JSON.stringify(project.tmpResult),
-        personName: "无",
+        personName: "无"
       };
       this.tempTestResult = this.tempTestResult.filter(
-        (value) => value.id !== project.id
+        value => value.id !== project.id
       );
-      addTestResult(result).then((res) => {
+      addTestResult(result).then(res => {
         console.log(res);
         this.$message.success("保存成功");
         this.getProjectsFn();
@@ -1264,16 +1297,16 @@ export default {
         projectID: project.projectID,
         deviceID: project.deviceID,
         testResult: JSON.stringify(
-          project.testResult.filter((val) => val && val.hasOwnProperty("key"))
+          project.testResult.filter(val => val && val.hasOwnProperty("key"))
         ),
-        personName: "无",
+        personName: "无"
       };
       console.log("saveProjectChange", project.energyJson, project.result);
       this.tempTestResult = this.tempTestResult.filter(
-        (value) => value.id !== project.id
+        value => value.id !== project.id
       );
       // return
-      addTestResult(result).then((res) => {
+      addTestResult(result).then(res => {
         console.log(res);
         this.$message.success("保存成功");
         this.getProjectsFn();
@@ -1298,7 +1331,7 @@ export default {
           args = this.selectedRow.energyJson[this.selectedEnergy].inputData;
           testResult = Array(
             Object.keys(this.selectedRow.energyJson).filter(
-              (val) => val != "levelNum"
+              val => val != "levelNum"
             ).length
           ).fill({});
           break;
@@ -1308,7 +1341,7 @@ export default {
           );
           testResult = Array(
             Object.keys(this.selectedRow.energyJson).filter(
-              (val) => val != "levelNum"
+              val => val != "levelNum"
             ).length
           ).fill({});
           break;
@@ -1316,14 +1349,14 @@ export default {
       this.selectedRow.testResult = this.selectedRow.testResult || testResult;
       switch ($val) {
         case "等中心的指示（激光灯）":
-          args = args.map((value) => (value ? parseFloat(value) : 0));
+          args = args.map(value => (value ? parseFloat(value) : 0));
           result.val = cacTestVal.center(...args);
           break;
         case "重复性（剂量）":
           result.val = cacTestVal.getRepeat(...args);
           break;
         case "日稳定性（剂量）":
-          let reargs = args.flat().map((val) => +val);
+          let reargs = args.flat().map(val => +val);
           result.val = cacTestVal.stableDay(...reargs);
           break;
         case "线性(剂量)":
@@ -1349,61 +1382,55 @@ export default {
           result.val = cacTestVal.getLdr(reargs);
           break;
         case "随设备角度位置的变化（剂量）":
-          reargs = args.map((val) =>
-            this.getAverage(val.filter((v) => v != null))
-          );
+          reargs = args.map(val => this.getAverage(val.filter(v => v != null)));
           result.val = cacTestVal.angle(...reargs);
           break;
         case "随机架旋转的变化（剂量）(X)":
-          reargs = args.map((val) =>
-            this.getAverage(val.filter((v) => v != null))
-          );
+          reargs = args.map(val => this.getAverage(val.filter(v => v != null)));
           result.val = cacTestVal.angle(...reargs);
           break;
         case "随机架旋转的变化（剂量）(电子)":
-          reargs = args.map((val) =>
-            this.getAverage(val.filter((v) => v != null))
-          );
+          reargs = args.map(val => this.getAverage(val.filter(v => v != null)));
 
           result.val = cacTestVal.angle(...reargs);
           break;
         case "X射线深度吸收剂量特性":
           let x_energy_level = JSON.parse(this.selectedRow.x_energy_level);
           let x_deep = x_energy_level[this.selectedIndex].deep;
-          args = args.map((value) => (value ? value - x_deep : 0));
+          args = args.map(value => (value ? value - x_deep : 0));
           result.val = cacTestVal.shaft(...args);
           break;
         case "电子线深度吸收剂量特性":
           let e_energy_level = JSON.parse(this.selectedRow.e_energy_level);
           let e_deep = e_energy_level[this.selectedIndex].deep;
-          args = args.map((value) => (value ? value - e_deep : 0));
+          args = args.map(value => (value ? value - e_deep : 0));
           result.val = cacTestVal.shaft(...args);
           break;
         case "剂量偏差":
           result.val = cacTestVal.wrong(args[0] ? args[0] : 0);
           break;
         case "治疗床的等中心旋转":
-          args = args.map((value) => (value ? value : 0));
+          args = args.map(value => (value ? value : 0));
           result.val = cacTestVal.rotate(...args);
           break;
         case "旋转运动标尺的零刻度位置(治疗床面纵向转动轴)":
-          args = args.map((value) => (value ? value : 0));
+          args = args.map(value => (value ? value : 0));
           result.val = cacTestVal.shaft(...args);
           break;
         case "旋转运动标尺的零刻度位置(治疗床面横向转动轴)":
-          args = args.map((value) => (value ? value : 0));
+          args = args.map(value => (value ? value : 0));
           result.val = cacTestVal.shaft(...args);
           break;
         case "治疗床的刚度(横向（侧向倾斜角度）)":
-          args = args.map((value) => (value ? value : 0));
+          args = args.map(value => (value ? value : 0));
           result.val = cacTestVal.shaft(...args);
           break;
         case "治疗床的刚度(横向（高度的变化）)":
-          args = args.map((value) => (value ? value : 0));
+          args = args.map(value => (value ? value : 0));
           result.val = cacTestVal.shaft(...args);
           break;
         case "治疗床的刚度(纵向（高度的变化）)":
-          args = args.map((value) => (value ? value : 0));
+          args = args.map(value => (value ? value : 0));
           result.val = cacTestVal.shaft(...args);
           break;
         default:
@@ -1437,14 +1464,14 @@ export default {
             ? JSON.parse(this.currentDeviceInfo.x_energy_level)
             : JSON.parse(this.currentDeviceInfo.e_energy_level);
       if (energy_level) {
-        let obj = energy_level.find((val) => val.x == energy);
+        let obj = energy_level.find(val => val.x == energy);
         if (obj) val = obj.deep;
       }
       console.log("getDeepCalval", val);
       return val / 100;
     },
     saveDataToTemp(value) {
-      let index = this.tempTestResult.findIndex((val) => val.id == value.id);
+      let index = this.tempTestResult.findIndex(val => val.id == value.id);
       if (index != -1) {
         this.tempTestResult.splice(index, 1, this.tempTestResult[index]);
       } else {
@@ -1480,11 +1507,11 @@ export default {
       this.showImage = false;
       this.showAnalyse = true;
       this.viewImageData = [];
-      this.imageData.forEach((val) => {
+      this.imageData.forEach(val => {
         this.viewImageData.push({
           data: val.data,
           refNameAna: val.refNameAna,
-          testValue: val.testValue,
+          testValue: val.testValue
         });
       });
       console.log(this.viewImageData);
@@ -1497,11 +1524,11 @@ export default {
       this.$confirm("“影像与检测项目不符，请查核！", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
-        type: "warning",
+        type: "warning"
       }).then(() => {
         this.$message({
           type: "info",
-          message: "请注意检测结果!",
+          message: "请注意检测结果!"
         });
       });
     },
@@ -1515,74 +1542,95 @@ export default {
         let $val =
           activeProject.name +
           (activeProject.subName ? "(" + activeProject.subName + ")" : "");
-                  console.log('%c [  $val ]', 'font-size:13px; background:pink; color:#bf2c9f;',  $val)
+        console.log(
+          "%c [  $val ]",
+          "font-size:13px; background:pink; color:#bf2c9f;",
+          $val
+        );
 
         if ($val == "X射线方形照射野的对称性") {
-          console.log('%c [ this.viewData ]', 'font-size:13px; background:pink; color:#bf2c9f;', this.viewData)
-          let viewData = this.viewData[0]; // 找到照射野里的第一张图片的数据
-          let imageData = this.imageData.find(
-            (item) => item.refNameAna === viewData.refNameAna
-          ); // 根据viewData的refNameAna在imageData中找出对应的一项
-          let rows = imageData.data.width;
-          let columns = imageData.data.height;
-          let pixel_data_8 = imageData.image;
-          let pixel_data_16 = imageData.pixels;
-          let symmetry = ipcRenderer.sendSync(
-            "cal_symmetry",
-            rows,
-            columns,
-            pixel_data_16,
-            pixel_data_8
+          console.log(
+            "%c [ this.viewData ]",
+            "font-size:13px; background:pink; color:#bf2c9f;",
+            this.viewData
           );
-          if (symmetry == undefined) {
-            testValue = "NaN";
-            this.showMessage();
-          } else {
-            testValue = (symmetry * 100).toFixed(2);
-          }
+          // 遍历viewData
+          this.viewData.forEach(item => {
+            // 如果viewData中某一项的data不为空，说明已经拖入了图片
+            if (item.data == null) return;
+            let viewData = item;
+            // 通过item的refNameAna在imageData中找到对应的项
+            let imageData = this.imageData.find(
+              i => i.refNameAna === viewData.refNameAna
+            );
+            // 计算image的计算值
+            let rows = imageData.data.width;
+            let columns = imageData.data.height;
+            let pixel_data_8 = imageData.image;
+            let pixel_data_16 = imageData.pixels;
+            let symmetry = ipcRenderer.sendSync(
+              "cal_symmetry",
+              rows,
+              columns,
+              pixel_data_16,
+              pixel_data_8
+            );
+            if (symmetry == undefined) {
+              testValue = "NaN";
+              this.showMessage();
+            } else {
+              testValue = (symmetry * 100).toFixed(2);
+            }
+            console.log(testValue);
+            // 讲计算值存入viewData
+            item.testValue = testValue;
+          });
         } else if (
           $val == "X射线方形照射野的均整度(5 cm×5 cm ~30 cm×30 cm)" ||
           $val == "X射线方形照射野的均整度(大于30 cm×30 cm)"
         ) {
-          let image_shape;
-          let viewData = this.viewData[0].data
-            ? this.viewData[0]
-            : this.viewData[1];
-          let imageData = this.imageData.find(
-            (item) => item.refNameAna === viewData.refNameAna
-          );
-          let rows = imageData.data.width;
-          let columns = imageData.data.height;
-          let pixel_data_8 = imageData.image;
-          let pixel_data_16 = imageData.pixels;
-          this.viewData.forEach((val) => {
-            if (val.data) {
-              val.size = "10*10" ? "10" : "20";
-              image_shape = val.size;
+          this.viewData.forEach(item => {
+            if (item.data == null) return;
+            let viewData = item;
+            let imageData = this.imageData.find(
+              item => item.refNameAna === viewData.refNameAna
+            );
+            console.log(imageData);
+            let rows = imageData.data.width;
+            let columns = imageData.data.height;
+            let pixel_data_8 = imageData.image;
+            let pixel_data_16 = imageData.pixels;
+            let image_shape = viewData.size === "10*10" ? "10" : "20";
+            // this.viewData.forEach(val => {
+            //   if (val.data) {
+            //     val.size = "10*10" ? "10" : "20";
+            //     image_shape = val.size;
+            //   }
+            // });
+            let uniformity = ipcRenderer.sendSync(
+              "cal_uniformity",
+              rows,
+              columns,
+              pixel_data_16,
+              pixel_data_8,
+              image_shape
+            );
+            if (uniformity == undefined) {
+              this.showMessage();
+              testValue = "NaN";
+            } else {
+              testValue = (uniformity * 100).toFixed(2);
             }
+            item.testValue = testValue;
           });
-          let uniformity = ipcRenderer.sendSync(
-            "cal_uniformity",
-            rows,
-            columns,
-            pixel_data_16,
-            pixel_data_8,
-            image_shape
-          );
-          if (uniformity == undefined) {
-            this.showMessage();
-            testValue = "NaN";
-          } else {
-            testValue = (uniformity * 100).toFixed(2);
-          }
         } else if ($val == "照射野的数字指示（多元限束）(最大照射野)") {
           let first_viewData = this.viewData[0];
           let second_viewData = this.viewData[1];
           let first_imageData = this.imageData.find(
-            (item) => item.refNameAna === first_viewData.refNameAna
+            item => item.refNameAna === first_viewData.refNameAna
           );
           let second_imageData = this.imageData.find(
-            (item) => item.refNameAna === second_viewData.refNameAna
+            item => item.refNameAna === second_viewData.refNameAna
           );
           let rows = first_viewData.data.width;
           let columns = first_viewData.data.height;
@@ -1608,15 +1656,16 @@ export default {
           } else {
             testValue = muliiple_limiting.toFixed(2);
           }
+          this.viewData[0].testValue = testValue;
         } else if ($val == "辐射束轴在患者入射表面上的位置指示(20cm×20cm)") {
           let first_viewData = this.viewData[0];
-          
+
           let second_viewData = this.viewData[1];
           let first_imageData = this.imageData.find(
-            (item) => item.refNameAna === first_viewData.refNameAna
+            item => item.refNameAna === first_viewData.refNameAna
           );
           let second_imageData = this.imageData.find(
-            (item) => item.refNameAna === second_viewData.refNameAna
+            item => item.refNameAna === second_viewData.refNameAna
           );
           let rows = first_viewData.data.width;
           let columns = first_viewData.data.height;
@@ -1645,14 +1694,15 @@ export default {
           } else {
             testValue = indication.toFixed(2);
           }
+          this.viewData[0].testValue = testValue;
         } else if ($val == "旋转运动标尺的零刻度位置(限束系统旋转轴)") {
           let first_viewData = this.viewData[0];
           let second_viewData = this.viewData[1];
           let first_imageData = this.imageData.find(
-            (item) => item.refNameAna === first_viewData.refNameAna
+            item => item.refNameAna === first_viewData.refNameAna
           );
           let second_imageData = this.imageData.find(
-            (item) => item.refNameAna === second_viewData.refNameAna
+            item => item.refNameAna === second_viewData.refNameAna
           );
           let rows = first_viewData.data.width;
           let columns = first_viewData.data.height;
@@ -1674,65 +1724,79 @@ export default {
             second_pixel_data_8,
             second_image_shape
           );
-          if (cal_scale_position == undefined) {
+          if (
+            cal_scale_position == undefined ||
+            Number.isNaN(cal_scale_position)
+          ) {
             this.showMessage();
+            console.log(cal_scale_position);
             testValue = "NaN";
           } else {
             testValue = cal_scale_position.toFixed(2);
           }
+          this.viewData[0].testValue = testValue;
         } else if ($val == "照射野的半影(应符合厂家给出值)") {
-          let viewData = this.viewData[0]; // 找到照射野里的第一张图片的数据
-          let imageData = this.imageData.find(
-            (item) => item.refNameAna === viewData.refNameAna
-          ); // 根据viewData的refNameAna在imageData中找出对应的一项
-          let rows = imageData.data.width;
-          let columns = imageData.data.height;
-          let pixel_data_8 = imageData.image;
-          let pixel_data_16 = imageData.pixels;
-          let cal_penumbra = ipcRenderer.sendSync(
-            "cal_penumbra",
-            rows,
-            columns,
-            pixel_data_16,
-            pixel_data_8
-          );
-          if (cal_penumbra == undefined) {
-            this.showMessage();
-            testValue = "NaN";
-          } else {
-            testValue = cal_penumbra.toFixed(2);
-          }
+          this.viewData.forEach(item => {
+            if (item.data == null) return;
+            let viewData = item;
+            let imageData = this.imageData.find(
+              item => item.refNameAna === viewData.refNameAna
+            ); // 根据viewData的refNameAna在imageData中找出对应的一项
+            let rows = imageData.data.width;
+            let columns = imageData.data.height;
+            let pixel_data_8 = imageData.image;
+            let pixel_data_16 = imageData.pixels;
+            let cal_penumbra = ipcRenderer.sendSync(
+              "cal_penumbra",
+              rows,
+              columns,
+              pixel_data_16,
+              pixel_data_8
+            );
+            if (cal_penumbra == undefined) {
+              this.showMessage();
+              testValue = "NaN";
+            } else {
+              testValue = cal_penumbra.toFixed(2);
+            }
+            item.testValue = testValue;
+          });
         } else if (
           $val == "照射野的数字指示（多元限束）(最大照射野)" ||
-          $val == "照射野的数字指示（单元限束）(5 cm×5 cm ~20 cm×20 cm)"
+          $val == "照射野的数字指示（单元限束）(20 cm×20 cm)"
         ) {
-          let viewData = this.viewData[0]; // 找到照射野里的第一张图片的数据
-          let imageData = this.imageData.find(
-            (item) => item.refNameAna === viewData.refNameAna
-          ); // 根据viewData的refNameAna在imageData中找出对应的一项
-          let rows = imageData.data.width;
-          let columns = imageData.data.height;
-          let pixel_data_8 = imageData.image;
-          let pixel_data_16 = imageData.pixels;
-          let cal_unit_limiting = ipcRenderer.sendSync(
-            "cal_unit_limiting",
-            rows,
-            columns,
-            pixel_data_16,
-            pixel_data_8
-          );
-          if (cal_unit_limiting == undefined) {
-            this.showMessage();
-            testValue = "NaN";
-          } else {
-            testValue = cal_unit_limiting.toFixed(2);
-          }
+          this.viewData.forEach(item => {
+            if (item.data == null) return;
+            let viewData = item;
+            let imageData = this.imageData.find(
+              item => item.refNameAna === viewData.refNameAna
+            ); // 根据viewData的refNameAna在imageData中找出对应的一项
+            let rows = imageData.data.width;
+            let columns = imageData.data.height;
+            let pixel_data_8 = imageData.image;
+            let pixel_data_16 = imageData.pixels;
+            let cal_unit_limiting = ipcRenderer.sendSync(
+              "cal_unit_limiting",
+              rows,
+              columns,
+              pixel_data_16,
+              pixel_data_8
+            );
+            if (cal_unit_limiting == undefined) {
+              this.showMessage();
+              testValue = "NaN";
+            } else {
+              testValue = cal_unit_limiting.toFixed(2);
+            }
+            item.testValue = testValue;
+          });
         } else if ($val == "照射野的数字指示（多元限束）(10 cm×10 cm)") {
-          let viewData = this.viewData[0].data
-            ? this.viewData[0]
-            : this.viewData[1];
+          this.viewData.forEach(item => {
+            if (item.data == null) return;
+            let viewData = item;
+          });
           let imageData = this.imageData.find(
-            (item) => item.refNameAna === viewData.refNameAna
+            item => item.refNameAna === viewData.refNameAna
           ); // 根据viewData的refNameAna在imageData中找出对应的一项
           let rows = imageData.data.width;
           let columns = imageData.data.height;
@@ -1756,19 +1820,19 @@ export default {
         }
         this.showAnalyse = false;
         let index = this.projectImage.data.findIndex(
-          (val) => val.id === activeProject.id
+          val => val.id === activeProject.id
         );
         if (index != -1) {
           let obj = deepCopy(this.projectImage.data[index]);
           obj.tmpResult = [];
-          this.viewData.forEach((val) => {
+          this.viewData.forEach(val => {
             if (val.data) {
               obj.tmpResult.push({
                 power: val.power,
                 size: val.size,
                 filePath: val.filePath,
                 testUnit: obj.testUnit,
-                value: testValue,
+                value: val.testValue
               });
             }
           });
@@ -1843,7 +1907,7 @@ export default {
     handleChangeAll() {
       console.log(this.checkedAll);
       this.projectImage.data.forEach(
-        (value) => (value.checked = this.checkedAll)
+        value => (value.checked = this.checkedAll)
       );
     },
     handleChangeSingle(val) {
@@ -1854,7 +1918,7 @@ export default {
       }
       // console.log(this.pathRT)
       this.checkedAll =
-        this.projectImage.data.filter((value) => value.checked).length ===
+        this.projectImage.data.filter(value => value.checked).length ===
         this.projectImage.data.length;
       this.$forceUpdate();
     },
@@ -1865,11 +1929,11 @@ export default {
       }
       let files = [],
         projectIDs = [];
-      this.selectedVal.forEach((val) => {
+      this.selectedVal.forEach(val => {
         console.log("aaaaaaaaa");
         console.log(val);
         if (val.testResult && val.testResult.length > 0) {
-          files.push(val.testResult.map((value) => value.filePath));
+          files.push(val.testResult.map(value => value.filePath));
         }
         projectIDs.push(val.id);
       });
@@ -1888,12 +1952,12 @@ export default {
         customer: this.selectedDicom.customer,
         files: files,
         projectIDs: projectIDs,
-        pathRT: this.pathRT,
+        pathRT: this.pathRT
       })
-        .then((res) => {
+        .then(res => {
           this.$message.success("dicom文件已传输");
         })
-        .finally((res) => {
+        .finally(res => {
           this.showDICOM = false;
         });
     },
@@ -1926,8 +1990,8 @@ export default {
       } else {
         return point;
       }
-    },
-  },
+    }
+  }
 };
 </script>
 <style lang="scss" scoped>
