@@ -48,15 +48,51 @@ exports.initCoreData = function() {
             var db = new sq3.Database(sqlDir); //如果不存在，则会自动创建一个文件
             console.log('initCoreData')
             db.serialize(function() {
+                // db.run("DROP TABLE qsc_device");
+                console.log("creating qcs_device")
+                db.run("CREATE TABLE if not exists qsc_device (" +
+                    "id INTEGER PRIMARY KEY autoincrement," +
+                    "model TEXT," +
+                    "sequence TEXT," +
+                    "x_energy_level TEXT," +
+                    "e_energy_level TEXT," +
+                    "xFFF TEXT," +
+                    "x_volume_percent INTEGER," +
+                    "e_volume_percent INTEGER," +
+                    "e_light_size INTEGER," +
+                    "multileaf_collimator_size INTEGER," +
+                    "default_dir TEXT," +
+                    "createDate TEXT," +
+                    "updateDate TEXT" +
+                    ")", (result, err) => {
+                        console.log("qcs_device callback")
+                        if (err) {
+                            console.error(err.message);
+                        } else {
+                            console.log(result);
+                        }
+
+                    });
                 // db.run("DROP TABLE qsc_dicom");
+                console.log("creating qcs_dicom")
                 db.run("CREATE TABLE if not exists qsc_dicom (" +
                     "id INTEGER PRIMARY KEY autoincrement," +
                     "customer TEXT," +
                     "aeTitle TEXT," +
                     "ip TEXT," +
-                    "port TEXT)");
+                    "deviceID INTEGER," +
+                    "port TEXT)", (result, err) => {
+                        console.log("qcs_dicom callback")
+                        if (err) {
+                            console.error(err.message);
+                        } else {
+                            console.log(result);
+                        }
+
+                    });
                 // db.run("ALTER TABLE qsc_dicom ADD COLUMN deviceID INTEGER DEFAULT 0 ");
                 // db.run("DROP TABLE qsc_project");
+                console.log("creating qsc_project")
                 db.run("CREATE TABLE if not exists qsc_project (" +
                     "id INTEGER PRIMARY KEY autoincrement," +
                     "projectNo TEXT," +
@@ -76,8 +112,24 @@ exports.initCoreData = function() {
                     "moduleRequire TEXT," +
                     "type TEXT," +
                     "analysis TEXT," +
-                    "views TEXT" +
-                    ")");
+                    "views TEXT, " +
+                    "detail TEXT, " +
+                    "detailUrl TEXT, " +
+                    "unit TEXT, " +
+                    "supply TEXT, " +
+                    "tips TEXT, " +
+                    "nameAPI TEXT, " +
+                    "pathRT TEXT, " +
+                    "testUnit TEXT" +
+                    ")", (result, err) => {
+                        console.log("qcs_project callback")
+                        if (err) {
+                            console.error(err.message);
+                        } else {
+                            console.log(result);
+                        }
+
+                    });
 
                 // db.run("ALTER TABLE qsc_project ADD COLUMN testUnit TEXT ",function (err) {
                 //     console.log(err)
@@ -85,23 +137,9 @@ exports.initCoreData = function() {
                 // db.run("ALTER TABLE qsc_project ADD COLUMN detailUrl TEXT ",function (err) {
                 //     console.log(err)
                 // });
-                // db.run("DROP TABLE qsc_device");
-                db.run("CREATE TABLE if not exists qsc_device (" +
-                    "id INTEGER PRIMARY KEY autoincrement," +
-                    "model TEXT," +
-                    "sequence TEXT," +
-                    "x_energy_level TEXT," +
-                    "e_energy_level TEXT," +
-                    "xFFF TEXT," +
-                    "x_volume_percent INTEGER," +
-                    "e_volume_percent INTEGER," +
-                    "e_light_size INTEGER," +
-                    "multileaf_collimator_size INTEGER," +
-                    "default_dir TEXT," +
-                    "createDate TEXT," +
-                    "updateDate TEXT" +
-                    ")");
+
                 // db.run("DROP TABLE qsc_device_proj");
+                console.log("creating qcs_device_proj")
                 db.run("CREATE TABLE if not exists qsc_device_proj (" +
                     "id INTEGER PRIMARY KEY autoincrement," +
                     "deviceID INTEGER," +
@@ -110,10 +148,20 @@ exports.initCoreData = function() {
                     "numOfInput INTEGER," +
                     "period TEXT," +
                     "threshold INTEGER," +
+                    "testUnit TEXT ," +
                     "createDate TEXT," +
                     "UNIQUE(deviceID, projectID) ON CONFLICT REPLACE" +
-                    ")");
+                    ")", (result, err) => {
+                        console.log("qcs_device_proj callback")
+                        if (err) {
+                            console.error(err.message);
+                        } else {
+                            console.log(result);
+                        }
+
+                    });
                 // db.run("DROP TABLE qsc_device_proj_result");
+                console.log("creating qcs_device_proj_result");
                 db.run("CREATE TABLE if not exists qsc_device_proj_result (" +
                     "id INTEGER PRIMARY KEY autoincrement," +
                     "qscDeviceProjID INTEGER," +
@@ -124,6 +172,7 @@ exports.initCoreData = function() {
                     "createDate TEXT" +
                     ")");
 
+                console.log("creating qcs_period_data");
                 db.run("CREATE TABLE if not exists qsc_period_data (" +
                     "id INTEGER PRIMARY KEY autoincrement," +
                     "numOfDays INTEGER," +
@@ -141,6 +190,7 @@ exports.initCoreData = function() {
                 // db.run("ALTER TABLE  qsc_device ADD COLUMN xFFF INTEGER DEFAULT 0 ");
 
                 /// 医院信息
+                console.log("creating qcs_hospitals");
                 db.run("CREATE TABLE if not exists qsc_hospitals (" +
                     "id INTEGER PRIMARY KEY autoincrement," +
                     "deviceID INTEGER," +
@@ -176,7 +226,9 @@ exports.initCoreData = function() {
                     console.log('db119911', row.length);
                 });
             });
+            console.log("closing db.")
             db.close();
+
         }
     }
     /**

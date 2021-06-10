@@ -130,7 +130,7 @@
                         <tr v-for="(project,index) in projects" :key="index">
                             <td>{{project.projectNo}}</td>
                             <td style="max-width: 300px">{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td>
-                            <td>{{project.threshold.split('&&')[0]}}</td>
+                            <td>{{project.threshold}}</td>
                             <td>{{project.period}}</td>
                             <!--<td>{{project.radioType}}</td>-->
                             <!--<td><div v-for="(v,index) in device.powerX" :key="index">{{v.x}}{{v.checked?' FFF模式':''}}</div></td>-->
@@ -821,7 +821,9 @@
                     this.project.testUnit=project.testUnit
                     console.log(project.testUnit,'llllll',this.project.testUnit)
                     this.project.period = project.period; 
-                    this.project.threshold = project.threshold.split('&&')[0];
+                    this.project.threshold = project.threshold;
+                    console.log('%c [ project.threshold ]', 'font-size:13px; background:pink; color:#bf2c9f;', project.threshold)
+                    console.log('%c [ this.project.threshold ]', 'font-size:13px; background:pink; color:#bf2c9f;', this.project.threshold)
                     this.project.dpID = project.dpID
                     this.project.id = project.id
                     if (this.project.threshold){

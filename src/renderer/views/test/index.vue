@@ -145,8 +145,9 @@
                         <span v-if="v.value == 'NaN'">{{ v.value }}</span>
                         <!-- <img v-if="!compare(v.val,project.threshold)" src="../assets/images/arrow.png" /> -->
                         <img
+                         
                           class="showArrow"
-                          v-if="!compareCal(v.value, project.threshold)"
+                          v-if="!compareCal(v.value, project.testUnit)"
                           src="../../assets/images/arrow.png"
                         />
                       </div>
@@ -160,7 +161,7 @@
                   </div>
                 </td>
                 <!--<td>{{project.radioType}}</td>-->
-                <td>{{ project.threshold.split('&&')[0]}}</td>
+                <td>{{ project.threshold}}</td>
                 <td>{{ project.period }}</td>
                 <td>{{ project.createDate }}</td>
                 <td>
@@ -251,13 +252,14 @@
                           <!--<div class="item-unit left">mm</div>-->
                           <div class="item-number left">
                             <span v-if="getTestResultCalc(project, item)">{{ getTestResultCalc(project, item)
-                              }}{{ project.threshold.split('&&')[1] }}</span>
-                            <img
+                              }}{{ project.testUnit}}</span>
+                            <img 
+                             @click="abc"
                               v-if="
                                 project.testResult &&
                                   !compareCal(
                                     getTestResultCalc(project, item),
-                                    project.threshold
+                                    project.testUnit
                                   )
                               "
                               src="../../assets/images/arrow.png"
@@ -416,7 +418,7 @@
                   <!-- 这个是计算值的组件 -->
                   <test-result :project="project"> </test-result>
                 </td>
-                <td>{{ project.threshold.split('&&')[0] }}</td>
+                <td>{{ project.threshold }}</td>
                 <td>{{ project.period }}</td>
                 <td>{{ project.createDate }}</td>
                 <td>
@@ -931,6 +933,9 @@ export default {
         });
       }
       return data;
+    },
+    abc() {
+      console.log('11111111111',this.project)
     },
     onProjectChange(index, value) {
       this.activeProjectIndex = index;
@@ -1844,7 +1849,7 @@ export default {
                 power: val.power,
                 size: val.size,
                 filePath: val.filePath,
-                testUnit: obj.testUnit,
+                // testUnit: obj.testUnit,
                 value: val.testValue
               });
             }

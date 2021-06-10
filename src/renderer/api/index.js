@@ -556,8 +556,8 @@ export function updateProject(obj) {
     return new Promise(resolve => {
         var db = new sq3.Database(sqlDir);
         if (obj.id > 0) {
-            //var sql = 'UPDATE ' + DBTABLE.DEVICE_PROJ + ' SET period=?, threshold=?, testUnit=? WHERE id=? ';
-            var sql = 'UPDATE ' + DBTABLE.DEVICE_PROJ + ' SET period=?, threshold=? WHERE id=? ';
+            var sql = 'UPDATE ' + DBTABLE.DEVICE_PROJ + ' SET period=?, threshold=?, testUnit=? WHERE id=? ';
+            //var sql = 'UPDATE ' + DBTABLE.DEVICE_PROJ + ' SET period=?, threshold=? WHERE id=? ';
             console.log(sql);
             let stmt = db.prepare(sql);
             console.log(stmt);
@@ -565,9 +565,11 @@ export function updateProject(obj) {
             console.log("test unit is: " + obj.testUnit);
             console.log(obj);
             console.log(obj.id);
-            stmt.run(obj.period, obj.threshold, obj.id, function() {
+            console.log('1111111111111', resObj)
+            stmt.run(obj.period, obj.threshold, obj.testUnit, obj.id, function() {
                 resolve(resObj);
             });
+            console.log('22222222222222222222222', resObj)
             stmt.finalize();
             db.close();
         }
