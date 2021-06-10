@@ -160,7 +160,7 @@
                   </div>
                 </td>
                 <!--<td>{{project.radioType}}</td>-->
-                <td>{{ project.threshold }}</td>
+                <td>{{ project.threshold.split('&&')[0]}}</td>
                 <td>{{ project.period }}</td>
                 <td>{{ project.createDate }}</td>
                 <td>
@@ -251,7 +251,7 @@
                           <!--<div class="item-unit left">mm</div>-->
                           <div class="item-number left">
                             <span v-if="getTestResultCalc(project, item)">{{ getTestResultCalc(project, item)
-                              }}{{ project.testUnit }}</span>
+                              }}{{ project.threshold.split('&&')[1] }}</span>
                             <img
                               v-if="
                                 project.testResult &&
@@ -416,7 +416,7 @@
                   <!-- 这个是计算值的组件 -->
                   <test-result :project="project"> </test-result>
                 </td>
-                <td>{{ project.threshold }}</td>
+                <td>{{ project.threshold.split('&&')[0] }}</td>
                 <td>{{ project.period }}</td>
                 <td>{{ project.createDate }}</td>
                 <td>
@@ -1532,6 +1532,12 @@ export default {
         });
       });
     },
+    showInfo() {
+      this.$message({
+          message: '请选择两张图片',
+          type: 'warning'
+        });
+    },
     async onclickAna() {
       if (this.projectsData && this.projectsData.length > 0) {
         let activeProject = this.projectsData[this.activeProjectIndex];
@@ -1586,8 +1592,8 @@ export default {
             item.testValue = testValue;
           });
         } else if (
-          $val == "X射线方形照射野的均整度(5 cm×5 cm ~30 cm×30 cm)" ||
-          $val == "X射线方形照射野的均整度(大于30 cm×30 cm)"
+          $val == "X射线方形照射野的均整度(20cm×20cm)" ||
+          $val == "X射线方形照射野的均整度(10cm×10cm)"
         ) {
           this.viewData.forEach(item => {
             if (item.data == null) return;
@@ -1623,7 +1629,7 @@ export default {
             }
             item.testValue = testValue;
           });
-        } else if ($val == "照射野的数字指示（多元限束）(最大照射野)") {
+        } else if ($val == "照射野的数字指示（多元限束）(10 cm×10 cm)") {
           let first_viewData = this.viewData[0];
           let second_viewData = this.viewData[1];
           let first_imageData = this.imageData.find(
@@ -1640,7 +1646,7 @@ export default {
           let second_pixel_data_8 = second_imageData.image;
           let pairs_number = this.currentDeviceInfo.multileaf_collimator_size;
           let muliiple_limiting = ipcRenderer.sendSync(
-            "cal_large_muliiple_limiting",
+            "cal_small_multiple_limiting",
             rows,
             columns,
             first_pixel_data_16,
@@ -1649,7 +1655,6 @@ export default {
             second_pixel_data_16,
             second_pixel_data_8
           );
-
           if (muliiple_limiting == undefined) {
             this.showMessage();
             testValue = "NaN";
@@ -1659,7 +1664,6 @@ export default {
           this.viewData[0].testValue = testValue;
         } else if ($val == "辐射束轴在患者入射表面上的位置指示(20cm×20cm)") {
           let first_viewData = this.viewData[0];
-
           let second_viewData = this.viewData[1];
           let first_imageData = this.imageData.find(
             item => item.refNameAna === first_viewData.refNameAna
@@ -1667,6 +1671,12 @@ export default {
           let second_imageData = this.imageData.find(
             item => item.refNameAna === second_viewData.refNameAna
           );
+          if(first_imageData==undefined||second_imageData==undefined) {
+            this.showInfo();
+          }
+          if(first_imageData == undefined||second_imageData == undefined) {
+            this.showInfo();
+          }
           let rows = first_viewData.data.width;
           let columns = first_viewData.data.height;
           let first_pixel_data_8 = first_imageData.image;
@@ -1677,6 +1687,7 @@ export default {
           let second_image_shape =
             second_viewData.size == "10*10" ? "10" : "20";
           let indication = ipcRenderer.sendSync(
+            
             "cal_position_indication",
             rows,
             columns,
@@ -1704,6 +1715,9 @@ export default {
           let second_imageData = this.imageData.find(
             item => item.refNameAna === second_viewData.refNameAna
           );
+          if(first_imageData == undefined || second_imageData == undefined) {
+            this.showInfo();
+          }
           let rows = first_viewData.data.width;
           let columns = first_viewData.data.height;
           let first_pixel_data_8 = first_imageData.image;
@@ -1762,7 +1776,6 @@ export default {
             item.testValue = testValue;
           });
         } else if (
-          $val == "照射野的数字指示（多元限束）(最大照射野)" ||
           $val == "照射野的数字指示（单元限束）(20 cm×20 cm)"
         ) {
           this.viewData.forEach(item => {
@@ -1790,7 +1803,7 @@ export default {
             }
             item.testValue = testValue;
           });
-        } else if ($val == "照射野的数字指示（多元限束）(10 cm×10 cm)") {
+        } else if ($val == "照射野的数字指示（多元限束）(10 cm×10 cm)"|| $val == "照射野的数字指示（多元限束）(最大照射野)" ) {
           this.viewData.forEach(item => {
             if (item.data == null) return;
             let viewData = item;

@@ -130,7 +130,7 @@
                         <tr v-for="(project,index) in projects" :key="index">
                             <td>{{project.projectNo}}</td>
                             <td style="max-width: 300px">{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td>
-                            <td>{{project.threshold}}</td>
+                            <td>{{project.threshold.split('&&')[0]}}</td>
                             <td>{{project.period}}</td>
                             <!--<td>{{project.radioType}}</td>-->
                             <!--<td><div v-for="(v,index) in device.powerX" :key="index">{{v.x}}{{v.checked?' FFF模式':''}}</div></td>-->
@@ -362,7 +362,7 @@
                          </div>
                         <div class="project-change-lists-item">
                             <input type="text" class="item-content" style="width: 50px;" v-model="project.thresholdValue">
-                            <el-select v-model="project.thresholdUnit" placeholder="单位" >
+                            <el-select v-model="project.testUnit" placeholder="单位" >
                                 <el-option value="mm"></el-option>
                                 <el-option value="%"></el-option>
                                 <el-option value="°"></el-option>
@@ -458,7 +458,7 @@
                 projects:[],
                 project:{
                     period: null,
-                    thresholdUnit: null,
+                    testUnit: null,
                     thresholdValue: null
                 },
                 curCheckedX: false,
@@ -541,6 +541,7 @@
                         })
                     }
                     this.projects = res.projects;
+                    console.log(this.projects,'88888888888888888888888')
                     this.projectInfo.count = res.count;
                 })
             },
@@ -708,14 +709,16 @@
                     this.$message.error('请填写阈值')
                     return
                 }
-                if (!this.project.thresholdUnit){
+                if (!this.project.testUnit){
                     this.$message.error('请选择阈值单位')
                     return
                 }
                 console.log('11111',this.project)
-                console.log('aaaaa',this.project.thresholdUnit)
-                this.project.threshold = '≤'+ this.project.thresholdValue + this.project.thresholdUnit;
+                console.log('aaaaa',this.project.testUnit)
+                this.project.threshold = '≤'+ this.project.thresholdValue + this.project.testUnit;
+                this.project.testUnit = this.project.testUnit 
                 updateProject(this.project).then(res =>{
+                    console.log(res)
                     this.isShowProjectChange = false;
                     this.getProjectsData()
                 })
@@ -812,17 +815,22 @@
             },
             showProjectChange(project){
                 if(project) {
-                    this.project.period = project.period;
-                    this.project.threshold = project.threshold;
+                    console.log(this.project,'ppppppppppppppppppppppp');
+                    console.log(project,'9999999999999999');
+                    // this.project.testUnit = project.testUnit; 
+                    this.project.testUnit=project.testUnit
+                    console.log(project.testUnit,'llllll',this.project.testUnit)
+                    this.project.period = project.period; 
+                    this.project.threshold = project.threshold.split('&&')[0];
                     this.project.dpID = project.dpID
                     this.project.id = project.id
                     if (this.project.threshold){
                         this.project.thresholdValue = this.project.threshold.replace(/mm|%|°/,'').substr(1)
                         let index = this.project.threshold.indexOf('mm')
                         if (index>-1){
-                            this.project.thresholdUnit = 'mm'
+                            this.project.testUnit = 'mm' 
                         } else {
-                            this.project.thresholdUnit = this.project.threshold.substr(-1)
+                            this.project.testUnit = this.project.threshold.substr(-1)
                         }
                     }
                 }
