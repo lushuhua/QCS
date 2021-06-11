@@ -1,23 +1,24 @@
 import { DBTABLE, initCoreData, uploadFile, loadProject } from "../../main/dbaccess/connectDb";
 import { getCurDate } from "../../main/util/util";
 
-const sq3 = require('sqlite3').verbose()
+const sq3 = require('sqlite3').verbose();
 const async = require("async");
 const path = require('path');
 const resObj = { "msg": "", "result": true, "token": "", "error_code": "0", code: 200 };
-initCoreData()
-loadProject()
+initCoreData();
+loadProject();
 
 let sqlDir = path.join(process.resourcesPath, 'extraResources', 'medical.db'),
     qcsNodeUrl = path.resolve(process.resourcesPath, 'extraResources', 'qcsNode.node')
 if (process.env.NODE_ENV === 'development') {
     sqlDir = path.join(__dirname, '../../extraResources/medical.db');
     qcsNodeUrl = path.resolve(__dirname, '../../extraResources/qcsNode.node');
-}
+};
 console.log('qcsNodeUrl', qcsNodeUrl);
 const qcsNode = require(`qcs`);
 // loadProject()
 export function getProjects(obj) {
+
     console.log('getProjects', obj)
     return new Promise((resolve, reject) => {
         obj = obj ? obj : {}

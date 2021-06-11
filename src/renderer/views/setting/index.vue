@@ -362,11 +362,12 @@
                          </div>
                         <div class="project-change-lists-item">
                             <input type="text" class="item-content" style="width: 50px;" v-model="project.thresholdValue">
-                            <el-select v-model="project.testUnit" placeholder="单位" >
+                            
+                            <!-- <el-select v-model="project.testUnit" placeholder="单位" >
                                 <el-option value="mm"></el-option>
                                 <el-option value="%"></el-option>
                                 <el-option value="°"></el-option>
-                            </el-select>
+                            </el-select> -->
                             <div class="item-name" style="width: 40px;flex: none;height: 100%;border-left: 1px solid rgba(255,255,255,0.08);line-height: 45px">阈值</div>
                         </div>
                     </div>
@@ -713,10 +714,8 @@
                     this.$message.error('请选择阈值单位')
                     return
                 }
-                console.log('11111',this.project)
                 console.log('aaaaa',this.project.testUnit)
                 this.project.threshold = '≤'+ this.project.thresholdValue + this.project.testUnit;
-                this.project.testUnit = this.project.testUnit 
                 updateProject(this.project).then(res =>{
                     console.log(res)
                     this.isShowProjectChange = false;

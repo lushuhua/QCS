@@ -66,6 +66,8 @@ export function getProjects(obj) {
                 ,IFNULL(dp.numOfInput,proj.numOfInput) AS numOfInput
                 ,IFNULL(dp.period,proj.period) AS period
                 ,IFNULL(dp.threshold,proj.threshold) AS threshold
+
+                
                 ,test.*,dp.id,dp.projectID,dp.deviceID
                 ,IIF(test.createDate,DATE(test.createDate,CASE proj.period 
                  WHEN '一天' THEN '+1 day'
@@ -556,20 +558,12 @@ export function updateProject(obj) {
     return new Promise(resolve => {
         var db = new sq3.Database(sqlDir);
         if (obj.id > 0) {
-            var sql = 'UPDATE ' + DBTABLE.DEVICE_PROJ + ' SET period=?, threshold=?, testUnit=? WHERE id=? ';
+            var sql = 'UPDATE ' + DBTABLE.DEVICE_PROJ + ' SET period=?, threshold=? WHERE id=? ';
             //var sql = 'UPDATE ' + DBTABLE.DEVICE_PROJ + ' SET period=?, threshold=? WHERE id=? ';
-            console.log(sql);
             let stmt = db.prepare(sql);
-            console.log(stmt);
-            // let threshold = obj.threshold + "&&" + obj.testUnit;
-            console.log("test unit is: " + obj.testUnit);
-            console.log(obj);
-            console.log(obj.id);
-            console.log('1111111111111', resObj)
-            stmt.run(obj.period, obj.threshold, obj.testUnit, obj.id, function() {
+            stmt.run(obj.period, obj.threshold, obj.id, function() {
                 resolve(resObj);
             });
-            console.log('22222222222222222222222', resObj)
             stmt.finalize();
             db.close();
         }

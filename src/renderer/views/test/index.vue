@@ -996,7 +996,7 @@ export default {
         orderBy: this.projectNum.orderBy
       };
       getProjects(obj).then(res => {
-        console.log(res);
+        console.log('7777777777777777res',res);
         //根据检测点数 和输入值的数量以及是否有x线和电子线来自动分配数据
         console.log("this.tempTestResult", this.tempTestResult);
         let data = this.makeupJson(res.projects);
