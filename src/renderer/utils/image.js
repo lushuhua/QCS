@@ -1,9 +1,9 @@
 //var  THRESH_BINARY = require('opencv-wasm/opencv.js');
 const { cv } = require('opencv-wasm')
-const { THRESH_BINARY } = require('opencv-wasm/opencv.js');
+const { THRESH_BINARY, morphologyDefaultBorderValue, Point, threshold, DCT_ROWS } = require('opencv-wasm/opencv.js');
 const { Mat  } = require('opencv-wasm/opencv.js');
 const {  THRESH_OTSU,  THRESH_TRIANGLE,  CONTOURS_MATCH_I1  }  = require('opencv-wasm/opencv.js');
-
+//6.3.1 x射线方形照射野的对称性
 function cal_symmetry(rows, columns, pixel_data_16, pixel_data_8) {
     //6.3.1  Symmetry of square X-ray field
     let mat_16 = cv.matFromArray(rows, columns, cv.CV_16UC1, pixel_data_16);
@@ -149,7 +149,7 @@ function cal_symmetry(rows, columns, pixel_data_16, pixel_data_8) {
     console.log("Slb_distance,Srb_distance is " + Slb_distance, Srb_distance);
     return max_Symmetry;
 }
-
+//6.3.1 x射线方形照射野的均整度
 function cal_uniformity(rows, columns, pixel_data_16, pixel_data_8, image_shape) {
     // 6.3.1 Uniformity of square X-ray irradiation field
     let mat_16 = cv.matFromArray(rows, columns, cv.CV_16UC1, pixel_data_16);
@@ -251,6 +251,7 @@ function cal_uniformity(rows, columns, pixel_data_16, pixel_data_8, image_shape)
     console.log("uniformity is " + Uniformity);
     return Uniformity;
 }
+//6.4.2 辐射束轴在患者入射表面的位置指示
 function cal_position_indication(rows, columns, first_pixel_data_16, first_pixel_data_8, first_image_shape, second_pixel_data_16, second_pixel_data_8, second_image_shape) {
     //6.4.2 Position indication of radiation beam axis on the patient's incident surface
     let first_mat_16 = cv.matFromArray(rows, columns, cv.CV_16UC1, first_pixel_data_16);
@@ -348,11 +349,11 @@ function cal_position_indication(rows, columns, first_pixel_data_16, first_pixel
         }
     }
     //ff_distance:first_fifty_distance
-    var ff_distance=(frfpd_index-flfpd_index)*0.4;
+    var ff_distance = (frfpd_index - flfpd_index) * 0.4;
     //Iff_distance:ISO_first_fifty_distance
-    var Iff_distance=ff_distance-320;
+    var Iff_distance = ff_distance - 320;
     //IfD_distance:ISO_first_D_distance
-    var IfD_distance=Iff_distance/1.6;
+    var IfD_distance = Iff_distance / 1.6;
     let second_mat_16 = cv.matFromArray(rows, columns, cv.CV_16UC1, second_pixel_data_16);
     let second_mat_8 = cv.matFromArray(rows, columns, cv.CV_8UC1, second_pixel_data_8);
     var second_cal_array = [];
@@ -409,7 +410,7 @@ function cal_position_indication(rows, columns, first_pixel_data_16, first_pixel
         }
     }
     //srmp_value:second_right_min_pixel_value
-    var srmp_value = spm.ushortAt(s_int_cx,s_int_cy);
+    var srmp_value = spm.ushortAt(s_int_cx, s_int_cy);
     for (var j = s_int_cy; j < srbs_index; j++) {
         if (spm.ushortAt(s_int_cx, j) < srmp_value) {
             srmp_value = spm.ushortAt(s_int_cx, j);
@@ -444,17 +445,18 @@ function cal_position_indication(rows, columns, first_pixel_data_16, first_pixel
         }
     }
     //sf_distance:second_fifty_distance
-    var sf_distance=(srfpd_index-slfpd_index)*0.4;
+    var sf_distance = (srfpd_index - slfpd_index) * 0.4;
     //Isf_distance:ISO_second_fifty_distance
-    var Isf_distance=sf_distance-320;
+    var Isf_distance = sf_distance - 320;
     //IsD_distance:ISO_second_D_distance
-    var IsD_distance=Isf_distance/1.6;
+    var IsD_distance = Isf_distance / 1.6;
     //ID_distance:ISO_D_distance
-    var ID_distance=Math.abs(IfD_distance-IsD_distance);
-    console.log("first ISO_D_distance :"+IfD_distance+"second ISO_D_distance :"+IsD_distance);
-    console.log("position indiciation :"+ID_distance);
+    var ID_distance = Math.abs(IfD_distance - IsD_distance);
+    console.log("first ISO_D_distance :" + IfD_distance + "second ISO_D_distance :" + IsD_distance);
+    console.log("position indiciation :" + ID_distance);
     return ID_distance;
 }
+//6.6.2 旋转运动标尺的零刻度位置
 function cal_scale_position(rows, columns, first_pixel_data_16, first_pixel_data_8, first_image_shape, second_pixel_data_16, second_pixel_data_8, second_image_shape) {
     //6.6.2 Zero scale position of rotary motion ruler
     let first_mat_16 = cv.matFromArray(rows, columns, cv.CV_16UC1, first_pixel_data_16);
@@ -653,7 +655,7 @@ function cal_scale_position(rows, columns, first_pixel_data_16, first_pixel_data
     console.log("ratio is " + ratio + "angle " + angle);
     return angle;
 }
-
+//6.3.3 照射野的半影
 function cal_penumbra(rows, columns, pixel_data_16, pixel_data_8) {
     //6.3.3 Penumbra of radiation field
     let mat_16 = cv.matFromArray(rows, columns, cv.CV_16UC1, pixel_data_16);
@@ -791,7 +793,7 @@ function cal_penumbra(rows, columns, pixel_data_16, pixel_data_8) {
     console.log("ISO left right and average1 average2 is " + Il_Penumbra, Ir_Penumbra, ISO_Penumbra1, ISO_Penumbra2);
     return ISO_Penumbra1;
 }
-
+//6.4.1 照射野的数字指示（单元限束）
 function cal_unit_limiting(rows, columns, pixel_data_16, pixel_data_8) {
     //6.4.1 Digital indication of radiation field(Unit beam limiting)
     let mat_16 = cv.matFromArray(rows, columns, cv.CV_16UC1, pixel_data_16);
@@ -896,10 +898,10 @@ function cal_unit_limiting(rows, columns, pixel_data_16, pixel_data_8) {
     var IfpddD_value;
     IfpddD_value = Math.abs(Ifpd_distance - 100);
     console.log("fifty_percent_dose_distance,ISO_fifty_percent_dose_distance,ISO_fifty_percent_dose_distance_D_value is " + fpd_distance, Ifpd_distance, IfpddD_value);
-    console.log("unit limiting : "+IfpddD_value);
+    console.log("unit limiting : " + IfpddD_value);
     return IfpddD_value;
 }
-
+//6.4.1 照射野的数字指示 （多元限束：10*10）
 function cal_small_multiple_limiting(rows, columns, pixel_data_16, pixel_data_8, pairs_number) {
     //6.4.1 Digital indication of radiation field(multiple beam limiting :10*10  40 pairs/80 pairs)
     //cal 40 pairs
@@ -1037,7 +1039,7 @@ function cal_small_multiple_limiting(rows, columns, pixel_data_16, pixel_data_8,
         //IsmmfpddD_value:ISO_small_multiple_max_fifty_percent_dose_distance_D_value
         var IsmmfpddD_value = smmfpddD_value / 1.6;
         console.log("small_multiple_max_fifty_percent_dose_distance_D_value is " + smmfpddD_value);
-        console.log("ISO_small_multiple_max_fifty_percent_dose_distance_D_value is "+IsmmfpddD_value);
+        console.log("ISO_small_multiple_max_fifty_percent_dose_distance_D_value is " + IsmmfpddD_value);
         return IsmmfpddD_value;
     }
     //cal 80 pairs
@@ -1085,11 +1087,11 @@ function cal_small_multiple_limiting(rows, columns, pixel_data_16, pixel_data_8,
         console.log("large_multiple_max_fifty_percent_dose_distance_D_value is " + lmmfpddD_value);
         //IlmmfpddD_value:ISO_large_multiple_max_fifty_percent_dose_distance_D_value
         var IlmmfpddD_value = lmmfpddD_value / 1.6;
-        console.log("ISO_large_multiple_max_fifty_percent_dose_distance_D_value :"+IlmmfpddD_value);
+        console.log("ISO_large_multiple_max_fifty_percent_dose_distance_D_value :" + IlmmfpddD_value);
         return IlmmfpddD_value;
     }
 }
-
+//6.4.1 照射野的数字指示 （多元限束：两张10*20）
 function cal_large_muliiple_limiting(rows, columns, first_pixel_data_16, first_pixel_data_8, pairs_number, second_pixel_data_16, second_pixel_data_8) {
     //6.4.1 Digital indication of radiation field(multiple beam limiting :10*40  40 pairs/80 pairs )
     //cal 40 pairs
@@ -1366,8 +1368,8 @@ function cal_large_muliiple_limiting(rows, columns, first_pixel_data_16, first_p
         //dmmfpddD_value_s:double_multiple_max_fifty_percent_dose_distance_D_value_s
         var dmmfpddD_value_s = (dsmmfpddD_value > dfmmfpddD_value) ? dsmmfpddD_value : dfmmfpddD_value;
         console.log("double_multiple_max_fifty_percent_dose_distance_D_value_s is " + dmmfpddD_value_s);
-        var NTD_D_value_s=dmmfpddD_value_s/(1.6/1.5);
-        console.log("NTD_D_value is "+NTD_D_value_s);
+        var NTD_D_value_s = dmmfpddD_value_s / (1.6 / 1.5);
+        console.log("NTD_D_value is " + NTD_D_value_s);
         return NTD_D_value_s;
     }
     //80 pairs
@@ -1458,11 +1460,212 @@ function cal_large_muliiple_limiting(rows, columns, first_pixel_data_16, first_p
         var dmmfpddD_value_l = (dsmmfpddD_value_l > dfmmfpddD_value_l) ? dsmmfpddD_value_l : dfmmfpddD_value_l;
         console.log("double_multiple_max_fifty_percent_dose_distance_D_value_l is " + dmmfpddD_value_l);
         //ND_value_l:NTD_D_value_
-        var ND_value_l=dmmfpddD_value_l/(1.6/1.5);
-        console.log("NTD_D_value is "+ND_value_l);
+        var ND_value_l = dmmfpddD_value_l / (1.6 / 1.5);
+        console.log("NTD_D_value is " + ND_value_l);
         return ND_value_l;
     }
 }
+
+function cal_point_distance(fx, fy, sx, sy) {
+    var d_x = Math.abs(fx - sx);
+    var square_x = Math.pow(d_x, 2);
+    var d_y = Math.abs(fy - sy);
+    console.log("d_x,d_y" + d_x + d_y);
+    var square_y = Math.pow(d_y, 2);
+    var square = square_x + square_y;
+    var sqr = Math.floor(Math.sqrt(square));
+    var dis = sqr * 0.4;
+    return dis;
+}
+
+function cal_point(rows, columns, pixel_data_16, pixel_data_8, threshold) {
+    let mat_16 = cv.matFromArray(rows, columns, cv.CV_16UC1, pixel_data_16);
+    //var cal_array=[];
+    console.log(pixel_data_8);
+    for (var i = 0; i < rows * columns; i++) {
+        if (pixel_data_8[i] > threshold) {
+            pixel_data_8[i] = 0;
+        }
+    }
+    let mat_8 = cv.matFromArray(rows, columns, cv.CV_8UC1, pixel_data_8);
+    let circles = new cv.Mat();
+    cv.HoughCircles(mat_8, circles, cv.HOUGH_GRADIENT, 1.85, 100, 120, 100, 0, 200);
+    let xx = Math.round(circles.data32F[0]);
+    let yy = Math.round(circles.data32F[1]);
+    return {
+        x: xx,
+        y: yy,
+        circle: circles
+    }
+}
+
+function cal_center(rows, columns, pixel_data_16, pixel_data_8) {
+    let mat_16 = cv.matFromArray(rows, columns, cv.CV_16UC1, pixel_data_16);
+    let mat_8 = cv.matFromArray(rows, columns, cv.CV_8UC1, pixel_data_8);
+    var cal_array = [];
+    var boundray_value = 200;
+    for (var i = 0; i < rows * columns; i++) {
+        cal_array[i] = 65535 - pixel_data_8[i];
+    }
+    for (var i = 0; i < rows * columns; i++) {
+        if (pixel_data_8[i] > boundray_value) {
+            pixel_data_8[i] = 0;
+        }
+        /*    else{
+            pixel_data_8[i]=1;
+          }  */
+    }
+    let bin_mat_8 = cv.matFromArray(rows, columns, cv.CV_8UC1, pixel_data_8);
+    console.log("binarization");
+    console.log(pixel_data_8);
+    let contours = new cv.MatVector();
+    let hierarchy = new cv.Mat();
+    cv.findContours(bin_mat_8, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+    let cnt = contours.get(0);
+    let moments = cv.moments(cnt, false);
+    let cx = moments.m10 / moments.m00;
+    let cy = moments.m01 / moments.m00;
+    console.log(cx, cy);
+    let int_cx = parseInt(cx); //type conversion
+    let int_cy = parseInt(cy);
+    console.log(int_cx, int_cy);
+    return {
+        x: int_cx,
+        y: int_cy
+    }
+}
+//6.5.1 辐射束轴相对于等中心点的偏移 651_1.dcm 与 651_3.dcm
+function cal_offset(rows, columns, first_pixel_data_16, first_pixel_data_8, second_pixel_data_16, second_pixel_data_8, third_pixel_data_16, third_pixel_data_8) {
+    //6.5.1 Offset of radiation beam axis relative to isocenter
+    console.log("jinlai l me 2222222222222222222")
+    var threshold = 100;
+    var obj1_cen = cal_center(rows, columns, first_pixel_data_16, first_pixel_data_8);
+    var obj1_poi = cal_point(rows, columns, first_pixel_data_16, first_pixel_data_8, threshold);
+    var obj1_dis = cal_point_distance(obj1_cen.x, obj1_cen.y, obj1_poi.x, obj1_poi.y);
+    var obj2_cen = cal_center(rows, columns, second_pixel_data_16, second_pixel_data_8);
+    var obj2_poi = cal_point(rows, columns, second_pixel_data_16, second_pixel_data_8, threshold);
+    var obj2_dis = cal_point_distance(obj2_cen.x, obj2_cen.y, obj2_poi.x, obj2_poi.y);
+    var obj3_cen = cal_center(rows, columns, third_pixel_data_16, third_pixel_data_8);
+    var obj3_poi = cal_point(rows, columns, third_pixel_data_16, third_pixel_data_8, threshold);
+    var obj3_dis = cal_point_distance(obj3_cen.x, obj3_cen.y, obj3_poi.x, obj3_poi.y);
+    var dis_array = [];
+    dis_array[0] = obj1_dis;
+    dis_array[1] = obj2_dis;
+    dis_array[2] = obj3_dis;
+    var max_dis = dis_array[0];
+    for (var i = 1; i < 3; i++) {
+        if (dis_array[i] > max_dis) {
+            max_dis = dis_array[i];
+        }
+    }
+    var iso_dis = max_dis / 1.6;
+    console.log("dis : " + max_dis + " iso_dis : " + iso_dis);
+    return iso_dis;
+}
+//6.6.1 旋转运动标尺的零刻度位置 661_4.dcm
+function cal_photon_position(rows, columns, pixel_data_16, pixel_data_8) {
+    //6.6.1 Zero scale position of rotary motion ruler
+    let mat_16 = cv.matFromArray(rows, columns, cv.CV_16UC1, pixel_data_16);
+    let mat_8 = cv.matFromArray(rows, columns, cv.CV_8UC1, pixel_data_8);
+    var cal_array = [];
+    var boundray_value = 200;
+    for (var i = 0; i < rows * columns; i++) {
+        cal_array[i] = 65535 - pixel_data_8[i];
+    }
+    for (var i = 0; i < rows * columns; i++) {
+        if (pixel_data_8[i] > boundray_value) {
+            pixel_data_8[i] = 0;
+        }
+        /*    else{
+            pixel_data_8[i]=1;
+          }  */
+    }
+    let bin_mat_8 = cv.matFromArray(rows, columns, cv.CV_8UC1, pixel_data_8);
+    console.log("binarization");
+    console.log(pixel_data_8);
+    let contours = new cv.MatVector();
+    let hierarchy = new cv.Mat();
+    cv.findContours(bin_mat_8, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+    let cnt = contours.get(0);
+    let moments = cv.moments(cnt, false);
+    let cx = moments.m10 / moments.m00;
+    let cy = moments.m01 / moments.m00;
+    console.log(cx, cy);
+    let int_cx = parseInt(cx); //type conversion
+    let int_cy = parseInt(cy);
+    console.log(int_cx, int_cy);
+    var threshold = 99;
+    var obj = cal_point(rows, columns, pixel_data_16, pixel_data_8, threshold);
+    console.log("obj point: " + obj.x, obj.y);
+    var dis = cal_point_distance(int_cx, int_cy, obj.x, obj.y);
+    var ratio = dis / 160;
+    var angle = Math.asin(ratio);
+    console.log("angle :" + angle);
+    return angle;
+}
+//6.7.1-6.7.3 治疗床的运动精度  
+function cal_bed_precision(rows, columns, first_pixel_data_16, first_pixel_data_8, second_pixel_data_16, second_pixel_data_8) {
+    //6.7.1-6.7.3 Motion accuracy of treatment bed(6.7.1:vertical,6.7.2:transverse,6.7.3:around)
+    /*  let f_mat_16 = cv.matFromArray(rows, columns, cv.CV_16UC1, first_pixel_data_16);
+     //var cal_array=[];
+     console.log(first_pixel_data_8);
+     for(var i=0;i<rows*columns;i++){
+         if(first_pixel_data_8[i]>99){
+             first_pixel_data_8[i]=0;
+         }
+     }
+     let f_mat_8 = cv.matFromArray(rows, columns, cv.CV_8UC1, first_pixel_data_8);
+     let f_circles=new cv.Mat();
+     cv.HoughCircles(f_mat_8,f_circles,cv.HOUGH_GRADIENT,1.85,100,120,100,0,200);
+     let fx=Math.round(f_circles.data32F[0]);
+     let fy=Math.round(f_circles.data32F[1]); */
+    // let s_mat_16 = cv.matFromArray(rows, columns, cv.CV_16UC1, second_pixel_data_16);
+    //var cal_array=[];
+    /*  for(var i=0;i<rows*columns;i++){
+         if(second_pixel_data_8[i]>99){
+             second_pixel_data_8[i]=0;
+         }
+     }
+     let s_mat_8 = cv.matFromArray(rows, columns, cv.CV_8UC1, second_pixel_data_8);
+     let s_circles=new cv.Mat();
+     cv.HoughCircles(s_mat_8,s_circles,cv.HOUGH_GRADIENT,1.85,100,120,100,0,200)
+     let sx=Math.round(s_circles.data32F[0]);
+     let sy=Math.round(s_circles.data32F[1]); */
+    var threshold1 = 99;
+    let obj1 = cal_point(rows, columns, first_pixel_data_16, first_pixel_data_8, threshold1);
+    console.log("f_circles:");
+    console.log(obj1.circle.data32F);
+    console.log("fx,fy:" + obj1.x + "," + obj1.y);
+    var threshold2 = 100;
+    var new_data_8 = second_pixel_data_8;
+    let obj2 = cal_point(rows, columns, second_pixel_data_16, second_pixel_data_8, threshold2);
+    console.log("s_circles:");
+    console.log(obj2.circle.data32F);
+    if (!Number.isNaN(obj2.x)) {
+        console.log("sx,sy:" + obj2.x + "," + obj2.y);
+    } else {
+        console.log("aaaaaaaaa");
+        threshold2 = 100;
+        let obj2 = cal_point(rows, columns, second_pixel_data_16, new_data_8, threshold2);
+        console.log("sx,sy:" + obj2.x + "," + obj2.y);
+    }
+    let dis = cal_point_distance(obj1.x, obj1.y, obj2.x, obj2.y);
+    var iso_dis = dis / 1.6;
+    console.log("dis : " + dis);
+    console.log("iso_dis : " + iso_dis);
+    return iso_dis
+}
+// exports.symmetry = cal_symmetry;
+// exports.uniformity = cal_uniformity;
+// exports.position_indication = cal_position_indication;
+// exports.scale_position = cal_scale_position;
+// exports.penumbra = cal_penumbra;
+// exports.unit_limiting = cal_unit_limiting;
+// exports.small_multiple_limiting = cal_small_multiple_limiting;
+// exports.large_muliiple_limiting = cal_large_muliiple_limiting;
+// exports.bed_precision = cal_bed_precision;
+// exports.photon_position = cal_photon_position;
+// exports.offset = cal_offset;
 export {
     cal_symmetry,
     cal_uniformity,
@@ -1471,5 +1674,8 @@ export {
     cal_penumbra,
     cal_unit_limiting,
     cal_small_multiple_limiting,
-    cal_large_muliiple_limiting
+    cal_large_muliiple_limiting,
+    cal_bed_precision,
+    cal_photon_position,
+    cal_offset
 }

@@ -1,12 +1,13 @@
 <template>
     <div>
         <div v-if="project.detectType=='影像分析'">
-            <div v-for="(v,vIndex) in project.testResult" :key="vIndex" class="test-result">{{v.power}} {{v.size}}cm-{{v.value}}{{project.testUnit}}</div>
+            <div v-for="(v,vIndex) in project.testResult" :key="vIndex" class="test-result" v-if="v.value != null">{{v.power}} {{v.size}}cm-{{v.value}}{{project.testUnit}}</div>
         </div>
         <div v-else>
             <div v-if="project.testResult" v-for="(te,teIndex) in project.testResult" :key="teIndex" class="test-result">
-                <span v-if="showPower && te.key && te.key!='-'">{{te.key}} -</span>
-                {{te.val}}<span v-if="te.val!=null">{{project.testUnit}}</span>
+                <span v-if="showPower && te.key &&te.key!='-'">{{te.key}} -</span>
+                {{te.val}}<span v-if="te.val!=null">{{
+                    project.testUnit}}</span>
                 <!--<img :class="{'test-result-min': compare(te.val,project.threshold)}" src="../assets/images/arrow.png">-->
                 <img v-if="!compare(te.val,project.testUnit)&&te.val!==null" src="../assets/images/arrow.png">
             </div>

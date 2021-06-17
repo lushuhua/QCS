@@ -68,7 +68,8 @@
                 <tbody>
                     <tr v-for="(project,index) in searchObj.data" :key="index">
                     <td>{{project.projectNo}}</td>
-                    <td class="project-name">{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td>
+                    <td class="project-name">{{project.name}}{{project.subName?('('+project.subName+')'):''}}</td> 
+                    
                     <!--<td>{{project.subName}}</td>-->
                     <!--<td>{{project.radioType}}</td>-->
                     <td>
@@ -79,6 +80,7 @@
                             <!--<div v-if="project.testResult" v-for="(te,teIndex) in project.testResult" :key="teIndex" class="test-result">{{te.val}}-->
                                 <!--<img :class="{'test-result-min': compare(te.val,project.threshold)}" src="../../assets/images/arrow.png"></div>-->
                         <!--</div>-->
+                        <!-- 检测值 -->
                         <test-result :project="project" :showPower="true"></test-result>
                     </td>
                     <td class="word-break-not">{{project.threshold}}</td>
@@ -298,10 +300,9 @@
                 } else if (val==='descending'){
                     orderBy = 'projectNo&desc'
                 } else {
-
                 }
                 this.searchObj.orderBy = orderBy
-                this.getProjectsData(1)
+                this.getProjectsData(1);
             },
             reset(){
                 this.searchObj = {
@@ -309,7 +310,7 @@
                     offset: 10,
                     data: []
                 };
-                this.getProjectsData(1)
+                this.getProjectsData(1);
             },
             handleCurrentChange(val) {
                 this.searchObj.pageNum = val;

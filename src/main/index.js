@@ -61,11 +61,27 @@ ipcMain.on('cal_small_multiple_limiting', (event, rows, columns, pixel_data_16, 
     )
     //6.4.1 Digital indication of radiation field(multiple beam limiting :10*40  40 pairs/80 pairs )
 ipcMain.on('cal_large_muliiple_limiting', (event, rows, columns, first_pixel_data_16, first_pixel_data_8, pairs_number, second_pixel_data_16, second_pixel_data_8) => {
-        event.returnValue = cacImgVal.cal_large_muliiple_limiting(rows, columns, first_pixel_data_16, first_pixel_data_8, pairs_number, second_pixel_data_16, second_pixel_data_8)
-    }
+            event.returnValue = cacImgVal.cal_large_muliiple_limiting(rows, columns, first_pixel_data_16, first_pixel_data_8, pairs_number, second_pixel_data_16, second_pixel_data_8)
+        }
 
-)
+    )
+    //6.6.1 Zero scale position of rotary motion ruler
+ipcMain.on('cal_photon_position', (event, rows, columns, pixel_data_16, pixel_data_8) => {
+            console.log(rows, columns, pixel_data_16, pixel_data_8)
+            event.returnValue = cacImgVal.cal_photon_position(rows, columns, pixel_data_16, pixel_data_8)
+        }
 
+    )
+    //6.5.1 Offset of radiation beam axis relative to isocenter
+ipcMain.on('cal_offset', (event, rows, columns, first_pixel_data_16, first_pixel_data_8, second_pixel_data_16, second_pixel_data_8, third_pixel_data_16, third_pixel_data_8) => {
+        console.log(rows, columns, first_pixel_data_16, first_pixel_data_8, second_pixel_data_16, second_pixel_data_8, third_pixel_data_16, third_pixel_data_8)
+        event.returnValue = cacImgVal.cal_offset(rows, columns, first_pixel_data_16, first_pixel_data_8, second_pixel_data_16, second_pixel_data_8, third_pixel_data_16, third_pixel_data_8)
+    })
+    //6.7.1-6.7.3 Motion accuracy of treatment bed(6.7.1:vertical,6.7.2:transverse,6.7.3:around)
+ipcMain.on('cal_bed_precision', (event, rows, columns, first_pixel_data_16, first_pixel_data_8, second_pixel_data_16, second_pixel_data_8) => {
+    console.log(rows, columns, first_pixel_data_16, first_pixel_data_8, second_pixel_data_16, second_pixel_data_8)
+    event.returnValue = cacImgVal.cal_bed_precision(rows, columns, first_pixel_data_16, first_pixel_data_8, second_pixel_data_16, second_pixel_data_8)
+})
 let mainWindow
 const winURL = process.env.NODE_ENV === 'development' ?
     `http://localhost:9080` :
