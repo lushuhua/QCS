@@ -19,33 +19,33 @@ const errorLog = chalk.bgRed.white(' ERROR ') + ' '
 const okayLog = chalk.bgBlue.white(' OKAY ') + ' '
 const isCI = process.env.CI || false
 
-if (process.env.BUILD_TARGET === 'clean') clean()
-else if (process.env.BUILD_TARGET === 'web') web()
+if (process.env.BUILD_TARGET === 'clean') clean();
+else if (process.env.BUILD_TARGET === 'web') web();
 else build()
 
-function clean () {
-  del.sync(['build/*', '!build/icons', '!build/icons/icon.*'])
-  console.log(`\n${doneLog}\n`)
-  process.exit()
+function clean() {
+    del.sync(['build/*', '!build/icons', '!build/icons/icon.*'])
+    console.log(`\n${doneLog}\n`)
+    process.exit()
 }
 
-function build () {
-  greeting()
+function build() {
+    greeting()
 
-  del.sync(['dist/electron/*', '!.gitkeep'])
+    del.sync(['dist/electron/*', '!.gitkeep'])
 
-  const tasks = ['main', 'renderer']
-  const m = new Multispinner(tasks, {
-    preText: 'building',
-    postText: 'process'
-  })
+    const tasks = ['main', 'renderer']
+    const m = new Multispinner(tasks, {
+        preText: 'building',
+        postText: 'process'
+    })
 
-  let results = ''
+    let results = ''
 
-  m.on('success', () => {
-    process.stdout.write('\x1B[2J\x1B[0f')
-    console.log(`\n\n${results}`)
-    console.log(`${okayLog}take it away ${chalk.yellow('`electron-builder`')}\n`)
+    m.on('success', () => {
+                process.stdout.write('\x1B[2J\x1B[0f')
+                console.log(`\n\n${results}`)
+                console.log(`${okayLog}take it away ${chalk.yellow('`electron-builder`')}\n`)
     process.exit()
   })
 

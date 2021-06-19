@@ -63,7 +63,6 @@
               class="upload-demo"
               action="123"
               :show-file-list="false"
-              accept=".dcm"
               :http-request="onHttpRequest"
               :limit="50"
               multiple
@@ -693,6 +692,7 @@ import * as cacTestVal from "../../utils/result";
 import TestResult from "../../components/testResult";
 import Sort from "../../components/sort";
 import { ipcRenderer } from "electron";
+import { readFile } from "../../utils/tiff"; // 引用tiff文件的readFile方法
 export default {
   components: {
     TestResult,
@@ -989,7 +989,7 @@ export default {
       // console.log('onHttpRequest',library)
       console.log("onHttpRequest", file);
       this.currentFile = file;
-      const libraryData = await library.loadFile(file.file);
+      const libraryData = readFile(file.file);  
       console.log(
         "%c [ libraryData ]",
         "font-size:13px; background:pink; color:#bf2c9f;",
@@ -1026,6 +1026,8 @@ export default {
         pageNum: 0,
         offset: 200,
         analysis: 1,
+
+        
       }).then((res) => {
         console.log(res);
         this.projectsData = this.makeupJson(res.projects);
