@@ -79,8 +79,23 @@ ipcMain.on('cal_offset', (event, rows, columns, first_pixel_data_16, first_pixel
     })
     //6.7.1-6.7.3 Motion accuracy of treatment bed(6.7.1:vertical,6.7.2:transverse,6.7.3:around)
 ipcMain.on('cal_bed_precision', (event, rows, columns, first_pixel_data_16, first_pixel_data_8, second_pixel_data_16, second_pixel_data_8) => {
-    console.log(rows, columns, first_pixel_data_16, first_pixel_data_8, second_pixel_data_16, second_pixel_data_8)
-    event.returnValue = cacImgVal.cal_bed_precision(rows, columns, first_pixel_data_16, first_pixel_data_8, second_pixel_data_16, second_pixel_data_8)
+        console.log(rows, columns, first_pixel_data_16, first_pixel_data_8, second_pixel_data_16, second_pixel_data_8)
+        event.returnValue = cacImgVal.cal_bed_precision(rows, columns, first_pixel_data_16, first_pixel_data_8, second_pixel_data_16, second_pixel_data_8)
+    })
+    //6.3.2 电子线照射野的对称性
+ipcMain.on('cal_film_symmetry', (event, rows, columns, first_pixel_data_16, first_pixel_data_8, second_pixel_data_16, second_pixel_data_8, percentage, resolution) => {
+        console.log(rows, columns, first_pixel_data_16, first_pixel_data_8, second_pixel_data_16, second_pixel_data_8, percentage, resolution)
+        event.returnValue = cacImgVal.cal_film_symmetry(rows, columns, first_pixel_data_16, first_pixel_data_8, second_pixel_data_16, second_pixel_data_8, percentage, resolution)
+    })
+    //6.3.2 电子线照射野的均整度 （沿两主轴方向上的80%等剂量线 或 沿两主轴方向上的90%等剂量线)
+ipcMain.on('cal_film_axisunifo', (event, rows, columns, first_pixel_data_16, first_pixel_data_8, second_pixel_data_16, second_pixel_data_8, percentage, resolution) => {
+        console.log(rows, columns, first_pixel_data_16, first_pixel_data_8, second_pixel_data_16, second_pixel_data_8, percentage, resolution)
+        event.returnValue = cacImgVal.cal_film_axisunifo(rows, columns, first_pixel_data_16, first_pixel_data_8, second_pixel_data_16, second_pixel_data_8, percentage, resolution)
+    })
+    //6.3.2 电子线照射野的均整度  (两对角线上90%等剂量线)(percentage:代表百分比，比如百分之90等剂量就传入参数0.9)(resolution:代表tiff格式的分辨率 比如600 就传入参数600)
+ipcMain.on('cal_film_diagunifo', (event, rows, columns, first_pixel_data_16, first_pixel_data_8, second_pixel_data_16, second_pixel_data_8, percentage, resolution) => {
+    console.log(rows, columns, first_pixel_data_16, first_pixel_data_8, second_pixel_data_16, second_pixel_data_8, percentage, resolution)
+    event.returnValue = cacImgVal.cal_film_diagunifo(rows, columns, first_pixel_data_16, first_pixel_data_8, second_pixel_data_16, second_pixel_data_8, percentage, resolution)
 })
 let mainWindow
 const winURL = process.env.NODE_ENV === 'development' ?

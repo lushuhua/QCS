@@ -576,8 +576,7 @@
         <div class="add-image-btn">
           <el-button @click="showImage = false">取消</el-button>
           <el-button type="primary" @click="showImageAnalyse()"
-            >下一步</el-button
-          >
+            >下一步</el-button>
         </div>
       </div>
     </el-dialog>
@@ -989,14 +988,20 @@ export default {
       // console.log('onHttpRequest',library)
       console.log("onHttpRequest", file);
       this.currentFile = file;
-      const libraryData = readFile(file.file);  
+      let libraryData;
+      let fileType = this.getFileType(file.file);
+      if(fileType ==='dcm') {
+        libraryData = await library.loadFile(file.file);
+      }else if(fileType ==='tiff') {
+        libraryData = await readFile(file.file);
+      }
+      // const libraryData = await readFile(file.file);  
       console.log(
         "%c [ libraryData ]",
         "font-size:13px; background:pink; color:#bf2c9f;",
         libraryData
       ); //dicom的信息
       let filePath = file.file.path;
-      console.log(`filePath=${filePath}`);
       let len = this.imageData.length,
         refName = "canvas" + len,
         refNameAna = "canvasAna" + len;
@@ -1007,18 +1012,29 @@ export default {
         filePath: filePath,
         pixels: libraryData.Pixels,
         image: libraryData.image,
+        res_x:libraryData.res_x,
+        res_y:libraryData.res_y
       });
       this.viewImageData.push({
         data: libraryData.imageData,
-        refNameAna: refNameAna,
+        refNameAna:refNameAna,
         filePath: filePath,
         pixels: libraryData.Pixels,
         image: libraryData.image,
+            res_x:libraryData.res_x,
+        res_y:libraryData.res_y
       });
       this.showAnalyse = true;
       console.log("onHttpRequest", this.imageData);
     },
-
+    //获取文件类型
+    getFileType(file) {
+      // 获取文件名
+      let fileName = file.name;
+      let index = fileName.lastIndexOf('.');
+      let ext = fileName.substr(index+1)
+      return ext;
+    },
     onclickOpen(file) {
       this.imageData = [];
       getProjects({
@@ -1866,7 +1882,7 @@ export default {
             // 讲计算值存入viewData
             item.testValue = testValue;
           })
-      }else if($val='治疗床的运动精度(前后)'||$val=='治疗床的运动精度(横向)'||$val == '治疗床的运动精度(垂直)') {
+      }else if($val=='治疗床的运动精度(前后)'||$val=='治疗床的运动精度(横向)'||$val == '治疗床的运动精度(垂直)') {
         let first_viewData = this.viewData[0];
           let second_viewData = this.viewData[1];
           let first_imageData = this.imageData.find(
@@ -1889,6 +1905,83 @@ export default {
             testValue = cal_bed_precision.toFixed(2);
           }
           this.viewData[0].testValue = testValue;
+      }else if($val =='电子线照射野的均整度(沿两主轴方向上90%等剂量线)'||$val=='电子线照射野的均整度(沿两主轴方向上80%等剂量线)') {
+       let first_viewData = this.viewData[0];
+          let second_viewData = this.viewData[1];
+          let first_imageData = this.imageData.find(
+            (item) => item.refNameAna === first_viewData.refNameAna
+          );
+          let second_imageData = this.imageData.find(
+            (item) => item.refNameAna === second_viewData.refNameAna
+          );
+          if (first_imageData == undefined || second_imageData == undefined) {
+            this.showInfo();
+          }
+          let rows = first_viewData.data.width;
+          let columns = first_viewData.data.height;
+          let first_pixel_data_8 = first_imageData.image;
+          let first_pixel_data_16 = first_imageData.pixels;
+          let second_pixel_data_16 = second_imageData.pixels;
+          let second_pixel_data_8 = second_imageData.image;
+          let res_x=first_imageData.res_x[0];
+          let res_y = first_imageData.res_y[0];
+          let percentage=Math.round(res_x);
+          let resolution=Math.round(res_y);
+          let cal_film_axisunifo= ipcRenderer.sendSync('cal_film_axisunifo',rows,columns,first_pixel_data_16, first_pixel_data_8,second_pixel_data_16, second_pixel_data_8,percentage,resolution);
+           console.log(cal_film_axisunifo)
+           console.log("1111111111111",rows,columns,first_pixel_data_8,first_pixel_data_16,second_pixel_data_16,second_pixel_data_8,percentage,resolution)
+          testValue = cal_film_axisunifo;
+          
+      }else if($val == '电子线照射野的对称性') {
+         let first_viewData = this.viewData[0];
+          let second_viewData = this.viewData[1];
+          let first_imageData = this.imageData.find(
+            (item) => item.refNameAna === first_viewData.refNameAna
+          );
+          let second_imageData = this.imageData.find(
+            (item) => item.refNameAna === second_viewData.refNameAna
+          );
+          if (first_imageData == undefined || second_imageData == undefined) {
+            this.showInfo();
+          }
+          let rows = first_viewData.data.width;
+          let columns = first_viewData.data.height;
+          let first_pixel_data_8 = first_imageData.image;
+          let first_pixel_data_16 = first_imageData.pixels;
+          let second_pixel_data_16 = second_imageData.pixels;
+          let second_pixel_data_8 = second_imageData.image;
+          let res_x=first_imageData.res_x[0];
+          let res_y = first_imageData.res_y[0];
+          let percentage=Math.round(res_x);
+          let resolution=Math.round(res_y);
+          let cal_film_symmetry= ipcRenderer.sendSync('cal_film_symmetry',rows,columns,first_pixel_data_16, first_pixel_data_8,second_pixel_data_16, second_pixel_data_8,percentage,resolution)
+         console.log(cal_film_symmetry)
+         testValue = cal_film_symmetry;
+      }else if($val =='电子线照射野的均整度(两对角线上90%等剂量线)') {
+         let first_viewData = this.viewData[0];
+          let second_viewData = this.viewData[1];
+          let first_imageData = this.imageData.find(
+            (item) => item.refNameAna === first_viewData.refNameAna
+          );
+          let second_imageData = this.imageData.find(
+            (item) => item.refNameAna === second_viewData.refNameAna
+          );
+          if (first_imageData == undefined || second_imageData == undefined) {
+            this.showInfo();
+          }
+          let rows = first_viewData.data.width;
+          let columns = first_viewData.data.height;
+          let first_pixel_data_8 = first_imageData.image;
+          let first_pixel_data_16 = first_imageData.pixels;
+          let second_pixel_data_16 = second_imageData.pixels;
+          let second_pixel_data_8 = second_imageData.image;
+          let res_x=first_imageData.res_x[0];
+          let res_y = first_imageData.res_y[0];
+          let percentage=Math.round(res_x);
+          let resolution=Math.round(res_y);
+          let cal_film_diagunifo= ipcRenderer.sendSync('cal_film_diagunifo',rows,columns,first_pixel_data_16, first_pixel_data_8,second_pixel_data_16, second_pixel_data_8,percentage,resolution)
+          console.log(cal_film_diagunifo)
+          testValue = cal_film_diagunifo;
       }
         this.showAnalyse = false;
         let index = this.projectImage.data.findIndex(

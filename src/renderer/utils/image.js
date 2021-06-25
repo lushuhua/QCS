@@ -1,19 +1,20 @@
 //var  THRESH_BINARY = require('opencv-wasm/opencv.js');
 const { cv } = require('opencv-wasm')
-const { THRESH_BINARY, morphologyDefaultBorderValue, Point, threshold, DCT_ROWS } = require('opencv-wasm/opencv.js');
-const { Mat  } = require('opencv-wasm/opencv.js');
-const {  THRESH_OTSU,  THRESH_TRIANGLE,  CONTOURS_MATCH_I1  }  = require('opencv-wasm/opencv.js');
-//6.3.1 x射线方形照射野的对称性
+    //const { THRESH_BINARY, morphologyDefaultBorderValue, Point, threshold, DCT_ROWS } = require('opencv-wasm/opencv.js');
+    //const { Mat  } = require('opencv-wasm/opencv.js');
+    //const {  THRESH_OTSU,  THRESH_TRIANGLE,  CONTOURS_MATCH_I1  }  = require('opencv-wasm/opencv.js');
+    //6.3.1 x射线方形照射野的对称性
 function cal_symmetry(rows, columns, pixel_data_16, pixel_data_8) {
     //6.3.1  Symmetry of square X-ray field
     let mat_16 = cv.matFromArray(rows, columns, cv.CV_16UC1, pixel_data_16);
     let mat_8 = cv.matFromArray(rows, columns, cv.CV_8UC1, pixel_data_8);
     var cal_array = [];
     var boundray_value = 200;
-    for (var i = 0; i < rows * columns; i++) {
+    var rc = rows * columns;
+    for (var i = 0; i < rc; i++) {
         cal_array[i] = 65535 - pixel_data_8[i];
     }
-    for (var i = 0; i < rows * columns; i++) {
+    for (var i = 0; i < rc; i++) {
         if (pixel_data_8[i] > boundray_value) {
             pixel_data_8[i] = 0;
         }
@@ -46,7 +47,8 @@ function cal_symmetry(rows, columns, pixel_data_16, pixel_data_8) {
     }
     //rbs_index:right_Boundary_subscript_index
     var rbs_index;
-    for (var i = columns - 1; i > int_cy; i--) {
+    var rbs_init = columns - 1;
+    for (var i = rbs_init; i > int_cy; i--) {
         if (mat_8.ucharAt(int_cx, i) < boundray_value) {
             rbs_index = i;
             break;
@@ -128,17 +130,17 @@ function cal_symmetry(rows, columns, pixel_data_16, pixel_data_8) {
     console.log(rd_array);
     //S_array:Symmetry_array
     var S_array = [];
-    for (var i = 0; i < ld_array.length; i++) {
+    var len = ld_array.length;
+    for (var i = 0; i < len; i++) {
         S_array[i] = rd_array[i] / ld_array[i];
     }
     var max_Symmetry = S_array[0];
     console.log("original  max_Symmetry is " + max_Symmetry);
-    for (var i = 1; i < ld_array.length; i++) {
+    for (var i = 1; i < len; i++) {
         if (S_array[i] > max_Symmetry) {
             max_Symmetry = S_array[i];
         }
     }
-    console.log("final max_Symmetry is " + max_Symmetry);
     if (max_Symmetry == undefined) {
         return undefined;
     }
@@ -147,6 +149,7 @@ function cal_symmetry(rows, columns, pixel_data_16, pixel_data_8) {
     console.log("Slb_index,Srb_index is " + Slf_index, Srb_index);
     console.log("SSl_index,SSr_index is " + SSl_index, SSr_index);
     console.log("Slb_distance,Srb_distance is " + Slb_distance, Srb_distance);
+    console.log("final max_Symmetry is " + max_Symmetry);
     return max_Symmetry;
 }
 //6.3.1 x射线方形照射野的均整度
@@ -156,10 +159,11 @@ function cal_uniformity(rows, columns, pixel_data_16, pixel_data_8, image_shape)
     let mat_8 = cv.matFromArray(rows, columns, cv.CV_8UC1, pixel_data_8);
     var cal_array = [];
     var boundray_value = 200;
-    for (var i = 0; i < rows * columns; i++) {
+    var rc = rows * columns;
+    for (var i = 0; i < rc; i++) {
         cal_array[i] = 65535 - pixel_data_8[i];
     }
-    for (var i = 0; i < rows * columns; i++) {
+    for (var i = 0; i < rc; i++) {
         if (pixel_data_8[i] > boundray_value) {
             pixel_data_8[i] = 0;
         }
@@ -191,7 +195,8 @@ function cal_uniformity(rows, columns, pixel_data_16, pixel_data_8, image_shape)
     }
     //rbs_index:right_Boundary_subscript_index
     var rbs_index;
-    for (var i = columns - 1; i > int_cy; i--) {
+    var rbs_init = columns - 1;
+    for (var i = rbs_init; i > int_cy; i--) {
         if (mat_8.ucharAt(int_cx, i) < boundray_value) {
             rbs_index = i;
             break;
@@ -214,22 +219,26 @@ function cal_uniformity(rows, columns, pixel_data_16, pixel_data_8, image_shape)
     console.log('original max_dose_value_y is ' + max_dvy);
     console.log('original min_dose_value_y is ' + min_dvy);
     console.log(penumbra_mat.ushortAt(int_cx, half_int_cy));
-    for (var i = half_int_cy + indent; i < int_cy + int_cy - half_int_cy - indent; i++) {
+    var i_init = half_int_cy + indent;
+    var i_end = int_cy + int_cy - half_int_cy - indent;
+    for (var i = i_init; i < i_end; i++) {
         if (penumbra_mat.ushortAt(int_cx, i) > max_dvx) {
             max_dvx = penumbra_mat.ushortAt(int_cx, i);
         }
     }
-    for (var i = half_int_cy + indent; i < int_cy + int_cy - half_int_cy - indent; i++) {
+    for (var i = i_init; i < i_end; i++) {
         if (penumbra_mat.ushortAt(int_cx, i) < min_dvx) {
             min_dvx = penumbra_mat.ushortAt(int_cx, i);
         }
     }
-    for (var i = half_int_cx + indent; i < int_cx + int_cx - half_int_cx - indent; i++) {
+    var m_init = half_int_cx + indent;
+    var m_end = int_cx + int_cx - half_int_cx - indent;
+    for (var i = m_init; i < m_end; i++) {
         if (penumbra_mat.ushortAt(i, int_cy) > max_dvy) {
             max_dvy = penumbra_mat.ushortAt(i, int_cy);
         }
     }
-    for (var i = half_int_cx + indent; i < int_cx + int_cx - half_int_cx - indent; i++) {
+    for (var i = m_init; i < m_end; i++) {
         if (penumbra_mat.ushortAt(i, int_cy) < min_dvy) {
             min_dvy = penumbra_mat.ushortAt(i, int_cy);
         }
@@ -237,11 +246,12 @@ function cal_uniformity(rows, columns, pixel_data_16, pixel_data_8, image_shape)
     var Uniformity_x = max_dvx / min_dvx;
     var Uniformity_y = max_dvy / min_dvy;
     var Uniformity;
-    if (Uniformity_x > Uniformity_y) {
-        Uniformity = Uniformity_x;
-    } else {
-        Uniformity = Uniformity_y;
-    }
+    /*   if (Uniformity_x > Uniformity_y) {
+          Uniformity = Uniformity_x;
+      } else {
+          Uniformity = Uniformity_y;
+      } */
+    var Uniformity = (Uniformity_x > Uniformity_y) ? Uniformity_x : Uniformity_y;
     console.log('max_dose_value_x is ' + max_dvx);
     console.log('min_dose_value_x is ' + min_dvx);
     console.log('max_dose_value_y is ' + max_dvy);
@@ -259,10 +269,11 @@ function cal_position_indication(rows, columns, first_pixel_data_16, first_pixel
     //fc_array:first_cal_array
     var fc_array = [];
     var boundray_value = 200;
-    for (var i = 0; i < rows * columns; i++) {
+    var rc = rows * columns;
+    for (var i = 0; i < rc; i++) {
         fc_array[i] = 65535 - first_pixel_data_8[i];
     }
-    for (var i = 0; i < rows * columns; i++) {
+    for (var i = 0; i < rc; i++) {
         if (first_pixel_data_8[i] > boundray_value) {
             first_pixel_data_8[i] = 0;
         }
@@ -297,7 +308,8 @@ function cal_position_indication(rows, columns, first_pixel_data_16, first_pixel
     }
     //frbs_index:first_right_Boundary_subscript_index
     var frbs_index;
-    for (var i = columns - 1; i > f_int_cy; i--) {
+    var frbs_init = columns - 1;
+    for (var i = frbs_init; i > f_int_cy; i--) {
         if (first_mat_8.ucharAt(f_int_cx, i) < boundray_value) {
             frbs_index = i;
             break;
@@ -357,10 +369,10 @@ function cal_position_indication(rows, columns, first_pixel_data_16, first_pixel
     let second_mat_16 = cv.matFromArray(rows, columns, cv.CV_16UC1, second_pixel_data_16);
     let second_mat_8 = cv.matFromArray(rows, columns, cv.CV_8UC1, second_pixel_data_8);
     var second_cal_array = [];
-    for (var i = 0; i < rows * columns; i++) {
+    for (var i = 0; i < rc; i++) {
         second_cal_array[i] = 65535 - second_pixel_data_8[i];
     }
-    for (var i = 0; i < rows * columns; i++) {
+    for (var i = 0; i < rc; i++) {
         if (second_pixel_data_8[i] > boundray_value) {
             second_pixel_data_8[i] = 0;
         }
@@ -393,7 +405,8 @@ function cal_position_indication(rows, columns, first_pixel_data_16, first_pixel
     }
     //srbs_index:second_right_Boundary_subscript_index
     var srbs_index;
-    for (var i = columns - 1; i > s_int_cy; i--) {
+    var srbs_init = columns - 1;
+    for (var i = srbs_init; i > s_int_cy; i--) {
         if (second_mat_8.ucharAt(s_int_cx, i) < boundray_value) {
             srbs_index = i;
             break;
@@ -462,7 +475,8 @@ function cal_scale_position(rows, columns, first_pixel_data_16, first_pixel_data
     let first_mat_16 = cv.matFromArray(rows, columns, cv.CV_16UC1, first_pixel_data_16);
     let first_mat_8 = cv.matFromArray(rows, columns, cv.CV_8UC1, first_pixel_data_8);
     var boundray_value = 200;
-    for (var i = 0; i < rows * columns; i++) {
+    var rc = rows * columns;
+    for (var i = 0; i < rc; i++) {
         if (first_pixel_data_8[i] > boundray_value) {
             first_pixel_data_8[i] = 0;
         }
@@ -499,7 +513,8 @@ function cal_scale_position(rows, columns, first_pixel_data_16, first_pixel_data
     }
     //frbs_index:first_right_Boundary_subscript_index
     var frbs_index;
-    for (var i = columns - 1; i > f_int_cy; i--) {
+    var frbs_init = columns - 1;
+    for (var i = frbs_init; i > f_int_cy; i--) {
         if (first_mat_8.ucharAt(f_int_cx, i) < boundray_value) {
             frbs_index = i;
             break;
@@ -549,7 +564,7 @@ function cal_scale_position(rows, columns, first_pixel_data_16, first_pixel_data
     //  let second_mat_8=first_mat_8;
     let second_mat_16 = cv.matFromArray(rows, columns, cv.CV_16UC1, second_pixel_data_16);
     let second_mat_8 = cv.matFromArray(rows, columns, cv.CV_8UC1, second_pixel_data_8);
-    for (var i = 0; i < rows * columns; i++) {
+    for (var i = 0; i < rc; i++) {
         if (second_pixel_data_8[i] > boundray_value) {
             second_pixel_data_8[i] = 0;
         }
@@ -586,7 +601,8 @@ function cal_scale_position(rows, columns, first_pixel_data_16, first_pixel_data
     }
     //srbs_index:second_right_Boundary_subscript_index
     var srbs_index;
-    for (var i = columns - 1; i > s_int_cy; i--) {
+    var srbs_init = columns - 1;
+    for (var i = srbs_init; i > s_int_cy; i--) {
         if (second_mat_8.ucharAt(s_int_cx, i) < boundray_value) {
             srbs_index = i;
             break;
@@ -662,10 +678,11 @@ function cal_penumbra(rows, columns, pixel_data_16, pixel_data_8) {
     let mat_8 = cv.matFromArray(rows, columns, cv.CV_8UC1, pixel_data_8);
     var cal_array = [];
     var boundray_value = 200;
-    for (var i = 0; i < rows * columns; i++) {
+    var rc = rows * columns;
+    for (var i = 0; i < rc; i++) {
         cal_array[i] = 65535 - pixel_data_8[i];
     }
-    for (var i = 0; i < rows * columns; i++) {
+    for (var i = 0; i < rc; i++) {
         if (pixel_data_8[i] > boundray_value) {
             pixel_data_8[i] = 0;
         }
@@ -694,7 +711,8 @@ function cal_penumbra(rows, columns, pixel_data_16, pixel_data_8) {
     }
     //rbs_index:right_Boundary_subscript_index
     var rbs_index;
-    for (var i = columns - 1; i > int_cy; i--) {
+    var rbs_init = columns - 1;
+    for (var i = rbs_init; i > int_cy; i--) {
         if (mat_8.ucharAt(int_cx, i) < boundray_value) {
             rbs_index = i;
             break;
@@ -800,10 +818,11 @@ function cal_unit_limiting(rows, columns, pixel_data_16, pixel_data_8) {
     let mat_8 = cv.matFromArray(rows, columns, cv.CV_8UC1, pixel_data_8);
     var cal_array = [];
     var boundray_value = 200;
-    for (var i = 0; i < rows * columns; i++) {
+    var rc = rows * columns;
+    for (var i = 0; i < rc; i++) {
         cal_array[i] = 65535 - pixel_data_8[i];
     }
-    for (var i = 0; i < rows * columns; i++) {
+    for (var i = 0; i < rc; i++) {
         if (pixel_data_8[i] > boundray_value) {
             pixel_data_8[i] = 0;
         }
@@ -833,7 +852,8 @@ function cal_unit_limiting(rows, columns, pixel_data_16, pixel_data_8) {
     }
     //rbs_index:right_Boundary_subscript_index
     var rbs_index;
-    for (var i = columns - 1; i > int_cx; i--) {
+    var rbs_init = columns - 1;
+    for (var i = rbs_init; i > int_cx; i--) {
         if (mat_8.ucharAt(int_cy, i) < boundray_value) {
             rbs_index = i;
             break;
@@ -909,10 +929,11 @@ function cal_small_multiple_limiting(rows, columns, pixel_data_16, pixel_data_8,
     let mat_8 = cv.matFromArray(rows, columns, cv.CV_8UC1, pixel_data_8);
     var cal_array = [];
     var boundray_value = 200;
-    for (var i = 0; i < rows * columns; i++) {
+    var rc = rows * columns;
+    for (var i = 0; i < rc; i++) {
         cal_array[i] = 65535 - pixel_data_8[i];
     }
-    for (var i = 0; i < rows * columns; i++) {
+    for (var i = 0; i < rc; i++) {
         if (pixel_data_8[i] > boundray_value) {
             pixel_data_8[i] = 0;
         }
@@ -941,7 +962,8 @@ function cal_small_multiple_limiting(rows, columns, pixel_data_16, pixel_data_8,
     }
     //rbs_index_x:right_Boundary_subscript_index_x
     var rbs_index_x;
-    for (var i = columns - 1; i > int_cx; i--) {
+    var rbs_init = columns - 1;
+    for (var i = rbs_init; i > int_cx; i--) {
         if (mat_8.ucharAt(int_cy, i) < boundray_value) {
             rbs_index_x = i;
             break;
@@ -960,7 +982,8 @@ function cal_small_multiple_limiting(rows, columns, pixel_data_16, pixel_data_8,
     }
     //dbs_index_y:down_Boundary_subscript_index_y
     var dbs_index_y;
-    for (var i = rows - 1; i > int_cx; i--) {
+    var dbs_init = rows - 1;
+    for (var i = dbs_init; i > int_cx; i--) {
         if (mat_8.ucharAt(int_cx, i) < 140) {
             dbs_index_y = i;
             break;
@@ -1026,12 +1049,14 @@ function cal_small_multiple_limiting(rows, columns, pixel_data_16, pixel_data_8,
         console.log(smrfpdi_array);
         //smfpd_distance:small_multiple_fifty_percent_dose_distance
         var smfpd_distance = [];
-        for (var i = 1; i < smlfpdi_array.length; i++) {
+        var smlfpdi_len = smlfpdi_array.length;
+        for (var i = 1; i < smlfpdi_len; i++) {
             smfpd_distance[i] = Math.abs((smrfpdi_array[i] - smlfpdi_array[i]) * 0.4 - 160);
         }
         //smmfpddD_value:small_multiple_max_fifty_percent_dose_distance_D_value
         var smmfpddD_value = smfpd_distance[1];
-        for (var i = 2; i < smfpd_distance.length; i++) {
+        var smfpd_len = smfpd_distance.length;
+        for (var i = 2; i < smfpd_len; i++) {
             if (smfpd_distance[i] > smmfpddD_value) {
                 smmfpddD_value = smfpd_distance[i];
             }
@@ -1074,12 +1099,14 @@ function cal_small_multiple_limiting(rows, columns, pixel_data_16, pixel_data_8,
         console.log(lmrfpdi_array);
         //lmfpd_distance:large_multiple_fifty_percent_dose_distance
         var lmfpd_distance = [];
-        for (var i = 1; i < lmlfpdi_array.length; i++) {
+        var lmlfpdi_len = lmlfpdi_array.length;
+        for (var i = 1; i < lmlfpdi_len; i++) {
             lmfpd_distance[i] = Math.abs((lmrfpdi_array[i] - lmlfpdi_array[i]) * 0.4 - 160);
         }
         //lmmfpddD_value:large_multiple_max_fifty_percent_dose_distance_D_value
         var lmmfpddD_value = lmfpd_distance[1];
-        for (var i = 2; i < lmfpd_distance.length; i++) {
+        var lmfpd_len = lmfpd_distance.length;
+        for (var i = 2; i < lmfpd_len; i++) {
             if (lmfpd_distance[i] > lmmfpddD_value) {
                 lmmfpddD_value = lmfpd_distance[i];
             }
@@ -1099,10 +1126,11 @@ function cal_large_muliiple_limiting(rows, columns, first_pixel_data_16, first_p
     let first_mat_8 = cv.matFromArray(rows, columns, cv.CV_8UC1, first_pixel_data_8);
     var first_cal_array = [];
     var boundray_value = 200;
-    for (var i = 0; i < rows * columns; i++) {
+    var rc = rows * columns;
+    for (var i = 0; i < rc; i++) {
         first_cal_array[i] = 65535 - first_pixel_data_8[i];
     }
-    for (var i = 0; i < rows * columns; i++) {
+    for (var i = 0; i < rc; i++) {
         if (first_pixel_data_8[i] > boundray_value) {
             first_pixel_data_8[i] = 0;
         }
@@ -1135,7 +1163,8 @@ function cal_large_muliiple_limiting(rows, columns, first_pixel_data_16, first_p
     }
     //frbs_index_x:first_right_Boundary_subscript_index_x
     var frbs_index_x;
-    for (var i = columns - 1; i > f_int_cy; i--) {
+    var frbs_init = columns - 1;
+    for (var i = frbs_init; i > f_int_cy; i--) {
         if (first_mat_8.ucharAt(f_int_cx, i) < boundray_value) {
             frbs_index_x = i;
             break;
@@ -1151,7 +1180,8 @@ function cal_large_muliiple_limiting(rows, columns, first_pixel_data_16, first_p
     }
     //fdbs_index_y:first_down_Boundary_subscript_index_y
     var fdbs_index_y;
-    for (var i = rows - 1; i > f_int_cx; i--) {
+    var fdbs_init = rows - 1;
+    for (var i = fdbs_init; i > f_int_cx; i--) {
         if (first_mat_8.ucharAt(f_int_cx, i) < boundray_value) {
             fdbs_index_y = i;
             break;
@@ -1192,10 +1222,10 @@ function cal_large_muliiple_limiting(rows, columns, first_pixel_data_16, first_p
     let second_mat_16 = cv.matFromArray(rows, columns, cv.CV_16UC1, second_pixel_data_16);
     let second_mat_8 = cv.matFromArray(rows, columns, cv.CV_8UC1, second_pixel_data_8);
     var second_cal_array = [];
-    for (var i = 0; i < rows * columns; i++) {
+    for (var i = 0; i < rc; i++) {
         second_cal_array[i] = 65535 - second_pixel_data_8[i];
     }
-    for (var i = 0; i < rows * columns; i++) {
+    for (var i = 0; i < rc; i++) {
         if (second_pixel_data_8[i] > boundray_value) {
             second_pixel_data_8[i] = 0;
         }
@@ -1228,7 +1258,8 @@ function cal_large_muliiple_limiting(rows, columns, first_pixel_data_16, first_p
     }
     //srbs_index_x:second_right_Boundary_subscript_index_x
     var srbs_index_x;
-    for (var i = columns - 1; i > s_int_cy; i--) {
+    var srbs_init = columns - 1;
+    for (var i = srbs_init; i > s_int_cy; i--) {
         if (second_mat_8.ucharAt(s_int_cx, i) < boundray_value) {
             srbs_index_x = i;
             break;
@@ -1247,7 +1278,8 @@ function cal_large_muliiple_limiting(rows, columns, first_pixel_data_16, first_p
     }
     //sdbs_index_y:econd_down_Boundary_subscript_index_y
     var sdbs_index_y;
-    for (var i = rows - 1; i > s_int_cx; i--) {
+    var sdbs_init = rows - 1;
+    for (var i = sdbs_init; i > s_int_cx; i--) {
         if (second_mat_8.ucharAt(s_int_cx, i) < boundray_value) {
             sdbs_index_y = i;
             break;
@@ -1313,12 +1345,14 @@ function cal_large_muliiple_limiting(rows, columns, first_pixel_data_16, first_p
         console.log(dfmrfpdi_array);
         //dfmfpd_distance:double_first_multiple_fifty_percent_dose_distance
         var dfmfpd_distance = [];
-        for (var i = 1; i < dfmlfpdi_array.length; i++) {
+        var dfmlfpdi_len = dfmlfpdi_array.length;
+        for (var i = 1; i < dfmlfpdi_len; i++) {
             dfmfpd_distance[i] = Math.abs((dfmrfpdi_array[i] - dfmlfpdi_array[i]) * 0.4 - 160);
         }
         //dfmmfpddD_value:double_first_multiple_max_fifty_percent_dose_distance_D_value
         var dfmmfpddD_value = dfmfpd_distance[1];
-        for (var i = 2; i < dfmfpd_distance.length; i++) {
+        var dfmfpd_len = dfmfpd_distance.length;
+        for (var i = 2; i < dfmfpd_len; i++) {
             if (dfmfpd_distance[i] >= dfmmfpddD_value) {
                 dfmmfpddD_value = dfmfpd_distance[i];
             }
@@ -1354,12 +1388,14 @@ function cal_large_muliiple_limiting(rows, columns, first_pixel_data_16, first_p
         console.log(dsmrfpdi_array);
         //dsmfpd_distance:double_second_multiple_fifty_percent_dose_distance
         var dsmfpd_distance = [];
-        for (var i = 1; i < dsmlfpdi_array.length; i++) {
+        var dsmlfpdi_len = dsmlfpdi_array.length;
+        for (var i = 1; i < dsmlfpdi_len; i++) {
             dsmfpd_distance[i] = Math.abs((dsmrfpdi_array[i] - dsmlfpdi_array[i]) * 0.4 - 160);
         }
         //dsmmfpddD_value:double_second_multiple_max_fifty_percent_dose_distance_D_value
         var dsmmfpddD_value = dsmfpd_distance[1];
-        for (var i = 2; i < dsmfpd_distance.length; i++) {
+        var dsmfpd_len = dsmfpd_distance.length;
+        for (var i = 2; i < dsmfpd_len; i++) {
             if (dsmfpd_distance[i] > dsmmfpddD_value) {
                 dsmmfpddD_value = dsmfpd_distance[i];
             }
@@ -1404,12 +1440,14 @@ function cal_large_muliiple_limiting(rows, columns, first_pixel_data_16, first_p
         console.log(dfmrfpdi_array_l);
         //dfmfpd_distance_l:double_first_multiple_fifty_percent_dose_distance_l
         var dfmfpd_distance_l = [];
-        for (var i = 1; i < dfmlfpdi_array_l.length; i++) {
+        var dfmlfpdi_l_len = dfmlfpdi_array_l.length;
+        for (var i = 1; i < dfmlfpdi_l_len; i++) {
             dfmfpd_distance_l[i] = Math.abs((dfmrfpdi_array_l[i] - dfmlfpdi_array_l[i]) * 0.4 - 160);
         }
         //dfmmfpddD_value_l:double_first_multiple_max_fifty_percent_dose_distance_D_value_l
         var dfmmfpddD_value_l = dfmfpd_distance_l[1];
-        for (var i = 2; i < dfmfpd_distance_l.length; i++) {
+        var dfmfpd_l_len = dfmfpd_distance_l.length;
+        for (var i = 2; i < dfmfpd_l_len; i++) {
             if (dfmfpd_distance_l[i] > dfmmfpddD_value_l) {
                 dfmmfpddD_value_l = dfmfpd_distance_l[i];
             }
@@ -1445,12 +1483,14 @@ function cal_large_muliiple_limiting(rows, columns, first_pixel_data_16, first_p
         console.log(dsmrfpdi_array_l);
         //dsmfpd_distance_l:double_second_multiple_fifty_percent_dose_distance_l
         var dsmfpd_distance_l = [];
-        for (var i = 1; i < dsmlfpdi_array_l.length; i++) {
+        var dsmlfpdi_l_len = dsmlfpdi_array_l.length;
+        for (var i = 1; i < dsmlfpdi_l_len; i++) {
             dsmfpd_distance_l[i] = Math.abs((dsmrfpdi_array_l[i] - dsmlfpdi_array_l[i]) * 0.4 - 160);
         }
         //dsmmfpddD_value_l:double_second_multiple_max_fifty_percent_dose_distance_D_value_l
         var dsmmfpddD_value_l = dsmfpd_distance_l[1];
-        for (var i = 2; i < dsmfpd_distance_l.length; i++) {
+        var dsmfpd_l_len = dsmfpd_distance_l.length;
+        for (var i = 2; i < dsmfpd_l_len; i++) {
             if (dsmfpd_distance_l[i] > dsmmfpddD_value_l) {
                 dsmmfpddD_value_l = dsmfpd_distance_l[i];
             }
@@ -1465,8 +1505,8 @@ function cal_large_muliiple_limiting(rows, columns, first_pixel_data_16, first_p
         return ND_value_l;
     }
 }
-
-function cal_point_distance(fx, fy, sx, sy) {
+//Calculate two point distance
+function cal_point_distance(fx, fy, sx, sy, pixel_space) {
     var d_x = Math.abs(fx - sx);
     var square_x = Math.pow(d_x, 2);
     var d_y = Math.abs(fy - sy);
@@ -1474,40 +1514,68 @@ function cal_point_distance(fx, fy, sx, sy) {
     var square_y = Math.pow(d_y, 2);
     var square = square_x + square_y;
     var sqr = Math.floor(Math.sqrt(square));
-    var dis = sqr * 0.4;
+    var dis = sqr * pixel_space;
     return dis;
 }
-
-function cal_point(rows, columns, pixel_data_16, pixel_data_8, threshold) {
+//Function enumeration
+var para_cate = {
+    bed_pre: 1,
+    offset: 2,
+    position: 3
+};
+//Calculate the ball point
+function cal_point(rows, columns, pixel_data_16, pixel_data_8, threshold, para) {
     let mat_16 = cv.matFromArray(rows, columns, cv.CV_16UC1, pixel_data_16);
     //var cal_array=[];
     console.log(pixel_data_8);
-    for (var i = 0; i < rows * columns; i++) {
+    var rc = rows * columns;
+    for (var i = 0; i < rc; i++) {
         if (pixel_data_8[i] > threshold) {
             pixel_data_8[i] = 0;
         }
     }
     let mat_8 = cv.matFromArray(rows, columns, cv.CV_8UC1, pixel_data_8);
     let circles = new cv.Mat();
-    cv.HoughCircles(mat_8, circles, cv.HOUGH_GRADIENT, 1.85, 100, 120, 100, 0, 200);
+    switch (para) {
+        case para_cate.bed_pre:
+            cv.HoughCircles(mat_8, circles, cv.HOUGH_GRADIENT, 2.45, 100, 120, 100, 0, 200);
+            console.log("6.7.1-6.7.3");
+            break;
+        case para_cate.offset:
+            cv.HoughCircles(mat_8, circles, cv.HOUGH_GRADIENT, 2.5, 150, 120, 100, 0, 100);
+            console.log("6.5.1");
+            break;
+        case para_cate.position:
+            cv.HoughCircles(mat_8, circles, cv.HOUGH_GRADIENT, 1.90, 100, 50, 100, 0, 0);
+            console.log("6.6.1");
+            break;
+        default:
+            console.log("para is error");
+            //return undefined;
+    }
     let xx = Math.round(circles.data32F[0]);
     let yy = Math.round(circles.data32F[1]);
+    if (xx == undefined || yy == undefined) {
+        console.log("sphere point xx or yy undefined or not find!");
+        return undefined;
+    }
     return {
         x: xx,
         y: yy,
         circle: circles
     }
 }
-
+//Calculate image center point
 function cal_center(rows, columns, pixel_data_16, pixel_data_8) {
     let mat_16 = cv.matFromArray(rows, columns, cv.CV_16UC1, pixel_data_16);
     let mat_8 = cv.matFromArray(rows, columns, cv.CV_8UC1, pixel_data_8);
     var cal_array = [];
     var boundray_value = 200;
-    for (var i = 0; i < rows * columns; i++) {
+    var rc = rows * columns;
+    for (var i = 0; i < rc; i++) {
         cal_array[i] = 65535 - pixel_data_8[i];
     }
-    for (var i = 0; i < rows * columns; i++) {
+    for (var i = 0; i < rc; i++) {
         if (pixel_data_8[i] > boundray_value) {
             pixel_data_8[i] = 0;
         }
@@ -1529,6 +1597,10 @@ function cal_center(rows, columns, pixel_data_16, pixel_data_8) {
     let int_cx = parseInt(cx); //type conversion
     let int_cy = parseInt(cy);
     console.log(int_cx, int_cy);
+    if (cx == undefined || cy == undefined) {
+        console.log("image center cx or cy is undefined or not find!");
+        return undefined;
+    }
     return {
         x: int_cx,
         y: int_cy
@@ -1537,17 +1609,26 @@ function cal_center(rows, columns, pixel_data_16, pixel_data_8) {
 //6.5.1 辐射束轴相对于等中心点的偏移 651_1.dcm 与 651_3.dcm
 function cal_offset(rows, columns, first_pixel_data_16, first_pixel_data_8, second_pixel_data_16, second_pixel_data_8, third_pixel_data_16, third_pixel_data_8) {
     //6.5.1 Offset of radiation beam axis relative to isocenter
-    console.log("jinlai l me 2222222222222222222")
     var threshold = 100;
     var obj1_cen = cal_center(rows, columns, first_pixel_data_16, first_pixel_data_8);
-    var obj1_poi = cal_point(rows, columns, first_pixel_data_16, first_pixel_data_8, threshold);
-    var obj1_dis = cal_point_distance(obj1_cen.x, obj1_cen.y, obj1_poi.x, obj1_poi.y);
+    var obj1_poi = cal_point(rows, columns, first_pixel_data_16, first_pixel_data_8, threshold, para_cate.offset);
+    if (obj1_poi == undefined) {
+        return undefined;
+    }
+    var pixel_space = 0.4;
+    var obj1_dis = cal_point_distance(obj1_cen.x, obj1_cen.y, obj1_poi.x, obj1_poi.y, pixel_space);
     var obj2_cen = cal_center(rows, columns, second_pixel_data_16, second_pixel_data_8);
-    var obj2_poi = cal_point(rows, columns, second_pixel_data_16, second_pixel_data_8, threshold);
-    var obj2_dis = cal_point_distance(obj2_cen.x, obj2_cen.y, obj2_poi.x, obj2_poi.y);
+    var obj2_poi = cal_point(rows, columns, second_pixel_data_16, second_pixel_data_8, threshold, para_cate.offset);
+    if (obj2_poi == undefined) {
+        return undefined;
+    }
+    var obj2_dis = cal_point_distance(obj2_cen.x, obj2_cen.y, obj2_poi.x, obj2_poi.y, pixel_space);
     var obj3_cen = cal_center(rows, columns, third_pixel_data_16, third_pixel_data_8);
-    var obj3_poi = cal_point(rows, columns, third_pixel_data_16, third_pixel_data_8, threshold);
-    var obj3_dis = cal_point_distance(obj3_cen.x, obj3_cen.y, obj3_poi.x, obj3_poi.y);
+    var obj3_poi = cal_point(rows, columns, third_pixel_data_16, third_pixel_data_8, threshold, para_cate.offset);
+    if (obj3_poi == undefined) {
+        return undefined;
+    }
+    var obj3_dis = cal_point_distance(obj3_cen.x, obj3_cen.y, obj3_poi.x, obj3_poi.y, pixel_space);
     var dis_array = [];
     dis_array[0] = obj1_dis;
     dis_array[1] = obj2_dis;
@@ -1560,6 +1641,8 @@ function cal_offset(rows, columns, first_pixel_data_16, first_pixel_data_8, seco
     }
     var iso_dis = max_dis / 1.6;
     console.log("dis : " + max_dis + " iso_dis : " + iso_dis);
+    /* var dst=cv.imread("./src/qcs_film/e001.tiff");
+    console.log(dst.data8U);   */
     return iso_dis;
 }
 //6.6.1 旋转运动标尺的零刻度位置 661_4.dcm
@@ -1569,10 +1652,11 @@ function cal_photon_position(rows, columns, pixel_data_16, pixel_data_8) {
     let mat_8 = cv.matFromArray(rows, columns, cv.CV_8UC1, pixel_data_8);
     var cal_array = [];
     var boundray_value = 200;
-    for (var i = 0; i < rows * columns; i++) {
+    var rc = rows * columns;
+    for (var i = 0; i < rc; i++) {
         cal_array[i] = 65535 - pixel_data_8[i];
     }
-    for (var i = 0; i < rows * columns; i++) {
+    for (var i = 0; i < rc; i++) {
         if (pixel_data_8[i] > boundray_value) {
             pixel_data_8[i] = 0;
         }
@@ -1594,10 +1678,14 @@ function cal_photon_position(rows, columns, pixel_data_16, pixel_data_8) {
     let int_cx = parseInt(cx); //type conversion
     let int_cy = parseInt(cy);
     console.log(int_cx, int_cy);
-    var threshold = 99;
-    var obj = cal_point(rows, columns, pixel_data_16, pixel_data_8, threshold);
+    var threshold = 100;
+    var obj = cal_point(rows, columns, pixel_data_16, pixel_data_8, threshold, para_cate.position);
+    if (obj == undefined) {
+        return undefined;
+    }
     console.log("obj point: " + obj.x, obj.y);
-    var dis = cal_point_distance(int_cx, int_cy, obj.x, obj.y);
+    var pixel_space = 0.4;
+    var dis = cal_point_distance(int_cx, int_cy, obj.x, obj.y, pixel_space);
     var ratio = dis / 160;
     var angle = Math.asin(ratio);
     console.log("angle :" + angle);
@@ -1606,66 +1694,728 @@ function cal_photon_position(rows, columns, pixel_data_16, pixel_data_8) {
 //6.7.1-6.7.3 治疗床的运动精度  
 function cal_bed_precision(rows, columns, first_pixel_data_16, first_pixel_data_8, second_pixel_data_16, second_pixel_data_8) {
     //6.7.1-6.7.3 Motion accuracy of treatment bed(6.7.1:vertical,6.7.2:transverse,6.7.3:around)
-    /*  let f_mat_16 = cv.matFromArray(rows, columns, cv.CV_16UC1, first_pixel_data_16);
-     //var cal_array=[];
-     console.log(first_pixel_data_8);
-     for(var i=0;i<rows*columns;i++){
-         if(first_pixel_data_8[i]>99){
-             first_pixel_data_8[i]=0;
-         }
-     }
-     let f_mat_8 = cv.matFromArray(rows, columns, cv.CV_8UC1, first_pixel_data_8);
-     let f_circles=new cv.Mat();
-     cv.HoughCircles(f_mat_8,f_circles,cv.HOUGH_GRADIENT,1.85,100,120,100,0,200);
-     let fx=Math.round(f_circles.data32F[0]);
-     let fy=Math.round(f_circles.data32F[1]); */
-    // let s_mat_16 = cv.matFromArray(rows, columns, cv.CV_16UC1, second_pixel_data_16);
-    //var cal_array=[];
-    /*  for(var i=0;i<rows*columns;i++){
-         if(second_pixel_data_8[i]>99){
-             second_pixel_data_8[i]=0;
-         }
-     }
-     let s_mat_8 = cv.matFromArray(rows, columns, cv.CV_8UC1, second_pixel_data_8);
-     let s_circles=new cv.Mat();
-     cv.HoughCircles(s_mat_8,s_circles,cv.HOUGH_GRADIENT,1.85,100,120,100,0,200)
-     let sx=Math.round(s_circles.data32F[0]);
-     let sy=Math.round(s_circles.data32F[1]); */
-    var threshold1 = 99;
-    let obj1 = cal_point(rows, columns, first_pixel_data_16, first_pixel_data_8, threshold1);
+    var threshold1 = 100;
+    let obj1 = cal_point(rows, columns, first_pixel_data_16, first_pixel_data_8, threshold1, para_cate.bed_pre);
+    if (obj1 == undefined) {
+        return undefined;
+    }
     console.log("f_circles:");
     console.log(obj1.circle.data32F);
     console.log("fx,fy:" + obj1.x + "," + obj1.y);
     var threshold2 = 100;
-    var new_data_8 = second_pixel_data_8;
-    let obj2 = cal_point(rows, columns, second_pixel_data_16, second_pixel_data_8, threshold2);
+    let obj2 = cal_point(rows, columns, second_pixel_data_16, second_pixel_data_8, threshold2, para_cate.bed_pre);
+    if (obj2 == undefined) {
+        return undefined;
+    }
     console.log("s_circles:");
     console.log(obj2.circle.data32F);
-    if (!Number.isNaN(obj2.x)) {
-        console.log("sx,sy:" + obj2.x + "," + obj2.y);
-    } else {
-        console.log("aaaaaaaaa");
-        threshold2 = 100;
-        let obj2 = cal_point(rows, columns, second_pixel_data_16, new_data_8, threshold2);
-        console.log("sx,sy:" + obj2.x + "," + obj2.y);
-    }
-    let dis = cal_point_distance(obj1.x, obj1.y, obj2.x, obj2.y);
+    console.log("sx,sy:" + obj2.x + "," + obj2.y);
+    /*    if(!Number.isNaN(obj2.x)){
+           console.log("sx,sy:"+obj2.x+","+obj2.y);
+       }
+       else{
+           console.log("aaaaaaaaa");
+           threshold2=100;
+           let obj2=cal_point(rows,columns,second_pixel_data_16,new_data_8,threshold2);
+           console.log("sx,sy:"+obj2.x+","+obj2.y);
+       }  */
+    var pixel_space = 0.4;
+    let dis = cal_point_distance(obj1.x, obj1.y, obj2.x, obj2.y, pixel_space);
     var iso_dis = dis / 1.6;
     console.log("dis : " + dis);
     console.log("iso_dis : " + iso_dis);
     return iso_dis
 }
-// exports.symmetry = cal_symmetry;
-// exports.uniformity = cal_uniformity;
-// exports.position_indication = cal_position_indication;
-// exports.scale_position = cal_scale_position;
-// exports.penumbra = cal_penumbra;
-// exports.unit_limiting = cal_unit_limiting;
-// exports.small_multiple_limiting = cal_small_multiple_limiting;
-// exports.large_muliiple_limiting = cal_large_muliiple_limiting;
-// exports.bed_precision = cal_bed_precision;
-// exports.photon_position = cal_photon_position;
-// exports.offset = cal_offset;
+//Calculate single film symmetry
+function cal_single_filmsym(rows, columns, pixel_data_16, pixel_data_8, percentage, pixel_space) {
+    let mat_16 = cv.matFromArray(rows, columns, cv.CV_16UC1, pixel_data_16);
+    let mat_8 = cv.matFromArray(rows, columns, cv.CV_8UC1, pixel_data_8);
+    var cal_array = [];
+    var boundray_value = 200;
+    var rc = rows * columns;
+    for (var i = 0; i < rc; i++) {
+        cal_array[i] = 65535 - pixel_data_8[i];
+    }
+    for (var i = 0; i < rc; i++) {
+        if (pixel_data_8[i] > boundray_value) {
+            pixel_data_8[i] = 0;
+        }
+        /*    else{
+            pixel_data_8[i]=1;
+          }  */
+    }
+    let bin_mat_8 = cv.matFromArray(rows, columns, cv.CV_8UC1, pixel_data_8);
+    let penumbra_mat = cv.matFromArray(rows, columns, cv.CV_16UC1, cal_array);
+    console.log("binarization");
+    console.log(pixel_data_8);
+    let contours = new cv.MatVector();
+    let hierarchy = new cv.Mat();
+    cv.findContours(bin_mat_8, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+    let cnt = contours.get(0);
+    let moments = cv.moments(cnt, false);
+    let cx = moments.m10 / moments.m00;
+    let cy = moments.m01 / moments.m00;
+    console.log(cx, cy);
+    let int_cx = parseInt(cx); //type conversion
+    let int_cy = parseInt(cy);
+    console.log(int_cx, int_cy);
+    //lbs_index:left_Boundary_subscript_index
+    var lbs_index;
+    for (var i = 1; i < int_cy; i++) {
+        if (mat_8.ucharAt(int_cx, i) < boundray_value) {
+            lbs_index = i;
+            break;
+        }
+    }
+    //rbs_index:right_Boundary_subscript_index
+    var rbs_index;
+    var rbs_init = columns - 1;
+    for (var i = rbs_init; i > int_cy; i--) {
+        if (mat_8.ucharAt(int_cx, i) < boundray_value) {
+            rbs_index = i;
+            break;
+        }
+    }
+    if (lbs_index == undefined || rbs_index == undefined) {
+        return undefined;
+    }
+    //lmp_value:left_min_pixel_value
+    var lmp_value = penumbra_mat.ushortAt(int_cx, int_cy);
+    for (var i = lbs_index; i < int_cy; i++) {
+        if (penumbra_mat.ushortAt(int_cx, i) < lmp_value) {
+            lmp_value = penumbra_mat.ushortAt(int_cx, i);
+        }
+    }
+    //rmp_value:right_min_pixel_value
+    var rmp_value = penumbra_mat.ushortAt(int_cx, int_cy);
+    for (var j = int_cy; j < rbs_index; j++) {
+        if (penumbra_mat.ushortAt(int_cx, j) < rmp_value) {
+            rmp_value = penumbra_mat.ushortAt(int_cx, j);
+        }
+    }
+    //cd_value:center_dose_value
+    var cd_value = parseInt(penumbra_mat.ushortAt(int_cx, int_cy));
+    //lcmD_value:left_center_min_D_value
+    var lcmD_value = cd_value - lmp_value;
+    //rcmD_value: right_center_min_D_value
+    var rcmD_value = cd_value - rmp_value;
+    //lfpd_value:left_fifty_percent_dose_value
+    var lfpd_value = parseInt(lcmD_value / 2 + lmp_value);
+    console.log(cd_value, 'left %50 dose value is ' + lfpd_value);
+    // rfpd_value:right_fifty_percent_dose_value
+    var rfpd_value = parseInt(rcmD_value / 2 + rmp_value);
+    console.log(cd_value, 'right %50 dose value is ' + rfpd_value);
+    //lfpd_index:left_fifty_percent_dose_index
+    var lfpd_index;
+    for (var i = lbs_index; i < int_cy; i++) {
+        if (Math.abs(penumbra_mat.ushortAt(int_cx, i) - lfpd_value) < 5) {
+            lfpd_index = i;
+            break;
+        }
+    }
+    //rfpd_index:right_fifty_percent_dose_index
+    var rfpd_index;
+    for (var i = int_cy; i < rbs_index; i++) {
+        if (Math.abs(penumbra_mat.ushortAt(int_cx, i) - rfpd_value) < 5) {
+            rfpd_index = i;
+            break;
+        }
+    }
+    //Slb_index:Symmetry_left_boundary_index
+    var Slf_index = parseInt(int_cy - ((int_cy - lfpd_index) * percentage));
+    //Srb_index:Symmetry_right_boundary_index
+    var Srb_index = parseInt(((rfpd_index - int_cy) * percentage) + int_cy);
+    //Slb_distance:Symmetry_left_boundary_distance
+    var Slb_distance = (int_cy - lfpd_index) * percentage * pixel_space;
+    //Srb_distance:Symmetry_right_boundary_distance
+    var Srb_distance = (rfpd_index - int_cy) * percentage * pixel_space;
+    //SS_distance:Symmetry_Selected_distance
+    var SS_distance = parseInt((Slb_distance < Srb_distance) ? Slb_distance : Srb_distance);
+    console.log('SS_distance is ' + SS_distance);
+    //SSl_index: Symmetry_Selected_left_index
+    var SSl_index = parseInt(int_cy - SS_distance / pixel_space);
+    //SSr_index: Symmetry_Selected_right_index
+    var SSr_index = parseInt(int_cy + SS_distance / pixel_space);
+    //ld_array:left_dose_array
+    var ld_array = [];
+    for (var i = SSl_index, j = 0; i < int_cy; i++, j++) {
+        ld_array[j] = penumbra_mat.ushortAt(int_cx, i);
+    }
+    console.log("ld_array :");
+    console.log(ld_array);
+    //rd_array:right_dose_array
+    var rd_array = [];
+    for (var i = SSr_index, j = 0; i > int_cy; i--, j++) {
+        rd_array[j] = penumbra_mat.ushortAt(int_cx, i);
+    }
+    console.log("rd_array :");
+    console.log(rd_array);
+    //S_array:Symmetry_array
+    var S_array = [];
+    var ld_len = ld_array.length;
+    for (var i = 0; i < ld_len; i++) {
+        S_array[i] = rd_array[i] / ld_array[i];
+    }
+    var max_Symmetry = S_array[0];
+    console.log("original  max_Symmetry is " + max_Symmetry);
+    for (var i = 1; i < ld_len; i++) {
+        if (S_array[i] > max_Symmetry) {
+            max_Symmetry = S_array[i];
+        }
+    }
+    if (max_Symmetry == undefined) {
+        return undefined;
+    }
+    console.log("S_array");
+    console.log(S_array);
+    console.log("Slb_index,Srb_index is " + Slf_index, Srb_index);
+    console.log("SSl_index,SSr_index is " + SSl_index, SSr_index);
+    console.log("Slb_distance,Srb_distance is " + Slb_distance, Srb_distance);
+    console.log("final max_Symmetry is " + max_Symmetry);
+    return max_Symmetry;
+}
+//6.3.2 电子线照射野的对称性
+function cal_film_symmetry(rows, columns, first_pixel_data_16, first_pixel_data_8, second_pixel_data_16, second_pixel_data_8, percentage, resolution) {
+    //6.3.2 The symmetry of the electron beam irradiation field
+    var pixel_space = 25.4 / resolution;
+    var sym1 = cal_single_filmsym(rows, columns, first_pixel_data_16, first_pixel_data_8, percentage, pixel_space);
+    if (sym1 == undefined) {
+        console.log("cal first film symmetry error!");
+        return undefined;
+    }
+    var sym2 = cal_single_filmsym(rows, columns, second_pixel_data_16, second_pixel_data_8, percentage, pixel_space);
+    if (sym2 == undefined) {
+        console.log("cal second film symmetry error!");
+        return undefined;
+    }
+    var sym = (sym1 > sym2) ? sym1 : sym2;
+    console.log("sym : " + sym);
+    return sym;
+}
+//Calculate single film distance
+function cal_film_singdis(int_cx, int_cy, lfpd_index, rfpd_index, ufpd_index, dfpd_index, per, pixel_space) {
+    //Slb_index:Symmetry_left_boundary_index
+    var Slf_index = parseInt(int_cy - ((int_cy - lfpd_index) * per));
+    //Srb_index:Symmetry_right_boundary_index
+    var Srb_index = parseInt(((rfpd_index - int_cy) * per) + int_cy);
+    //Slb_distance:Symmetry_left_boundary_distance
+    var Slb_distance = (int_cy - lfpd_index) * per * pixel_space;
+    //Srb_distance:Symmetry_right_boundary_distance
+    var Srb_distance = (rfpd_index - int_cy) * per * pixel_space;
+    //SSlr_distance:Symmetry_Selected_left_right_distance
+    var SSlr_distance = parseInt((Slb_distance < Srb_distance) ? Slb_distance : Srb_distance);
+    console.log('SSlr_distance is ' + SSlr_distance);
+    //SSl_index: Symmetry_Selected_left_index
+    var SSl_index = parseInt(int_cy - SSlr_distance / pixel_space);
+    //SSr_index: Symmetry_Selected_right_index
+    var SSr_index = parseInt(int_cy + SSlr_distance / pixel_space);
+    //sel_distance: Symmetry_percent_left_distance
+    var spl_distance = (SSl_index - lfpd_index) * pixel_space;
+    //ser_distance:Symmetry_percent_right_distance
+    var spr_distance = (rfpd_index - SSr_index) * pixel_space;
+    var max_lrdis = (spl_distance > spr_distance) ? spl_distance : spr_distance;
+    //Sub_index:Symmetry_up_boundary_index
+    var Sub_index = parseInt(int_cx - ((int_cx - ufpd_index) * per));
+    //Sdb_index:Symmetry_down_boundary_index
+    var Sdb_index = parseInt(((dfpd_index - int_cx) * per) + int_cx);
+    //Sub_distance:Symmetry_up_boundary_distance
+    var Sub_distance = (int_cx - ufpd_index) * per * pixel_space;
+    //Sdb_distance:Symmetry_down_boundary_distance
+    var Sdb_distance = (dfpd_index - int_cx) * per * pixel_space;
+    //SSud_distance:Symmetry_Selected_up_down_distance
+    var SSud_distance = parseInt((Sub_distance < Sdb_distance) ? Sub_distance : Sdb_distance);
+    console.log('SSud_distance is ' + SSud_distance);
+    //SSu_index: Symmetry_Selected_up_index
+    var SSu_index = parseInt(int_cx - SSud_distance / pixel_space);
+    //SSd_index: Symmetry_Selected_down_index
+    var SSd_index = parseInt(int_cx + SSud_distance / pixel_space);
+    //seu_distance: Symmetry_percent_up_distance
+    var seu_distance = (SSu_index - ufpd_index) * pixel_space;
+    //sed_distance: Symmetry_percent_down_distance
+    var sed_distance = (dfpd_index - SSd_index) * pixel_space;
+    var max_dudis = (seu_distance > sed_distance) ? seu_distance : sed_distance;
+    var dis = (max_lrdis > max_dudis) ? max_lrdis : max_dudis;
+    console.log("film uniformity :" + dis);
+    return dis;
+}
+//Calculate single film uniformity
+function cal_single_filmunifo(rows, columns, pixel_data_16, pixel_data_8, percentage, pixel_space) {
+    let mat_16 = cv.matFromArray(rows, columns, cv.CV_16UC1, pixel_data_16);
+    let mat_8 = cv.matFromArray(rows, columns, cv.CV_8UC1, pixel_data_8);
+    var cal_array = [];
+    var boundray_value = 200;
+    var rc = rows * columns;
+    for (var i = 0; i < rc; i++) {
+        cal_array[i] = 65535 - pixel_data_8[i];
+    }
+    for (var i = 0; i < rc; i++) {
+        if (pixel_data_8[i] > boundray_value) {
+            pixel_data_8[i] = 0;
+        }
+        /*    else{
+            pixel_data_8[i]=1;
+          }  */
+    }
+    let bin_mat_8 = cv.matFromArray(rows, columns, cv.CV_8UC1, pixel_data_8);
+    let penumbra_mat = cv.matFromArray(rows, columns, cv.CV_16UC1, cal_array);
+    console.log("binarization");
+    console.log(pixel_data_8);
+    let contours = new cv.MatVector();
+    let hierarchy = new cv.Mat();
+    cv.findContours(bin_mat_8, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+    let cnt = contours.get(0);
+    let moments = cv.moments(cnt, false);
+    let cx = moments.m10 / moments.m00;
+    let cy = moments.m01 / moments.m00;
+    console.log(cx, cy);
+    let int_cx = parseInt(cx); //type conversion
+    let int_cy = parseInt(cy);
+    console.log(int_cx, int_cy);
+    //lbs_index:left_Boundary_subscript_index
+    var lbs_index;
+    for (var i = 1; i < int_cy; i++) {
+        if (mat_8.ucharAt(int_cx, i) < boundray_value) {
+            lbs_index = i;
+            break;
+        }
+    }
+    //rbs_index:right_Boundary_subscript_index
+    var rbs_index;
+    var rbs_init = columns - 1;
+    for (var i = rbs_init; i > int_cy; i--) {
+        if (mat_8.ucharAt(int_cx, i) < boundray_value) {
+            rbs_index = i;
+            break;
+        }
+    }
+    //ubs_index:up_Boundary_subscript_index
+    var ubs_index;
+    for (var i = 1; i < int_cx; i++) {
+        if (mat_8.ucharAt(i, int_cy) < boundray_value) {
+            ubs_index = i;
+        }
+    }
+    //dbs_index:down_Boundary_subscript_index
+    var dbs_index;
+    var dbs_init = rows - 1;
+    for (var i = dbs_init; i > int_cx; i--) {
+        if (mat_8.uncharAt(i, int_cy) < boundray_value) {
+            dbs_index = i;
+        }
+    }
+    if (ubs_index == undefined || dbs_index == undefined) {
+        console.log("ubs index or dbs index is undefined or not find!");
+        return undefined;
+    }
+    if (lbs_index == undefined || rbs_index == undefined) {
+        console.log("lbs index or rbs index is undefined or not find!");
+        return undefined;
+    }
+    //lmp_value:left_min_pixel_value
+    var lmp_value = penumbra_mat.ushortAt(int_cx, int_cy);
+    for (var i = lbs_index; i < int_cy; i++) {
+        if (penumbra_mat.ushortAt(int_cx, i) < lmp_value) {
+            lmp_value = penumbra_mat.ushortAt(int_cx, i);
+        }
+    }
+    //rmp_value:right_min_pixel_value
+    var rmp_value = penumbra_mat.ushortAt(int_cx, int_cy);
+    for (var j = int_cy; j < rbs_index; j++) {
+        if (penumbra_mat.ushortAt(int_cx, j) < rmp_value) {
+            rmp_value = penumbra_mat.ushortAt(int_cx, j);
+        }
+    }
+    //ump_value:up_min_pixel_value
+    var ump_value = penumbra_mat.ushortAt(int_cx, int_cy);
+    for (var i = ubs_index; i < int_cx; i++) {
+        if (penumbra_mat.ushortAt(i, int_cy) < ump_value) {
+            ump_value = penumbra_mat.ushortAt(i, int_cy);
+        }
+    }
+    //dmp_value:down_min_pixel_value
+    var dmp_value = penumbra_mat.ushortAt(int_cx, int_cy);
+    for (var j = int_cx; j < dbs_index; j++) {
+        if (penumbra_mat.ushortAt(j, int_cy) < dmp_value) {
+            dmp_value = penumbra_mat.ushortAt(j, int_cy);
+        }
+    }
+    //cd_value:center_dose_value
+    var cd_value = parseInt(penumbra_mat.ushortAt(int_cx, int_cy));
+    //lcmD_value:left_center_min_D_value
+    var lcmD_value = cd_value - lmp_value;
+    //rcmD_value: right_center_min_D_value
+    var rcmD_value = cd_value - rmp_value;
+    //lfpd_value:left_fifty_percent_dose_value
+    var lfpd_value = parseInt(lcmD_value / 2 + lmp_value);
+    console.log(cd_value, 'left %50 dose value is ' + lfpd_value);
+    // rfpd_value:right_fifty_percent_dose_value
+    var rfpd_value = parseInt(rcmD_value / 2 + rmp_value);
+    console.log(cd_value, 'right %50 dose value is ' + rfpd_value);
+    //ucmD_value:up_center_min_D_value
+    var ucmD_value = cd_value - ump_value;
+    //dcmD_value:down_center_min_D_value
+    var dcmD_value = cd_value - dmp_value;
+    //ufpd_value:up_fifty_percent_dose_value
+    var ufpd_value = parseInt(ucmD_value / 2 + ump_value);
+    console.log(cd_value, 'up %50 dose value is ' + ufpd_value);
+    // dfpd_value:dwon_fifty_percent_dose_value
+    var dfpd_value = parseInt(dcmD_value / 2 + dmp_value);
+    console.log(cd_value, 'down %50 dose value is ' + dfpd_value);
+    //lfpd_index:left_fifty_percent_dose_index
+    var lfpd_index;
+    for (var i = lbs_index; i < int_cy; i++) {
+        if (Math.abs(penumbra_mat.ushortAt(int_cx, i) - lfpd_value) < 5) {
+            lfpd_index = i;
+            break;
+        }
+    }
+    //rfpd_index:right_fifty_percent_dose_index
+    var rfpd_index;
+    for (var i = int_cy; i < rbs_index; i++) {
+        if (Math.abs(penumbra_mat.ushortAt(int_cx, i) - rfpd_value) < 5) {
+            rfpd_index = i;
+            break;
+        }
+    }
+    //ufpd_index:up_fifty_percent_dose_index
+    var ufpd_index;
+    for (var i = ubs_index; i < int_cx; i++) {
+        if (Math.abs(penumbra_mat.ushortAt(i, int_cy) - ufpd_value) < 5) {
+            ufpd_index = i;
+            break;
+        }
+    }
+    //dfpd_index:down_fifty_percent_dose_index
+    var dfpd_index;
+    for (var i = int_cx; i < dbs_index; i++) {
+        if (Math.abs(penumbra_mat.ushortAt(i, int_cy) - dfpd_value) < 5) {
+            dfpd_index = i;
+            break;
+        }
+    }
+    var per;
+    if (percentage == 0.8) {
+        var edis = cal_film_singdis(int_cx, int_cy, lfpd_index, rfpd_index, ufpd_index, dfpd_index, percentage, pixel_space);
+        return edis;
+    } else if (percentage == 0.9) {
+        var ndis = cal_film_singdis(int_cx, int_cy, lfpd_index, rfpd_index, ufpd_index, dfpd_index, percentage, pixel_space);
+        return ndis;
+    } else {
+        console.log("percentage is incorrect!");
+        return undefined;
+    }
+}
+//6.3.2 电子线照射野的均整度 （沿两主轴方向上的80%等剂量线 或 沿两主轴方向上的90%等剂量线)
+function cal_film_axisunifo(rows, columns, first_pixel_data_16, first_pixel_data_8, second_pixel_data_16, second_pixel_data_8, percentage, resolution) {
+    //6.3.2  Uniformity of electron beam irradiation field (80% isodose line along two principal axes or 90% isodose line along two principal axes)
+    var pixel_space = 25.4 / resolution;
+    var fdis = cal_single_filmunifo(rows, columns, first_pixel_data_16, first_pixel_data_8, percentage, pixel_space);
+    if (fdis == undefined) {
+        console.log("cal first film axis uniformity error!");
+        return undefined;
+    }
+    var sdis = cal_single_filmunifo(rows, columns, second_pixel_data_16, second_pixel_data_8, percentage, pixel_space);
+    if (sdis == undefined) {
+        console.log("cal second film axis uniformity error!");
+        return undefined;
+    }
+    var dis = (fdis > sdis) ? fdis : sdis;
+    return dis;
+}
+//Calculate main diagonal percentage dose point
+function cal_film_mainp(int_cx, int_cy, lunpd_value, lub_dx, lub_dy, rdnpd_value, rdb_dx, rdb_dy) {
+    var lunpd_dx;
+    var lunpd_dy;
+    //lunpd_dx:
+    //lunpd_dy:left_up_ninety_percent_dose_point
+    for (i = lub_dx, j = lub_dy; i < int_cx, j < int_cy; i++, j++) {
+        if (Math.abs(penumbra_mat.ushortAt(i, j) - lunpd_value) < 5) {
+            lunpd_dx = i;
+            lunpd_dy = j;
+            break;
+        }
+    }
+    //rdnpd_dx:
+    //rdnpd_dy:right_down_ninety_percent_dose_point
+    var rdnpd_dx;
+    var rdnpd_dy;
+    for (i = int_cx, j = int_cy; i < rdb_dx, j < rdb_dy; i++, j++) {
+        if (Math.abs(penumbra_mat.ushortAt(i, j) - rdnpd_value) < 5) {
+            rdnpd_dx;
+            rdnpd_dy;
+            break;
+        }
+    }
+    return {
+        lunpd_x: lunpd_dx,
+        lunpd_y: lunpd_dy,
+        rdnpd_x: rdnpd_dx,
+        rdnpd_y: rdnpd_dy
+    }
+}
+//Calculate sub diagonal percentage dose point
+function cal_film_subp(int_cx, int_cy, lfnpd_value, ldb_dx, ldb_dy, runpd_value, rub_dx, rub_dy) {
+    var lfnpd_dx;
+    var lfnpd_dy;
+    //lfnpd_dx:
+    //lfnpd_dy: left_down_ninety_percent_dose_point
+    for (i = ldb_dx, ldb_dy; i < int_cx, j > int_cy; i++, j--) {
+        if (Math.abs(penumbra_mat.ushortAt(i, j) - lfnpd_value) < 5) {
+            lfnpd_dx = i;
+            lfnpd_dy = j;
+            break;
+        }
+    }
+    //runpd_dx:
+    //runpd_dy: right_up_ninety_percent_dose_point
+    var runpd_dx;
+    var runpd_dy;
+    for (i = int_cx, j = int_cy; i < rub_dx, j > rub_dy; i++, j--) {
+        if (Math.abs(penumbra_mat.ushortAt(i, j) - runpd_value) < 5) {
+            runpd_dx = i;
+            runpd_dy = j;
+            break;
+        }
+    }
+    return {
+        lfnpd_x: lfnpd_dx,
+        lfnpd_y: lfnpd_dy,
+        runpd_x: runpd_dx,
+        runpd_y: runpd_dy
+    }
+}
+//Calculate single film diagnoal
+function cal_film_diagsing(rows, columns, pixel_data_16, pixel_data_8, per, pixel_space) {
+    let mat_16 = cv.matFromArray(rows, columns, cv.CV_16UC1, pixel_data_16);
+    let mat_8 = cv.matFromArray(rows, columns, cv.CV_8UC1, pixel_data_8);
+    var cal_array = [];
+    var boundray_value = 200;
+    var rc = rows * columns;
+    for (var i = 0; i < rc; i++) {
+        cal_array[i] = 65535 - pixel_data_8[i];
+    }
+    for (var i = 0; i < rc; i++) {
+        if (pixel_data_8[i] > boundray_value) {
+            pixel_data_8[i] = 0;
+        }
+        /*    else{
+            pixel_data_8[i]=1;
+          }  */
+    }
+    let bin_mat_8 = cv.matFromArray(rows, columns, cv.CV_8UC1, pixel_data_8);
+    let penumbra_mat = cv.matFromArray(rows, columns, cv.CV_16UC1, cal_array);
+    console.log("binarization");
+    console.log(pixel_data_8);
+    let contours = new cv.MatVector();
+    let hierarchy = new cv.Mat();
+    cv.findContours(bin_mat_8, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+    let cnt = contours.get(0);
+    let moments = cv.moments(cnt, false);
+    let cx = moments.m10 / moments.m00;
+    let cy = moments.m01 / moments.m00;
+    console.log(cx, cy);
+    let int_cx = parseInt(cx); //type conversion
+    let int_cy = parseInt(cy);
+    console.log(int_cx, int_cy);
+    //lub_dx:
+    //lub_dy: Upper left half of main diagonal boundary point
+    var lub_dx;
+    var lub_dy;
+    var i, j;
+    for (i = int_cx, j = int_cy; i > 0, j > 0; i--, j--) {
+        if (mat_8.ucharAt(i, j) > boundray_value) {
+            lub_dx = i;
+            lub_dy = j;
+            break;
+        }
+    }
+    if (lub_dx == undefined || lub_dy == undefined) {
+        console.log("Upper left half of main diagonal boundary point is undefined or not find!");
+        return undefined;
+    }
+    //rdb_dx:
+    //rdb_dy: Down right half of main diagonal boundary point
+    var rdb_dx;
+    var rdb_dy;
+    for (i = int_cx, j = int_cy; i < columns, j < rows; i++, j++) {
+        if (mat_8.ucharAt(i, j) > boundray_value) {
+            rdb_dx = i;
+            rdb_dy = j;
+            break;
+        }
+    }
+    if (rdb_dx == undefined || rdb_dy == undefined) {
+        console.log("Down left half of main diagonal boundary point is undefined or not find!");
+        return undefined;
+    }
+    //ldb_dx:
+    //ldb_dy: Down left half of sub diagonal boundary point
+    var ldb_dx;
+    var ldb_dy;
+    for (i = int_cx, j = int_cy; i > 0, j < rows; i--, j++) {
+        if (mat_8.ucharAt(i, j) > boundray_value) {
+            ldb_dx = i;
+            ldb_dy = j;
+        }
+    }
+    if (ldb_dx == undefined || ldb_dy == undefined) {
+        console.log("Down left half of sub diagonal boundary point is undefined or not find!");
+        return undefined;
+    }
+    //rub_dx:
+    //rub_dy:Upper right half of sub diagnoal boundary point
+    var rub_dx;
+    var rub_dy;
+    for (i = int_cx, j = int_cy; i < columns, j > 0; i++, j--) {
+        if (mat_8.uncharAt(i, j) > boundray_value) {
+            rub_dx = i;
+            rub_dy = j;
+        }
+    }
+    if (rub_dx == undefined || rub_dy == undefined) {
+        console.log("Upper right half of sub diagnoal boundary point is undefined or not find!");
+        return undefined;
+    }
+    //lumin_value:left up main diagonal min_pixel_value
+    var lumin_value = penumbra_mat.ushortAt(int_cx, int_cy);
+    for (i = lub_dx, j = lub_dy; i < int_cx, j < int_cy; i++, j++) {
+        if (penumbra_mat.ushortAt(i, j) < lumin_value) {
+            lumin_value = penumbra_mat.ushortAt(i, j);
+        }
+    }
+    //rdmin_value:right down main diagonal min_pixel_value
+    var rdmin_value = penumbra_mat.ushortAt(int_cx, int_cy);
+    for (i = int_cx, j = int_cy; i < rdb_dx, j < rdb_dy; i++, j++) {
+        if (penumbra_mat.ushortAt(i, j) < rdmin_value) {
+            rdmin_value = penumbra_mat.ushortAt(i, j);
+        }
+    }
+    //ldmin_value:left down sub diagonal min_pixel_value
+    var ldmin_value = penumbra_mat.ushortAt(int_cx, int_cy);
+    for (i = ldb_dx, j = ldb_dy; i < int_cx, j > int_cy; i++, j--) {
+        if (penumbra_mat.ushortAt(i, j) < ldmin_value) {
+            ldmin_value = penumbra_mat.ushortAt(i, j);
+        }
+    }
+    //rumin_value:right up sub diagonal min_pixel_value
+    var rumin_value = penumbra_mat.ushortAt(int_cx, int_cy);
+    for (i = int_cx, j = int_cy; i < rub_dx, j > rub_dy; i++, j--) {
+        if (penumbra_mat.ushortAt(i, j) < rumin_value) {
+            rumin_value = penumbra_mat.ushortAt(i, j);
+        }
+    }
+    //cd_value:center_dose_value
+    var cd_value = parseInt(penumbra_mat.ushortAt(int_cx, int_cy));
+    //lumD_value:left_up_center_min_D_value
+    var lumD_value = cd_value - lumin_value;
+    //rdmD_value: right_down_center_min_D_value
+    var rdmD_value = cd_value - rdmin_value;
+    //lufpd_value:left_up_fifty_percent_dose_value
+    var lufpd_value = parseInt(lumD_value / 2 + lumin_value);
+    console.log(cd_value, 'left up %50 dose value is ' + lufpd_value);
+    // rdfpd_value:right_down_fifty_percent_dose_value
+    var rdfpd_value = parseInt(rdmD_value / 2 + rdmin_value);
+    console.log(cd_value, 'right down %50 dose value is ' + rdfpd_value);
+    //ldmD_value:left_down_center_min_D_value
+    var ldmD_value = cd_value - ldmin_value;
+    //rumD_value:down_center_min_D_value
+    var rumD_value = cd_value - rumin_value;
+    //lffpd_value:left_down_fifty_percent_dose_value
+    var lffpd_value = parseInt(ldmD_value / 2 + ldmin_value);
+    console.log(cd_value, 'left down  %50 dose value is ' + lffpd_value);
+    // rufpd_value:right_up_fifty_percent_dose_value
+    var rufpd_value = parseInt(rumD_value / 2 + rumin_value);
+    console.log(cd_value, 'right up %50 dose value is ' + rufpd_value);
+    var lufpd_dx;
+    var lufpd_dy;
+    //lufpd_dx:
+    //lufpd_dy:left_up_fifty_percent_dose_point
+    for (i = lub_dx, j = lub_dy; i < int_cx, j < int_cy; i++, j++) {
+        if (Math.abs(penumbra_mat.ushortAt(i, j) - lufpd_value) < 5) {
+            lufpd_dx = i;
+            lufpd_dy = j;
+            break;
+        }
+    }
+    //rdfpd_dx:
+    //rdfpd_dy:right_down_fifty_percent_dose_point
+    var rdfpd_dx;
+    var rdfpd_dy;
+    for (i = int_cx, j = int_cy; i < rdb_dx, j < rdb_dy; i++, j++) {
+        if (Math.abs(penumbra_mat.ushortAt(i, j) - rdfpd_value) < 5) {
+            rdfpd_dx;
+            rdfpd_dy;
+            break;
+        }
+    }
+    var lffpd_dx;
+    var lffpd_dy;
+    //lffpd_dx:
+    //lffpd_dy: left_down_fifty_percent_dose_point
+    for (i = ldb_dx, j = ldb_dy; i < int_cx, j > int_cy; i++, j--) {
+        if (Math.abs(penumbra_mat.ushortAt(i, j) - lffpd_value) < 5) {
+            lffpd_dx = i;
+            lffpd_dy = j;
+            break;
+        }
+    }
+    //rufpd_dx:
+    //rufpd_dy: right_up_fifty_percent_dose_point
+    var rufpd_dx;
+    var rufpd_dy;
+    for (i = int_cx, j = int_cy; i < rub_dx, j > rub_dy; i++, j--) {
+        if (Math.abs(penumbra_mat.ushortAt(i, j) - rufpd_value) < 5) {
+            rufpd_dx = i;
+            rufpd_dy = j;
+            break;
+        }
+    }
+    if (per == 0.9) {
+        //lunpd_value:left_up_ninety_percent_dose_value
+        var lunpd_value = parseInt(lumD_value * per + lumin_value);
+        console.log(cd_value, 'left up %90 dose value is ' + lunpd_value);
+        // rdnpd_value:right_down_ninety_percent_dose_value
+        var rdnpd_value = parseInt(rdmD_value * per + rdmin_value);
+        console.log(cd_value, 'right down %90 dose value is ' + rdnpd_value);
+        //lfnpd_value:left_down_ninety_percent_dose_value
+        var lfnpd_value = parseInt(ldmD_value * per + ldmin_value);
+        console.log(cd_value, 'left down  %90 dose value is ' + lfnpd_value);
+        // runpd_value:right_up_ninety_percent_dose_value
+        var runpd_value = parseInt(rumD_value * per + rumin_value);
+        console.log(cd_value, 'right up %90 dose value is ' + runpd_value);
+        var enp1 = cal_film_mainp(int_cx, int_cy, lunpd_value, lub_dx, lub_dy, rdnpd_value, rdb_dx, rdb_dy);
+        var ludis = cal_point_distance(lufpd_dx, lufpd_dy, enp1.lunpd_x, enp1.lunpd_y, pixel_space);
+        var rddis = cal_point_distance(rdfpd_dx, rdfpd_dy, enp1.rdnpd_x, enp1.rdnpd_y, pixel_space);
+        var edis1 = (ludis > rddis) ? ludis : rddis;
+        var enp2 = cal_film_subp(int_cx, int_cy, lfnpd_value, ldb_dx, ldb_dy, runpd_value, rub_dx, rub_dy);
+        var lfdis = cal_point_distance(lffpd_dx, lffpd_dy, enp2.lfnpd_x, enp2.lfnpd_y, pixel_space);
+        var rudis = cal_point_distance(rufpd_dx, rufpd_dy, enp2.runpd_x, enp2.runpd_y, pixel_space);
+        var edis2 = (lfdis > rudis) ? lfdis : rudis;
+        var edis = (edis1 > edis2) ? edis1 : edis2;
+        return edis;
+    } else {
+        console.log("percentage is error!");
+        return undefined;
+    }
+
+}
+//6.3.2 电子线照射野的均整度  (两对角线上90%等剂量线)
+function cal_film_diagunifo(rows, columns, first_pixel_data_16, first_pixel_data_8, second_pixel_data_16, second_pixel_data_8, percentage, resolution) {
+    //6.3.2  Uniformity of electron beam irradiation field (90% isodose line on two diagonal lines)
+    var pixel_space = 25.4 / resolution;
+    var fdis = cal_film_diagsing(rows, columns, first_pixel_data_16, first_pixel_data_8, percentage, pixel_space);
+    if (fdis == undefined) {
+        console.log("cal first film diag uniformity error!");
+        return undefined;
+    }
+    var sdis = cal_film_diagsing(rows, columns, second_pixel_data_16, second_pixel_data_8, percentage, pixel_space);
+    if (sdis == undefined) {
+        console.log("cal second film diag uniformity error!");
+        return undefined;
+    }
+    var dis = (fdis > sdis) ? fdis : sdis;
+    return dis;
+}
 export {
     cal_symmetry,
     cal_uniformity,
@@ -1677,5 +2427,8 @@ export {
     cal_large_muliiple_limiting,
     cal_bed_precision,
     cal_photon_position,
-    cal_offset
+    cal_offset,
+    cal_film_axisunifo,
+    cal_film_diagunifo,
+    cal_film_symmetry
 }
