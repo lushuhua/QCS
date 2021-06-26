@@ -1,5 +1,5 @@
 <template>
-  <div class="test-page page-qcs">
+  <div class="test-page page-qcs"  v-loading.fullscreen.lock='loading'>
     <div class="test-search page-qcs-head">
       <div class="test-search-left">
         <div class="test-search-lists">
@@ -61,9 +61,12 @@
           <div class="test-upload" v-if="typeName == 'image'">
             <el-upload
               class="upload-demo"
-              action="123"
-              :show-file-list="false"
+              ref="upload"
+              action="123" 
               :http-request="onHttpRequest"
+              :show-file-list="false"
+              :before-upload="onBeforeUpload"
+              :on-success="onSuccess"  
               :limit="50"
               multiple
             >
@@ -478,8 +481,9 @@
           {{ currentRow.projectNo }} {{ currentRow.name }}
         </div>
         <div class="test-tab-right-content" v-if="currentRow && currentRow.id">
-          <!--将慢感光胶片置于治疗床面，用建成材料覆盖其上。将70KG负载（成人）均匀分布在床面，中心作用在等中心上，照射野调至10cm*10cm，治疗床面调至近似于等中心高度时，对慢感光胶片进行照射。然后将床面将至20cm并在此照射，测出两个照射野中心的位移。-->
+        
           {{ currentRow.detail }}
+          
           <br />
           <img
             v-if="currentRow.detailUrl"
@@ -699,6 +703,7 @@ export default {
   },
   data() {
     return {
+       loading:false,
       dialogVisible: false,
       showDICOM: false,
       showImage: false,
@@ -747,10 +752,11 @@ export default {
       checkedAll: false,
       currentRowIndex: null,
       currentRowIndexNum: null,
+     
       tempTestResult: [], /// 测试临时数据保存
       currentFile: "",
       pathRT: [],
-      fromIndex: 0,
+      fromIndex: 0
     };
   },
   computed: mapState({
@@ -842,6 +848,7 @@ export default {
   }),
   mounted() {
     this.getProjectsFn(1);
+    console.log(currentRow.detail,"111111111111111111111111111111111111")
   },
 
   watch: {
@@ -984,16 +991,26 @@ export default {
         this.$forceUpdate();
       });
     },
+   
     async onHttpRequest(file) {
-      // console.log('onHttpRequest',library)
-      console.log("onHttpRequest", file);
-      this.currentFile = file;
+      console.log("onHttpRequest", file);  
+    },
+    onBeforeUpload() {
+      if (!this.loading) {
+        this.loading = true;
+      }
+    },
+    // 这个方法里的东西之前都是在onHttpRequest里面 
+    async onSuccess(res, file, fileList) {
+      console.log(file)
       let libraryData;
-      let fileType = this.getFileType(file.file);
+      let fileType = this.getFileType(file.raw);
       if(fileType ==='dcm') {
-        libraryData = await library.loadFile(file.file);
+        libraryData = await library.loadFile(file.raw);
+        
       }else if(fileType ==='tiff') {
-        libraryData = await readFile(file.file);
+        libraryData = await readFile(file.raw);
+       
       }
       // const libraryData = await readFile(file.file);  
       console.log(
@@ -1001,11 +1018,11 @@ export default {
         "font-size:13px; background:pink; color:#bf2c9f;",
         libraryData
       ); //dicom的信息
-      let filePath = file.file.path;
+      let filePath = file.raw.path;
       let len = this.imageData.length,
         refName = "canvas" + len,
         refNameAna = "canvasAna" + len;
-      this.imageData.push({
+      this.imageData.push({  
         data: libraryData.imageData,
         refName: refName,
         refNameAna: refNameAna,
@@ -1023,9 +1040,13 @@ export default {
         image: libraryData.image,
             res_x:libraryData.res_x,
         res_y:libraryData.res_y
-      });
-      this.showAnalyse = true;
+      });     
       console.log("onHttpRequest", this.imageData);
+      console.log(fileList)
+      if (fileList.length === this.imageData.length) {
+        this.loading = false;
+        this.showAnalyse = true;
+      }
     },
     //获取文件类型
     getFileType(file) {
@@ -1037,6 +1058,7 @@ export default {
     },
     onclickOpen(file) {
       this.imageData = [];
+      this.$refs.upload.clearFiles();
       getProjects({
         deviceID: this.currentDeviceID,
         pageNum: 0,
@@ -1155,6 +1177,7 @@ export default {
         data[i].energyJson = energyJson;
       }
       console.log("makeupJson", data);
+      console.log(data[0].detail,"aaaaaaaaaaaaaa")
       return data;
     },
     handleClose() {
@@ -1175,6 +1198,7 @@ export default {
       this.selectedDicom = val;
     },
     handleCurrentChangeDic(val) {
+      console.log("11111111111111111111111")
       this.dicomData.pageNum = val;
       this.getDicomdData();
     },

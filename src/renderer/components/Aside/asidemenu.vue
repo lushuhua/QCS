@@ -31,7 +31,7 @@
         },
         data() {
             return {
-               menu:'project',
+               menu:'project',  
             }
         },
         computed: mapState({
@@ -42,7 +42,7 @@
         beforeCreate(){
         },
         created(){
-
+          this.menu = this.$route.name; 
         },
         beforeMount(){
         },
