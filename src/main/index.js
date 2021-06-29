@@ -13,12 +13,12 @@ if (process.env.NODE_ENV !== 'development') {
         .join(__dirname, '/static')
         .replace(/\\/g, '\\\\')
 }
-const { cv, cvTranslateError } = require('opencv-wasm');
+// const { cv, cvTranslateError } = require('opencv-wasm');
 //console.log(cv);
 import * as cacImgVal from "../renderer/utils/image";
-import  THRESH_BINARY from 'opencv-wasm/opencv.js';
-import  Mat  from 'opencv-wasm/opencv.js';
-import {  THRESH_OTSU,  THRESH_TRIANGLE,  CONTOURS_MATCH_I1  }  from 'opencv-wasm/opencv.js';
+// import  THRESH_BINARY from 'opencv-wasm/opencv.js';
+// import  Mat  from 'opencv-wasm/opencv.js';
+// import {  THRESH_OTSU,  THRESH_TRIANGLE,  CONTOURS_MATCH_I1  }  from 'opencv-wasm/opencv.js';
 //import { ConfigurationServicePlaceholders } from 'aws-sdk/lib/config_service_placeholders';
 ipcMain.on('cal_symmetry', (event, rows, columns, pixel_data_16, pixel_data_8) =>
         event.returnValue = cacImgVal.cal_symmetry(rows, columns, pixel_data_16, pixel_data_8)
