@@ -18,7 +18,7 @@ function getR() {
     let list = Array.from(arguments);
     for(var i =0;i<list.length;i++) {
         if(list[i]!==null&&list[i]!=="") {
-            inputList.push(parseInt(list[i]));
+            inputList.push(parseFloat(list[i]));
         }
         // return list[i]/2
     }
