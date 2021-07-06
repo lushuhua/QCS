@@ -9,12 +9,15 @@ initCoreData()
 loadProject()
 
 let sqlDir = path.join(process.resourcesPath, 'extraResources', 'medical.db'),
-    qcsNodeUrl = path.resolve(process.resourcesPath, 'extraResources', 'qcsNode.node')
+    qcsNodeUrl = path.resolve(process.resourcesPath, 'extraResources', 'qcsNode.node'),
+    storescu = path.resolve(process.resourcesPath, 'extraResources', 'storescu')
 if (process.env.NODE_ENV === 'development') {
     sqlDir = path.join(__dirname, '../../extraResources/medical.db')
     qcsNodeUrl = path.resolve(__dirname, '../../extraResources/qcsNode.node')
+    storescu = path.resolve(__dirname, '../../extraResources/storescu')
 }
 console.log('qcsNodeUrl', qcsNodeUrl)
+    // alert(__dirname)
 const qcsNode = require(`qcs`);
 // loadProject()
 export function getProjects(obj) {
@@ -669,16 +672,17 @@ export function getTestValue(obj) {
 const { execFile, exec } = require('child_process');
 /// 传输dicom文件
 export function transferDicom(obj) {
-    console.log('transferDicom', obj);
     var pathRT = obj.pathRT;
+    console.log(storescu, 11111111111111111)
     return new Promise((resolve, reject) => {
+        // alert(__dirname)
         //qcsNode.get_scu("-d","10.0.10.172","7007","..\\..\\..\\src\\extraResources\\images\\aaaa.dcm","-aec","ACME_STORE","-aet","QCS")
-        const info = ["-aec", "ACME_STORE", "-aet", "QCS", "-d", "10.0.10.172", "7007"];
+        const info = ["-aec", "otp_incoming", "-aet", "lu1", "-d", "192.9.101.214", "104"];
         //const child = exec('storescu.exe', args, {cwd: 'storescu'}, (error, stdout, stdin) => {
         var args = info.concat(pathRT);
-        console.log('%c [ args ]', 'font-size:13px; background:pink; color:#bf2c9f;', args)
-            //const child = exec('storescu.exe -d 10.0.10.172 7007 aaaa.dcm -aec ACME_STORE -aet QCS', {'cwd': 'src/renderer/api/storescu'}, 
-        const child = execFile('storescu.exe', args, { 'cwd': 'src/extraResources/storescu' },
+        //const child = exec('storescu.exe -d 10.0.10.172 7007 aaaa.dcm -aec ACME_STORE -aet QCS', {'cwd': 'src/renderer/api/storescu'}, 
+        const child = execFile('storescu.exe', args, { 'cwd': storescu },
+                // const child = execFile('storescu.exe', args, { 'cwd': 'storescu' },
 
                 (error, stdout, stdin) => {
                     if (error) {

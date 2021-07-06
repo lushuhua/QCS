@@ -9,7 +9,7 @@
                 {{te.val}}<span v-if="te.val!=null">{{
                     project.testUnit}}</span>
                 <!--<img :class="{'test-result-min': compare(te.val,project.threshold)}" src="../assets/images/arrow.png">-->
-                <img v-if="!compare(te.val,project.testUnit)&&te.val!==null" src="../assets/images/arrow.png">
+                <img v-if="!compare(te.val,project.threshold)&&te.val!==null" src="../assets/images/arrow.png">
             </div>
         </div>
     </div>
@@ -42,10 +42,12 @@
                     // if (val){
                     //     testVal = val.replace(/mm|%|°/,'')
                     // }
-                    testData = data.substr(1)
+                    testData = data.substr(1);
+                    console.log(data,val,'this is data')
                     testData = testData.replace(/mm|%|°/,'')
                     testVal=val?val:0;
-                    console.log('%c [ val,testVal,testData ]', 'font-size:13px; background:pink; color:#bf2c9f;', val,testVal,testData)
+                    console.log('%c [ val,testVal,testData ]', 'font-size:13px; background:pink; color:#bf2c9f;', val,testVal,testData);
+                    console.log((testVal - testData) <=0);
                     return (testVal - testData) <=0
                 }
             }

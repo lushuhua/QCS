@@ -144,7 +144,7 @@
                         <!-- <img v-if="!compare(v.val,project.threshold)" src="../assets/images/arrow.png" /> -->
                         <img
                           class="showArrow"
-                          v-if="!compareCal(v.value, project.testUnit)"
+                          v-if="!compareCal(v.value, project.threshold)"
                           src="../../assets/images/arrow.png"
                         />
                       </div>
@@ -260,7 +260,7 @@
                                 project.testResult &&
                                   !compareCal(
                                     getTestResultCalc(project, item),
-                                    project.testUnit
+                                    project.threshold
                                   )
                               "
                               src="../../assets/images/arrow.png"
@@ -842,6 +842,7 @@ export default {
         testData = testData.replace(/mm|%|°/, "");
         // testVal = val?(val.includes('%')?val.replace('%','')/100:val):0;
         testVal = val ? val : 0;
+        console.log("testData-testVal",testData-testVal);
         return testVal - testData <= 0;
       };
     },
@@ -2104,6 +2105,7 @@ export default {
     handleChangeSingle(val) {
       if (val.checked == true) {
         this.pathRT.push(val.pathRT);
+        
       } else if (val.checked == false) {
         this.pathRT.pop(val.pathRT);
       }

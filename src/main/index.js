@@ -138,6 +138,8 @@ function createWindow() {
     mainWindow.on('closed', () => {
         mainWindow = null
     })
+
+    // mainWindow.webContents.openDevTools()
 }
 
 app.on('ready', createWindow)

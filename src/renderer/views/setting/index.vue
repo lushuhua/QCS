@@ -407,9 +407,11 @@
                     <div slot="footer">
                         <div class="confirm-btn">
                             <el-button type="primary" class="" style="margin-right: 45px" @click="cancel()">取消</el-button>
-                            <el-button type="primary" class="active" @click="saveDicom()">保存</el-button>
+                            <el-button type="primary" class="active" @click="saveDicom()">发送</el-button>
                         </div>
                     </div>
+
+                    
                 </el-dialog>
             </div>
         </div>

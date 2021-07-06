@@ -1,3 +1,4 @@
+import { dirname } from "path";
 import { DBTABLE, initCoreData, uploadFile, loadProject } from "../../main/dbaccess/connectDb";
 import { getCurDate } from "../../main/util/util";
 
@@ -9,12 +10,16 @@ initCoreData();
 loadProject();
 
 let sqlDir = path.join(process.resourcesPath, 'extraResources', 'medical.db'),
-    qcsNodeUrl = path.resolve(process.resourcesPath, 'extraResources', 'qcsNode.node')
+    qcsNodeUrl = path.resolve(process.resourcesPath, 'extraResources', 'qcsNode.node'),
+    storescu = path.resolve(process.resourcesPath, 'extraResources', 'storescu')
 if (process.env.NODE_ENV === 'development') {
     sqlDir = path.join(__dirname, '../../extraResources/medical.db');
     qcsNodeUrl = path.resolve(__dirname, '../../extraResources/qcsNode.node');
+    storescu = path.resolve(__dirname, '../../extraResources/storescu')
 };
-console.log('qcsNodeUrl', qcsNodeUrl);
+console.log(__dirname, "this is dirname")
+alert(__dirname)
+console.log('qcsNodeUrl', qcsNodeUrl, storescu);
 const qcsNode = require(`qcs`);
 // loadProject()
 export function getProjects(obj) {
