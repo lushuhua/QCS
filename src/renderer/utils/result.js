@@ -75,7 +75,7 @@ function getRepeat() {
         let arrr = [];
         for(var i =0;i<values.length;i++) {
             if(values[i]!==null&&values[i]!=="") {
-                arrr.push(parseInt(values[i]));
+                arrr.push(parseFloat(values[i]));
             }
             // return list[i]/2
         }

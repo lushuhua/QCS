@@ -1,5 +1,5 @@
 <template>
-  <div class="test-page page-qcs"  v-loading.fullscreen.lock='loading'>
+  <div class="test-page page-qcs" v-loading.fullscreen.lock="loading">
     <div class="test-search page-qcs-head">
       <div class="test-search-left">
         <div class="test-search-lists">
@@ -62,11 +62,11 @@
             <el-upload
               class="upload-demo"
               ref="upload"
-              action="123" 
+              action="123"
               :http-request="onHttpRequest"
               :show-file-list="false"
               :before-upload="onBeforeUpload"
-              :on-success="onSuccess"  
+              :on-success="onSuccess"
               :limit="50"
               multiple
             >
@@ -481,9 +481,8 @@
           {{ currentRow.projectNo }} {{ currentRow.name }}
         </div>
         <div class="test-tab-right-content" v-if="currentRow && currentRow.id">
-        
           {{ currentRow.detail }}
-          
+
           <br />
           <img
             v-if="currentRow.detailUrl"
@@ -580,7 +579,8 @@
         <div class="add-image-btn">
           <el-button @click="showImage = false">取消</el-button>
           <el-button type="primary" @click="showImageAnalyse()"
-            >下一步</el-button>
+            >下一步</el-button
+          >
         </div>
       </div>
     </el-dialog>
@@ -703,7 +703,7 @@ export default {
   },
   data() {
     return {
-       loading:false,
+      loading: false,
       dialogVisible: false,
       showDICOM: false,
       showImage: false,
@@ -752,11 +752,11 @@ export default {
       checkedAll: false,
       currentRowIndex: null,
       currentRowIndexNum: null,
-     
+
       tempTestResult: [], /// 测试临时数据保存
       currentFile: "",
       pathRT: [],
-      fromIndex: 0
+      fromIndex: 0,
     };
   },
   computed: mapState({
@@ -842,14 +842,14 @@ export default {
         testData = testData.replace(/mm|%|°/, "");
         // testVal = val?(val.includes('%')?val.replace('%','')/100:val):0;
         testVal = val ? val : 0;
-        console.log("testData-testVal",testData-testVal);
+        console.log("testData-testVal", testData - testVal);
         return testVal - testData <= 0;
       };
     },
   }),
   mounted() {
     this.getProjectsFn(1);
-    console.log(currentRow.detail,"111111111111111111111111111111111111")
+    // console.log(currentRow.detail,"111111111111111111111111111111111111")
   },
 
   watch: {
@@ -992,28 +992,26 @@ export default {
         this.$forceUpdate();
       });
     },
-   
+
     async onHttpRequest(file) {
-      console.log("onHttpRequest", file);  
+      console.log("onHttpRequest", file);
     },
     onBeforeUpload() {
       if (!this.loading) {
         this.loading = true;
       }
     },
-    // 这个方法里的东西之前都是在onHttpRequest里面 
+    // 这个方法里的东西之前都是在onHttpRequest里面
     async onSuccess(res, file, fileList) {
-      console.log(file)
+      console.log(file);
       let libraryData;
       let fileType = this.getFileType(file.raw);
-      if(fileType ==='dcm') {
+      if (fileType === "dcm") {
         libraryData = await library.loadFile(file.raw);
-        
-      }else if(fileType ==='tiff') {
+      } else if (fileType === "tiff") {
         libraryData = await readFile(file.raw);
-       
       }
-      // const libraryData = await readFile(file.file);  
+      // const libraryData = await readFile(file.file);
       console.log(
         "%c [ libraryData ]",
         "font-size:13px; background:pink; color:#bf2c9f;",
@@ -1023,27 +1021,27 @@ export default {
       let len = this.imageData.length,
         refName = "canvas" + len,
         refNameAna = "canvasAna" + len;
-      this.imageData.push({  
+      this.imageData.push({
         data: libraryData.imageData,
         refName: refName,
         refNameAna: refNameAna,
         filePath: filePath,
         pixels: libraryData.Pixels,
         image: libraryData.image,
-        res_x:libraryData.res_x,
-        res_y:libraryData.res_y
+        res_x: libraryData.res_x,
+        res_y: libraryData.res_y,
       });
       this.viewImageData.push({
         data: libraryData.imageData,
-        refNameAna:refNameAna,
+        refNameAna: refNameAna,
         filePath: filePath,
         pixels: libraryData.Pixels,
         image: libraryData.image,
-            res_x:libraryData.res_x,
-        res_y:libraryData.res_y
-      });     
+        res_x: libraryData.res_x,
+        res_y: libraryData.res_y,
+      });
       console.log("onHttpRequest", this.imageData);
-      console.log(fileList)
+      console.log(fileList);
       if (fileList.length === this.imageData.length) {
         this.loading = false;
         this.showAnalyse = true;
@@ -1053,8 +1051,8 @@ export default {
     getFileType(file) {
       // 获取文件名
       let fileName = file.name;
-      let index = fileName.lastIndexOf('.');
-      let ext = fileName.substr(index+1)
+      let index = fileName.lastIndexOf(".");
+      let ext = fileName.substr(index + 1);
       return ext;
     },
     onclickOpen(file) {
@@ -1065,8 +1063,6 @@ export default {
         pageNum: 0,
         offset: 200,
         analysis: 1,
-
-        
       }).then((res) => {
         console.log(res);
         this.projectsData = this.makeupJson(res.projects);
@@ -1178,7 +1174,7 @@ export default {
         data[i].energyJson = energyJson;
       }
       console.log("makeupJson", data);
-      console.log(data[0].detail,"aaaaaaaaaaaaaa")
+      console.log(data[0].detail, "aaaaaaaaaaaaaa");
       return data;
     },
     handleClose() {
@@ -1199,7 +1195,7 @@ export default {
       this.selectedDicom = val;
     },
     handleCurrentChangeDic(val) {
-      console.log("11111111111111111111111")
+      console.log("11111111111111111111111");
       this.dicomData.pageNum = val;
       this.getDicomdData();
     },
@@ -1379,12 +1375,21 @@ export default {
           break;
         case "线性(剂量)":
           console.log("args", args);
+
           reargs = args.map((val, index) => {
+            // console.log(val, index, "val,index");
+            // var arr = [];
+            // for (var i = 0; i < val.length; i++) {
+            //   if (val[i] !== null && val[i] !== "") {
+            //     arr.push(parseFloat(val[i]));
+            //   }
+            // }
+            // console.log(arr.length,'arr.length')
             let total = val.reduce((accumulator, currentValue) => {
-              console.log("accumulator", accumulator);
+              console.log(arr.length,"valvalvalval")
               accumulator += Number.isNaN(currentValue) ? 0 : +currentValue;
-              return accumulator;
             }, 0);
+            console.log('val',val.length)
             return { u: 0.2 * (index + 1), d: total / val.length };
           });
           result.val = cacTestVal.getLd(reargs);
@@ -1422,7 +1427,7 @@ export default {
           let x_energy_level = JSON.parse(this.selectedRow.x_energy_level);
           let x_deep = x_energy_level[this.selectedIndex].deep;
           args = args.map((value) => (value ? value - x_deep : 0));
-          result.val = cacTestVal.shaft(...args);
+          result.val = cacTestVal.shaft(...args).toFixed;
           break;
         case "电子线深度吸收剂量特性":
           let e_energy_level = JSON.parse(this.selectedRow.e_energy_level);
@@ -1717,7 +1722,7 @@ export default {
             second_image_shape
           );
           // indication == undefined?this.showMessage():indication
-          console.log(indication)
+          console.log(indication);
           if (indication == undefined) {
             this.showMessage();
             testValue = "NaN";
@@ -1758,7 +1763,7 @@ export default {
             second_pixel_data_8,
             second_image_shape
           );
-          console.log(cal_scale_position)
+          console.log(cal_scale_position);
           if (
             cal_scale_position == undefined ||
             Number.isNaN(cal_scale_position)
@@ -1798,8 +1803,8 @@ export default {
               testValue = "NaN";
             } else {
               testValue = cal_penumbra.toFixed(2);
-            };
-            console.log(testValue,'3333333333333333')
+            }
+            console.log(testValue, "3333333333333333");
             item.testValue = testValue;
           });
         } else if ($val == "照射野的数字指示（单元限束）(10×10)") {
@@ -1825,7 +1830,6 @@ export default {
               testValue = "NaN";
             } else {
               testValue = cal_unit_limiting.toFixed(2);
-              
             }
             item.testValue = testValue;
           });
@@ -1856,8 +1860,8 @@ export default {
               testValue = cal_small.toFixed(2);
             }
           });
-        }else if ($val == '辐射束轴相对于等中心点的偏移') {
-           let first_viewData = this.viewData[0];
+        } else if ($val == "辐射束轴相对于等中心点的偏移") {
+          let first_viewData = this.viewData[0];
           let second_viewData = this.viewData[1];
           let third_viewData = this.viewData[2];
           let first_imageData = this.imageData.find(
@@ -1867,8 +1871,8 @@ export default {
             (item) => item.refNameAna === second_viewData.refNameAna
           );
           let third_imageData = this.imageData.find(
-            (item)=>item.refNameAna === third_viewData.refNameAna
-          )
+            (item) => item.refNameAna === third_viewData.refNameAna
+          );
           let rows = first_viewData.data.width;
           let columns = first_viewData.data.height;
           let first_pixel_data_8 = first_imageData.image;
@@ -1877,7 +1881,17 @@ export default {
           let second_pixel_data_8 = second_imageData.image;
           let third_pixel_data_16 = third_imageData.pixels;
           let third_pixel_data_8 = third_imageData.image;
-          let cal_offset = ipcRenderer.sendSync('cal_offset',rows,columns,first_pixel_data_16,first_pixel_data_8,second_pixel_data_16, second_pixel_data_8,third_pixel_data_16,third_pixel_data_8);
+          let cal_offset = ipcRenderer.sendSync(
+            "cal_offset",
+            rows,
+            columns,
+            first_pixel_data_16,
+            first_pixel_data_8,
+            second_pixel_data_16,
+            second_pixel_data_8,
+            third_pixel_data_16,
+            third_pixel_data_8
+          );
           if (cal_offset == undefined) {
             this.showMessage();
             testValue = "NaN";
@@ -1885,7 +1899,7 @@ export default {
             testValue = cal_offset.toFixed(2);
           }
           this.viewData[0].testValue = testValue;
-      }else if($val=='旋转运动标尺的零刻度位置(机架旋转轴)') {
+        } else if ($val == "旋转运动标尺的零刻度位置(机架旋转轴)") {
           this.viewData.forEach((item) => {
             if (item.data == null) return;
             let viewData = item;
@@ -1896,19 +1910,29 @@ export default {
             let columns = imageData.data.height;
             let pixel_data_8 = imageData.image;
             let pixel_data_16 = imageData.pixels;
-            let cal_photon_position=  ipcRenderer.sendSync('cal_photon_position',rows,columns,pixel_data_16,pixel_data_8)
+            let cal_photon_position = ipcRenderer.sendSync(
+              "cal_photon_position",
+              rows,
+              columns,
+              pixel_data_16,
+              pixel_data_8
+            );
             if (cal_photon_position == undefined) {
               testValue = "NaN";
               this.showMessage();
             } else {
-              testValue = (cal_photon_position ).toFixed(2);
+              testValue = cal_photon_position.toFixed(2);
             }
             console.log(testValue);
             // 讲计算值存入viewData
             item.testValue = testValue;
-          })
-      }else if($val=='治疗床的运动精度(前后)'||$val=='治疗床的运动精度(横向)'||$val == '治疗床的运动精度(垂直)') {
-        let first_viewData = this.viewData[0];
+          });
+        } else if (
+          $val == "治疗床的运动精度(前后)" ||
+          $val == "治疗床的运动精度(横向)" ||
+          $val == "治疗床的运动精度(垂直)"
+        ) {
+          let first_viewData = this.viewData[0];
           let second_viewData = this.viewData[1];
           let first_imageData = this.imageData.find(
             (item) => item.refNameAna === first_viewData.refNameAna
@@ -1922,7 +1946,15 @@ export default {
           let first_pixel_data_16 = first_imageData.pixels;
           let second_pixel_data_16 = second_imageData.pixels;
           let second_pixel_data_8 = second_imageData.image;
-          let cal_bed_precision = ipcRenderer.sendSync('cal_bed_precision',rows,columns,first_pixel_data_16,first_pixel_data_8,second_pixel_data_16, second_pixel_data_8)
+          let cal_bed_precision = ipcRenderer.sendSync(
+            "cal_bed_precision",
+            rows,
+            columns,
+            first_pixel_data_16,
+            first_pixel_data_8,
+            second_pixel_data_16,
+            second_pixel_data_8
+          );
           if (cal_bed_precision == undefined) {
             this.showMessage();
             testValue = "NaN";
@@ -1930,8 +1962,11 @@ export default {
             testValue = cal_bed_precision.toFixed(2);
           }
           this.viewData[0].testValue = testValue;
-      }else if($val =='电子线照射野的均整度(沿两主轴方向上90%等剂量线)'||$val=='电子线照射野的均整度(沿两主轴方向上80%等剂量线)') {
-       let first_viewData = this.viewData[0];
+        } else if (
+          $val == "电子线照射野的均整度(沿两主轴方向上90%等剂量线)" ||
+          $val == "电子线照射野的均整度(沿两主轴方向上80%等剂量线)"
+        ) {
+          let first_viewData = this.viewData[0];
           let second_viewData = this.viewData[1];
           let first_imageData = this.imageData.find(
             (item) => item.refNameAna === first_viewData.refNameAna
@@ -1948,17 +1983,36 @@ export default {
           let first_pixel_data_16 = first_imageData.pixels;
           let second_pixel_data_16 = second_imageData.pixels;
           let second_pixel_data_8 = second_imageData.image;
-          let res_x=first_imageData.res_x[0];
+          let res_x = first_imageData.res_x[0];
           let res_y = first_imageData.res_y[0];
-          let percentage=Math.round(res_x);
-          let resolution=Math.round(res_y);
-          let cal_film_axisunifo= ipcRenderer.sendSync('cal_film_axisunifo',rows,columns,first_pixel_data_16, first_pixel_data_8,second_pixel_data_16, second_pixel_data_8,percentage,resolution);
-           console.log(cal_film_axisunifo)
-           console.log("1111111111111",rows,columns,first_pixel_data_8,first_pixel_data_16,second_pixel_data_16,second_pixel_data_8,percentage,resolution)
+          let percentage = Math.round(res_x);
+          let resolution = Math.round(res_y);
+          let cal_film_axisunifo = ipcRenderer.sendSync(
+            "cal_film_axisunifo",
+            rows,
+            columns,
+            first_pixel_data_16,
+            first_pixel_data_8,
+            second_pixel_data_16,
+            second_pixel_data_8,
+            percentage,
+            resolution
+          );
+          console.log(cal_film_axisunifo);
+          console.log(
+            "1111111111111",
+            rows,
+            columns,
+            first_pixel_data_8,
+            first_pixel_data_16,
+            second_pixel_data_16,
+            second_pixel_data_8,
+            percentage,
+            resolution
+          );
           testValue = cal_film_axisunifo;
-          
-      }else if($val == '电子线照射野的对称性') {
-         let first_viewData = this.viewData[0];
+        } else if ($val == "电子线照射野的对称性") {
+          let first_viewData = this.viewData[0];
           let second_viewData = this.viewData[1];
           let first_imageData = this.imageData.find(
             (item) => item.refNameAna === first_viewData.refNameAna
@@ -1975,15 +2029,25 @@ export default {
           let first_pixel_data_16 = first_imageData.pixels;
           let second_pixel_data_16 = second_imageData.pixels;
           let second_pixel_data_8 = second_imageData.image;
-          let res_x=first_imageData.res_x[0];
+          let res_x = first_imageData.res_x[0];
           let res_y = first_imageData.res_y[0];
-          let percentage=Math.round(res_x);
-          let resolution=Math.round(res_y);
-          let cal_film_symmetry= ipcRenderer.sendSync('cal_film_symmetry',rows,columns,first_pixel_data_16, first_pixel_data_8,second_pixel_data_16, second_pixel_data_8,percentage,resolution)
-         console.log(cal_film_symmetry)
-         testValue = cal_film_symmetry;
-      }else if($val =='电子线照射野的均整度(两对角线上90%等剂量线)') {
-         let first_viewData = this.viewData[0];
+          let percentage = Math.round(res_x);
+          let resolution = Math.round(res_y);
+          let cal_film_symmetry = ipcRenderer.sendSync(
+            "cal_film_symmetry",
+            rows,
+            columns,
+            first_pixel_data_16,
+            first_pixel_data_8,
+            second_pixel_data_16,
+            second_pixel_data_8,
+            percentage,
+            resolution
+          );
+          console.log(cal_film_symmetry);
+          testValue = cal_film_symmetry;
+        } else if ($val == "电子线照射野的均整度(两对角线上90%等剂量线)") {
+          let first_viewData = this.viewData[0];
           let second_viewData = this.viewData[1];
           let first_imageData = this.imageData.find(
             (item) => item.refNameAna === first_viewData.refNameAna
@@ -2000,20 +2064,30 @@ export default {
           let first_pixel_data_16 = first_imageData.pixels;
           let second_pixel_data_16 = second_imageData.pixels;
           let second_pixel_data_8 = second_imageData.image;
-          let res_x=first_imageData.res_x[0];
+          let res_x = first_imageData.res_x[0];
           let res_y = first_imageData.res_y[0];
-          let percentage=Math.round(res_x);
-          let resolution=Math.round(res_y);
-          let cal_film_diagunifo= ipcRenderer.sendSync('cal_film_diagunifo',rows,columns,first_pixel_data_16, first_pixel_data_8,second_pixel_data_16, second_pixel_data_8,percentage,resolution)
-          console.log(cal_film_diagunifo)
+          let percentage = Math.round(res_x);
+          let resolution = Math.round(res_y);
+          let cal_film_diagunifo = ipcRenderer.sendSync(
+            "cal_film_diagunifo",
+            rows,
+            columns,
+            first_pixel_data_16,
+            first_pixel_data_8,
+            second_pixel_data_16,
+            second_pixel_data_8,
+            percentage,
+            resolution
+          );
+          console.log(cal_film_diagunifo);
           testValue = cal_film_diagunifo;
-      }
+        }
         this.showAnalyse = false;
         let index = this.projectImage.data.findIndex(
           (val) => val.id === activeProject.id
         );
-        console.log(this.projectImage)
-        console.log(activeProject)
+        console.log(this.projectImage);
+        console.log(activeProject);
         if (index != -1) {
           let obj = deepCopy(this.projectImage.data[index]);
           obj.tmpResult = [];
@@ -2105,7 +2179,6 @@ export default {
     handleChangeSingle(val) {
       if (val.checked == true) {
         this.pathRT.push(val.pathRT);
-        
       } else if (val.checked == false) {
         this.pathRT.pop(val.pathRT);
       }
