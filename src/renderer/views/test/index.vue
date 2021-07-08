@@ -1375,33 +1375,30 @@ export default {
           break;
         case "线性(剂量)":
           console.log("args", args);
-
           reargs = args.map((val, index) => {
-            // console.log(val, index, "val,index");
-            // var arr = [];
-            // for (var i = 0; i < val.length; i++) {
-            //   if (val[i] !== null && val[i] !== "") {
-            //     arr.push(parseFloat(val[i]));
-            //   }
-            // }
-            // console.log(arr.length,'arr.length')
-            let total = val.reduce((accumulator, currentValue) => {
-              console.log(arr.length,"valvalvalval")
-              accumulator += Number.isNaN(currentValue) ? 0 : +currentValue;
-            }, 0);
-            console.log('val',val.length)
-            return { u: 0.2 * (index + 1), d: total / val.length };
+            let valList = val.filter(v=>v!=null);
+            if(valList.length >0) {
+              let sum = 0;
+              valList.map(v=>sum+=parseFloat(v));
+               return { u: 0.2 * (index + 1), d: sum / valList.length };
+            }
+          
+           
           });
+          reargs = reargs.filter(item=>item!=null);
           result.val = cacTestVal.getLd(reargs);
           break;
         case "线性(剂量率)":
           reargs = args.map((val, index) => {
-            let total = val.reduce((accumulator, currentValue) => {
-              accumulator += Number.isNaN(currentValue) ? 0 : +currentValue;
-              return accumulator;
-            }, 0);
-            return { u: 1.5 * (index + 1), d: total / val.length };
+           let valList = val.filter(v=>v!=null);
+           if(valList.length>0) {
+             let sum = 0;
+             valList.map(v=>sum+=parseFloat(v));
+               return { u: 1.5 * (index + 1), d: sum / valList.length };
+           }
+          
           });
+           reargs = reargs.filter(item=>item!=null);
           result.val = cacTestVal.getLdr(reargs);
           break;
         case "随设备角度位置的变化（剂量）":
