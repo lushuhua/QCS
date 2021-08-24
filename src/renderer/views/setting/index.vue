@@ -7,7 +7,7 @@
                     <div class="setting-type-item left" :class="{active:typeName=='project'}" @click="changeType('project',1)">项目配置</div>
                     <div class="setting-type-item right" :class="{active:typeName=='DICOM'}" @click="changeType('DICOM',2)">DICOM输出配置</div>
                 </div>
-                <div class="setting-upload" v-if="showTypeIndex==0">
+                <div class="setting-upload" v-show="showTypeIndex==0">
                     <el-button type="primary" class="active" @click="addAccelerate()">添加</el-button>
                     <el-button type="primary" class="active" @click="addAccelerate(currentDeviceInfo)">编辑</el-button>
                     <el-button type="primary" class="active" @click="onDelDevice()">删除</el-button>
@@ -15,8 +15,10 @@
                 <div class="setting-upload" v-if="showTypeIndex==2">
                     <el-button type="primary" class="active" @click="addDICOM()">添加</el-button>
                 </div>
+          
                 <div class="setting-tab-content">
-                    <div v-if="showTypeIndex==0">
+                    
+                    <div v-show="showTypeIndex==0">
                         <el-table :data="devicesData" border :row-style="getStyle" :span-method="objectSpanMethod">
                             <el-table-column prop="name"></el-table-column>
                             <el-table-column label="能量档" prop="power" width="220">
@@ -76,44 +78,8 @@
                             <!--</tr>-->
                         <!--</table>-->
                     </div>
-                    <!--<table class="table" border="0" cellspacing="0" v-if="showTypeIndex==0">-->
-                        <!--<thead class="tab-header">-->
-                        <!--<tr>-->
-                            <!--<th>加速器型号</th>-->
-                            <!--<th>加速器序号</th>-->
-                            <!--<th>x射线能量档</th>-->
-                            <!--<th>电子射线能量档</th>-->
-                            <!--<th>x射线百分深度计量</th>-->
-                            <!--<th>电子射线百分深度计量</th>-->
-                            <!--<th>电子线线光筒</th>-->
-                            <!--<th>多叶光栅对数</th>-->
-                            <!--<th>操作</th>-->
-                        <!--</tr>-->
-                        <!--</thead>-->
-                        <!--<tbody class="tab-lists">-->
-                        <!--<tr v-for="(device,index) in devices" :key="index">-->
-                            <!--<td>{{device.model}}</td>-->
-                            <!--<td>{{device.sequence}}</td>-->
-                            <!--<td>-->
-                                <!--<div v-for="(v,index) in device.powerX" :key="index">{{v.x}}{{v.checked?' FFF模式':''}}</div>-->
-                            <!--</td>-->
-                            <!--<td>-->
-                                <!--<div v-for="(v,index) in device.powerE" :key="index">{{v.x}}</div>-->
-                            <!--</td>-->
-                            <!--<td>{{device.x_volume_percent}}</td>-->
-                            <!--<td>{{device.e_volume_percent}}</td>-->
-                            <!--<td>{{device.e_light_size}}</td>-->
-                            <!--<td>{{device.multileaf_collimator_size}}</td>-->
-                            <!--<td class="">-->
-                                <!--<div class="handle">-->
-                                    <!--<div class="handle-item" @click="addAccelerate(device)">修改</div>-->
-                                    <!--<div class="handle-item" @click="showDelete(device)">删除</div>-->
-                                <!--</div>-->
-                            <!--</td>-->
-                        <!--</tr>-->
-                        <!--</tbody>-->
-                    <!--</table>-->
-                    <table class="table" border="0" style="margin-top: 20px" cellspacing="0" v-if="showTypeIndex==1">
+                
+                    <table class="table" border="0" style="margin-top: 20px" cellspacing="0" v-show="showTypeIndex==1">
                         <thead class="tab-header">
                         <tr>
                             <th>项目号</th>
@@ -144,7 +110,8 @@
                         </tr>
                         </tbody>
                     </table>
-                    <table class="table" border="0" cellspacing="0" v-if="showTypeIndex==2">
+                    
+                    <table class="table" border="0" cellspacing="0" v-show="showTypeIndex==2">
                         <thead class="tab-header">
                         <tr>
                             <th>序号</th>
@@ -172,6 +139,7 @@
 
                         </tbody>
                     </table>
+                 
                     <!--<div class="pagination clearfix" v-show="showTypeIndex==0">-->
                         <!--<el-pagination-->
                                 <!--:background="true"-->
@@ -407,7 +375,7 @@
                     <div slot="footer">
                         <div class="confirm-btn">
                             <el-button type="primary" class="" style="margin-right: 45px" @click="cancel()">取消</el-button>
-                            <el-button type="primary" class="active" @click="saveDicom()">发送</el-button>
+                            <el-button type="primary" class="active" @click="saveDicom()">保存</el-button>
                         </div>
                     </div>
 
@@ -702,7 +670,8 @@
                 }
                 console.log('onblur',obj)
                 addDevice(obj).then(res =>{
-                    this.getDevicesData(1,1)
+                    this.getDevicesData(1,0
+                    )
                 })
             },
 

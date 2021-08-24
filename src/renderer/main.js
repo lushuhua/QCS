@@ -8,6 +8,9 @@ import App from './App'
 import router from './router'
 import store from './store'
 import filters from './filters'
+import Print from 'vue-print-nb'
+
+Vue.use(Print)
 // const { cv } = require('opencv-wasm')
 
 // const { cv,cvTranslateError } = import('opencv-wasm');

@@ -9,10 +9,15 @@
                         :value="item.id">
                 </el-option>
             </el-select>
+            
         </div>
+        <div style="display:block;margin-right:30%;font-size: 22px;">xxxxxxxxxxxx医院</div>
         <div>
-            <el-button class="no-drag header-view-btn" @click="addHospital()">设置医院信息</el-button>
-            <span style="margin: 0 30px;font-size: 17px;position: relative;top: -1px;">{{getDateTime}}</span>
+            <!-- <el-button class="no-drag header-view-btn" @click="addHospital()">设置医院信息</el-button> -->
+              
+
+            <span style="margin: 0 30px;font-size: 17px;position: relative;top: -1px;
+            ">{{getDateTime}}</span>
             <el-button @click="maximize" class="no-drag hover-color" size="medium" type="text">
                 <i class="btn  btn-sys" :class="{'el-icon-full-screen':!isFullScreen,'el-icon-copy-document':isFullScreen}"></i>
             </el-button>
@@ -209,6 +214,7 @@
 
 <style lang="scss" scoped>
     .header-view {
+        width: 100%;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -307,6 +313,9 @@
             border-radius: 4px;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
+    }
+    .hospitalName {
+        margin-right: 100px;
     }
 
 </style>

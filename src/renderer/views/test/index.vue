@@ -556,7 +556,7 @@
       <div slot="footer">
         <div class="add-image-btn">
           <el-button @click="showDICOM = false">取消</el-button>
-          <el-button type="primary" @click="onclickSave()">保存</el-button>
+          <el-button type="primary" @click="onclickSave()">发送</el-button>
         </div>
       </div>
     </el-dialog>
@@ -644,6 +644,11 @@
                 v-for="(v, index) in viewImageData"
                 :key="index"
               >
+              
+              <div :style="{onMouseOver : v.name}">
+                <div style='display:block;height: 20px;line-height:30px;overflow:hidden; ' >{{v.name}} 
+              </div>
+              </div>
                 <div
                   class="image-canvas-item"
                   draggable="true"
@@ -655,8 +660,13 @@
                     :ref="v.refNameAna"
                     v-if="v.refNameAna"
                     :name="getDataAna(index, v)"
+                   
                   ></canvas>
+               
                 </div>
+                  <!-- <div style='display:block;height: 20px;line-height:30px;overflow:hidden; ' >{{v.name}} 
+              </div> -->
+              <!-- <div>{{v.name}} </div> -->
               </div>
             </div>
           </div>
@@ -876,12 +886,21 @@ export default {
           return a.num - b.num;
         });
       });
+      console.log(powerList,'this is powerList');
+      console.log(powerList.length,'this is powerList');
       if (
         project.extraRequire ==
         "两个能量，最大和最小，每个能量两张图，10*10和20*20"
       ) {
+        if(powerList.length==1) {
         energy.push(powerList[0].value);
-        energy.push(powerList[powerList.length - 1].value);
+        }else if(powerList.length>1){
+           energy.push(powerList[0].value);
+ energy.push(powerList[powerList.length - 1].value);
+        }
+        
+       
+        console.log(energy,'this is energy')
       } else if (project.extraRequire == "单个能量，两张图10*10") {
         energy.push(powerList[0].value);
       } else if (
@@ -925,6 +944,7 @@ export default {
           refNameAna: val.refNameAna,
           testValue: val.testValue,
           filePath: val.filePath,
+          name: val.name
         });
       });
     },
@@ -1003,9 +1023,10 @@ export default {
     },
     // 这个方法里的东西之前都是在onHttpRequest里面
     async onSuccess(res, file, fileList) {
-      console.log(file);
+      console.log(file,"this is file");
       let libraryData;
       let fileType = this.getFileType(file.raw);
+     
       if (fileType === "dcm") {
         libraryData = await library.loadFile(file.raw);
       } else if (fileType === "tiff") {
@@ -1018,6 +1039,7 @@ export default {
         libraryData
       ); //dicom的信息
       let filePath = file.raw.path;
+       let name = file.name
       let len = this.imageData.length,
         refName = "canvas" + len,
         refNameAna = "canvasAna" + len;
@@ -1030,6 +1052,7 @@ export default {
         image: libraryData.image,
         res_x: libraryData.res_x,
         res_y: libraryData.res_y,
+      name:name
       });
       this.viewImageData.push({
         data: libraryData.imageData,
@@ -1039,9 +1062,11 @@ export default {
         image: libraryData.image,
         res_x: libraryData.res_x,
         res_y: libraryData.res_y,
+       name:name
       });
       console.log("onHttpRequest", this.imageData);
-      console.log(fileList);
+      console.log(fileList,'this is fileList');
+      
       if (fileList.length === this.imageData.length) {
         this.loading = false;
         this.showAnalyse = true;
@@ -1424,7 +1449,7 @@ export default {
           let x_energy_level = JSON.parse(this.selectedRow.x_energy_level);
           let x_deep = x_energy_level[this.selectedIndex].deep;
           args = args.map((value) => (value ? value - x_deep : 0));
-          result.val = cacTestVal.shaft(...args).toFixed;
+          result.val = cacTestVal.shaft(...args);
           break;
         case "电子线深度吸收剂量特性":
           let e_energy_level = JSON.parse(this.selectedRow.e_energy_level);
@@ -1569,7 +1594,8 @@ export default {
         let activeProject = this.projectsData[this.activeProjectIndex];
         const apiUrl = activeProject.nameAPI;
         console.log(apiUrl);
-        let filePath = this.currentFile.file.path;
+        // let filePath = this.currentFile.file.path;
+        // console.log("this.currentFile.file1111",this.currentFile)
         let testValue;
         let $val =
           activeProject.name +
@@ -1681,6 +1707,7 @@ export default {
             testValue = "NaN";
           } else {
             testValue = muliiple_limiting.toFixed(2);
+         
           }
           this.viewData[0].testValue = testValue;
         } else if ($val == "辐射束轴在患者入射表面上的位置指示(20cm×20cm)") {
@@ -1855,7 +1882,9 @@ export default {
               testValue = "NaN";
             } else {
               testValue = cal_small.toFixed(2);
+              console.log(testValue,"testValue")
             }
+            item.testValue = testValue;
           });
         } else if ($val == "辐射束轴相对于等中心点的偏移") {
           let first_viewData = this.viewData[0];
@@ -1963,6 +1992,7 @@ export default {
           $val == "电子线照射野的均整度(沿两主轴方向上90%等剂量线)" ||
           $val == "电子线照射野的均整度(沿两主轴方向上80%等剂量线)"
         ) {
+          console.log(1111111111111111111)
           let first_viewData = this.viewData[0];
           let second_viewData = this.viewData[1];
           let first_imageData = this.imageData.find(
@@ -1995,20 +2025,9 @@ export default {
             percentage,
             resolution
           );
-          console.log(cal_film_axisunifo);
-          console.log(
-            "1111111111111",
-            rows,
-            columns,
-            first_pixel_data_8,
-            first_pixel_data_16,
-            second_pixel_data_16,
-            second_pixel_data_8,
-            percentage,
-            resolution
-          );
           testValue = cal_film_axisunifo;
         } else if ($val == "电子线照射野的对称性") {
+          console.log(this.viewData,'sssssssssssssssss')
           let first_viewData = this.viewData[0];
           let second_viewData = this.viewData[1];
           let first_imageData = this.imageData.find(
@@ -2017,6 +2036,7 @@ export default {
           let second_imageData = this.imageData.find(
             (item) => item.refNameAna === second_viewData.refNameAna
           );
+          console.log(first_imageData,"first_imageData")
           if (first_imageData == undefined || second_imageData == undefined) {
             this.showInfo();
           }
@@ -2026,7 +2046,9 @@ export default {
           let first_pixel_data_16 = first_imageData.pixels;
           let second_pixel_data_16 = second_imageData.pixels;
           let second_pixel_data_8 = second_imageData.image;
+           console.log(first_imageData)
           let res_x = first_imageData.res_x[0];
+         
           let res_y = first_imageData.res_y[0];
           let percentage = Math.round(res_x);
           let resolution = Math.round(res_y);
@@ -2041,7 +2063,7 @@ export default {
             percentage,
             resolution
           );
-          console.log(cal_film_symmetry);
+          console.log(cal_film_symmetry,'this is cal_film_symmetry');
           testValue = cal_film_symmetry;
         } else if ($val == "电子线照射野的均整度(两对角线上90%等剂量线)") {
           let first_viewData = this.viewData[0];
@@ -2569,7 +2591,7 @@ export default {
         height: 0;
         margin: auto;
         &:not(:last-child) {
-          margin-bottom: 10px;
+          margin-bottom: 25px;
         }
         &-view {
           &:not(:last-child) {

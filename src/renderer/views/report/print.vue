@@ -1,6 +1,7 @@
 <template>
   <div>
-    <div id="print-wrapper" style="margin: 20px 30px; padding: 20px">
+    <div id="print-wrapper" style="margin: 20px 30px; padding: 20px;">
+      <div>
       <div
         v-show="hospitalInfo"
         style="
@@ -18,9 +19,23 @@
             align-items: flex-end;
           "
         >
-          <img key=""
+          <!-- <img key=""
           v-if="currentPage == 1"
             :src="hospitalInfo.avatar"
+            width="50"
+            height="50"
+            style="
+              border-radius: 50%;
+              margin: 0 auto;
+              vertical-align: middle;
+              width: 50px;
+              height: 50px;
+            "
+            alt=""
+          /> -->
+          <img key=""
+          v-if="currentPage == 1"
+            src="/src/extraResources/ images/hospital.png"
             width="50"
             height="50"
             style="
@@ -61,13 +76,17 @@
       <div style="float: left; font-size: 10px" v-if="currentPage == 1">
         依据：WS674-2020《医用电子直线加速器质量控制检测规范》
       </div>
+      </div>
+    
       <div
+      id = 'content'
         class="report-tab"
         style="
           font-size: 30px;
           margin-top: 20px;
           height: 60vh;
           overflow-y: auto;
+       
         "
       >
         <table class="report-tab-content" border="0" cellspacing="0">
@@ -127,7 +146,7 @@
             </tr>
           </tbody>
         </table>
-        <div class="footer">
+        <div id = 'pageFooter' class="footer">
           <!-- <div style="color: #9b9b9b; font-size: 12px">
             打印时间：{{ nowTme }}
           </div> -->
@@ -172,6 +191,7 @@
               flex-derection: row;
               justify-content: space-between;
             "
+            class="print-footer"
           >
             <div>医用电子直线加速器质量控制报告</div>
             <div>第{{ currentPage }}页/共{{total}}页</div>
@@ -183,6 +203,7 @@
       <el-button type="primary" class="active" @click="print"
         >打印报表</el-button
       >
+      <!-- <el-button type="primary" class="active" v-print="'#print-wrapper'">打印报表</el-button> -->
     </div>
   </div>
 </template>
@@ -195,32 +216,32 @@ export default {
   name: "print",
   data() {
     return {
-      nowTme: parseTime(Date.now()),
+      nowTme: parseTime(Date.now())
     };
   },
   props: {
     hospitalInfo: {
       type: Object,
-      default: {},
+      default: {}
     },
     projects: {
       type: Array,
-      default: [],
+      default: []
     },
     currentPage: {
       type: Number,
-      default: 0,
+      default: 0
     },
     total: {
       type: Number,
-      default: 0,
-    },
+      default: 0
+    }
   },
   computed: {
     projectData() {
-      return function (value) {
+      return function(value) {
         let data = [];
-        value.forEach((val) => {
+        value.forEach(val => {
           val.rowspan = 1;
           if (val.testResult && Array.isArray(val.testResult)) {
             val.rowspan = val.testResult.length;
@@ -245,7 +266,7 @@ export default {
     },
     sequence() {
       return this.$store.state.user.currentDeviceInfo.sequence;
-    },
+    }
   },
   methods: {
     print() {
@@ -254,9 +275,69 @@ export default {
         style = this.getStyle();
       console.log(html.indexOf("height: 60vh"));
       html = html.replace("height: 60vh", "");
-      // console.log(html)
+      html = html.replace("overflow-y: auto", "");
+      console.log(html)
       this.writeIframe(style + html);
     },
+    // getElementTop(el) {
+    //   let targetEl = "print-wrapper";
+    //   let elTop = el.offsetTop;
+    //   el = el.offsetParent;
+    //   while (el.id !== targetEl) {
+    //     elTop += el.offsetTop;
+    //     el = el.offsetParent;
+    //   }
+    //   return elTop;
+    // },
+    // insetFooter() {
+    //   let el = document.getElementById("print-wrapper");
+    //   let trs = el.getElementsByTagName('tr');
+    //   let relativePosition = 0;
+    //   let insertList = [];
+    //   Array.prototype.forEach.call(trs, item => {
+    //     let topHeight = this.getElementTop(item) - relativePosition;
+    //     let height = item.offsetHeight;
+    //     if (topHeight + height > 900) {
+    //       insertList.push(item)
+    //       relativePosition = this.getElementTop(item);
+    //     }
+    //   })
+    //   insertList.forEach((item, index) => {
+    //     let tmpTr = document.createElement('tr');
+    //     let pageTr = document.createElement('tr');
+    //     pageTr.style.pageBreakAfter = 'always';
+    //     tmpTr.innerHTML = `
+    //       <td colspan="6" style="border-top:1px solid #d2d2d2;position:relative;left:1px;background:#fff;">
+    //         <div style="font-size:14px;color:#ccc;display:flex;justify-content: space-between;margin-top:10px;">
+    //           <div>医用电子直线加速器质量控制报告</div>
+    //           <div>第${index + 1}页/共${insertList.length + 1}页</div>
+    //         </div>
+    //       </td>
+    //     `
+    //     item.parentNode.insertBefore(tmpTr, item);  
+    //     item.parentNode.insertBefore(pageTr, item);
+    //   })
+    //   var tmpTr = document.createElement("div");
+    //   let footer = el.getElementsByClassName('footer')[0];
+    //   let top = this.getElementTop(footer);
+    //   let marginTop = 1000 * (insertList.length + 1) - top - footer.offsetHeight - 18;
+    //   tmpTr.innerHTML = `
+    //       <div style="
+    //         font-size: 14px;
+    //         color: #ccc;
+
+    //         display: flex;
+    //         flex-derection: row;
+    //         justify-content: space-between;
+    //         margin-top: ${marginTop}px;
+
+    //       ">
+    //         <div>医用电子直线加速器质量控制报告</div>
+    //         <div>第${insertList.length + 1}页/共${insertList.length + 1}页</div>
+    //       </div>
+    //   `;
+    //   el.getElementsByClassName('report-tab')[0].appendChild(tmpTr);
+    // },
     getStyle() {
       var str = "",
         styles = document.querySelectorAll("style,link");
@@ -282,18 +363,21 @@ export default {
       doc.open();
       doc.write(content);
       doc.close();
-      w.onload = function () {
+      w.onload = function() {
         console.log("printframe onload");
         w.print();
-        setTimeout(function () {
+        setTimeout(function() {
           document.body.removeChild(iframe);
         }, 100);
       };
-    },
+    }
   },
   created() {
     console.log("aaaaa", this.$store.state.user.devices);
   },
+  // mounted() {
+  //   this.insetFooter();
+  // }
 };
 </script>
 
@@ -321,6 +405,7 @@ export default {
   }
   background: #ffffff;
   color: #333;
+  position: relative;
   table {
     border-right: 1px solid #d2d2d2;
     border-bottom: 1px solid #d2d2d2;
@@ -423,6 +508,32 @@ export default {
 @media print {
   #print-wrapper {
     -webkit-print-color-adjust: exact;
+    padding-bottom: 20px;
+    box-sizing: border-box;
+
+    .report-tab {
+    height: 100%!important;
+    overflow-y: visible!important;
+}
   }
 }
+// #content {
+//     display: table;
+// }
+
+// #pageFooter {
+//     display: table-footer-group;
+// }
+
+// #pageFooter:after {
+//     counter-increment: page;
+//     content:"Page " counter(page);
+//     left: 0; 
+//     top: 100%;
+//     white-space: nowrap; 
+//     z-index: 20;
+//     -moz-border-radius: 5px; 
+//     -moz-box-shadow: 0px 0px 4px #222;  
+//     background-image: -moz-linear-gradient(top, #eeeeee, #cccccc);  
+//   }
 </style>

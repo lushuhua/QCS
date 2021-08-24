@@ -99,8 +99,9 @@
                 width="600px"
                 center
                 ref="print"
+                
         >
-            <Print :hospital-info="hospitalInfo" :projects="projects" :currentPage="currentPage" :total="Math.ceil(count/offset)"></Print>
+            <Print v-if="dialogVisible" :hospital-info="hospitalInfo" :projects="projects" :currentPage="currentPage" :total="Math.ceil(count/offset)"></Print>
         </el-dialog>
     </div>
 </template>
@@ -367,6 +368,8 @@
         /deep/ .el-dialog{
             margin-top: 0vh!important;
             margin: 0;
+            height: 80%;
+            overflow: auto;
             .el-dialog__header{
                 background: #3C3C3C;
                 padding:8px 0;
@@ -383,7 +386,9 @@
                 background-color: #2C2C2C;
                 color: rgba(255,255,255,0.8);
                 padding: 0 2%;
-            }
+                height: calc(100%- 60px);
+                
+                            }
             .el-dialog__footer{
                 background-color: #2C2C2C;
                 color: rgba(255,255,255,0.8);
