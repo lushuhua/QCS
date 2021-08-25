@@ -1,7 +1,7 @@
 <template>
     <div class="aside-menu scroll-page">
         <div style="text-align: center;margin: 50px 0;">
-            <!-- <img src="../../assets/images/logo.png" width="120" height="50" alt=""> -->
+            <img src="../../assets/images/logo.png" width="88" height="88" alt="">
         </div>
         <div class="menu-lists no-drag">
             <div class="menu-list-content">
