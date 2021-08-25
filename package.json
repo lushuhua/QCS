@@ -21,7 +21,14 @@
     "make": "electron-forge make"
   },
   "build": {
-    "productName": "MedicalApp",
+    "nsis":{
+      "oneClick": false,
+      "allowToChangeInstallationDirectory":true,
+      "createDesktopShortcut":true,
+      "runAfterFinish":true,
+      "include":"./build/installer.nsh"
+    },
+    "productName": "QCS",
     "appId": "cn.jz.medicalApp",
     "directories": {
       "output": "build"
@@ -54,10 +61,10 @@
       ]
     },
     "mac": {
-      "icon": "build/icons/icon.icns"
+      "icon": "src/renderer/assets/images/shortcut.icns"
     },
     "win": {
-      "icon": "build/icons/icon.ico"
+      "icon": "src/shortcut.ico"
     },
     "linux": {
       "icon": "build/icons"
